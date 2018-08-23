@@ -1,0 +1,48 @@
+general:
+    __helpstr: General INPUT directories and filenames
+    workdir: /Users/maccagni/Projects/FornaX/ATCA/ 
+    contname: cont/cont_im.fits 
+    cubename: cube/mfs_atca.fits 
+
+source_catalog: 
+    __helpstr: Find sources in a f.o.v. from source_catalog 
+    enable: true 
+    catalog: NVSS    
+    width: 5.2d 
+    thresh: 30 
+    centre_coord: ['03:40:0.989', '-35:28:34.53']
+
+simulate_continuum:
+    __helpstr: Simulate continuum from source catalog
+    enable: true 
+    
+source_finder: 
+    __helpstr: Find sources in continuum image using miriad imsad 
+    enable: false
+    region: null 
+    clip: 5e-3 
+    options: null
+ 
+spec_ex: 
+    __helpstr: Extract spectra from datacube 
+    enable: true 
+    chrom_aberration: true 
+    zunit: hz 
+    flag_chans: null
+
+polynomial_subtraction: 
+    __helpstr: Subtract polynomial from spectrum
+    enable: yes
+    degree_pol: 6
+
+hanning:
+    __helpstr: Hanning smoothing spectrum
+    enable: true 
+    window: 3 
+
+abs_plot: 
+    __helpstr: plot spectra
+    enable: true 
+    title: null 
+    redshift_sources: [800 2200] 
+ 
