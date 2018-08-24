@@ -188,7 +188,7 @@ def coord_to_pix(imagename,ra,dec,verbose=False):
 					print '# Source # '+str([i])+ ' lies outside the fov of the data cube #'
 
 	print '# Total number of sources: \t'+str(len(ra))
-	print '# Sources above threshold: \t'+str(count_flag)
+	print '# Sources below threshold: \t'+str(count_flag)
 	print '# Sources outside f.o.v.:\t'+str(count_out)
 	print '# Sources to analyze: \t\t'+str(len(ra)-count_flag-count_out)+'\n'
 

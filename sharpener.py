@@ -1,7 +1,3 @@
-#__author__ = "Filippo Maccagni"
-#__copyright__ = "Fil8"
-#__email__ = "filippo.maccagni@gmail.com"
-
 import sys, string, os
 import numpy as np
 import yaml
@@ -17,10 +13,16 @@ import cont_src as cont_src
 import convert_units as conv_units
 import spec_ex as spec_ex
 import abs_plot as abs_plot
+from hi import *
 
 
-C=2.99792458e5 #km/s
-HI=1.420405751e9 #Hz
+__author__ = "Filippo Maccagni"
+__copyright__ = "RadioLife"
+__version__ = "1.0.0"
+__email__ = "filippo.maccagni@gmail.com"
+__status__ = "Development"
+
+
 
 ####################################################################################################
 
@@ -30,6 +32,10 @@ class sharpener:
 	Class for spectral studies (find continuum sources, extract spectra, analyze spectra)
 	
 	'''
+
+	C=2.99792458e5 #km/s
+	HI=1.420405751e9 #Hz
+
 	def __init__(self, file=None):
 		'''
 	

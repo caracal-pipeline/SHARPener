@@ -11,7 +11,9 @@ import convert_units as conv_units
 import cont_src as cont_src
 import cubez as cubef
 from kk import *
-import radiobs
+import hi 
+
+#import radiobs
 #from radiobs import conv_units, cubeful, hi
 from astropy import wcs
 from astropy.io import fits, ascii
@@ -24,8 +26,7 @@ from matplotlib import gridspec
 from matplotlib import pyplot as plt
 from matplotlib import rc
 
-
-hi = radiobs.hi()
+hi = hi.hi()
 
 C=2.99792458e5 #km/s
 HI=1.420405751e9 #Hz
@@ -34,7 +35,8 @@ HI=1.420405751e9 #Hz
 
 def abs_ex(cfg_par):
 
-		verbose = False
+		verb = cfg_par['general']['verbose']
+
 		cubename = cfg_par['general'].get('cubename',None)
 		cubefile = fits.open(cubename)  # read input
 		hdr = cubefile[0].header
@@ -196,7 +198,7 @@ def abs_ex(cfg_par):
 					names=(xcol,'Flux [Jy]','Noise [Jy]', 'Optical depth','Noise optical depth', 'Mean noise [Jy]'),
 					meta={'name': 'Spectrum'})
 				ascii.write(t,out_spec,overwrite=True)
-				if verbose==True:
+				if verb==True:
 					print '# Extracted spectrum: \t' +str(src_id[i])+' '+J2000_name[i]+' #'
 
 				polysub = cfg_par['polynomial_subtraction'].get('enable', False) 

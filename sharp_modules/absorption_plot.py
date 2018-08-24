@@ -45,7 +45,7 @@ def abs_plot(spec_name,cfg_par):
 			J2000_xaxis-unit_yaxis-unit.plot_format = J220919.87+180920.17_vel_flux.pdf
 
 		'''
-
+		verb = cfg_par['general']['verbose']
 		key = 'abs_plot'
 
 		os.chdir(cfg_par['general']['specdir'])
@@ -84,10 +84,10 @@ def abs_plot(spec_name,cfg_par):
 
 			x_data = np.array(spec_vec[spec_vec.colnames[0]],dtype=float)
 
-			flag_chans = cfg_par['abs_ex'].get('flag_chans', None)
-			flag_chans1 = cfg_par['abs_ex'].get('flag_chans', None)
+			flag_chans = cfg_par['spec_ex'].get('flag_chans', None)
+			flag_chans1 = cfg_par['spec_ex'].get('flag_chans', None)
 
-			if cfg_par['abs_ex'].get('zunit') == 'm/s':
+			if cfg_par['spec_ex'].get('zunit') == 'm/s':
 				x_data /= 1e3
 				ax1.set_xlabel(r'$cz\,(\mathrm{km}\,\mathrm{s}^{-1})$', fontsize=font_size)
 
@@ -95,7 +95,7 @@ def abs_plot(spec_name,cfg_par):
 			y_data = np.array(spec_vec[spec_vec.colnames[1]],dtype=float)*1e3
 			y_sigma = np.array(spec_vec[spec_vec.colnames[2]])
 
-			if cfg_par['abs_ex'].get('zunit') == 'MHz':
+			if cfg_par['spec_ex'].get('zunit') == 'MHz':
 				x_data /= 1e6
 				ax1.set_xlabel(r'Frequency [MHz]', fontsize=font_size)
 			
@@ -110,7 +110,7 @@ def abs_plot(spec_name,cfg_par):
 
 			if flag_chans != None:
 				flag_chans = np.array(flag_chans) 
-				if 	cfg_par['abs_ex'].get('zunit') == 'm/s':
+				if 	cfg_par['spec_ex'].get('zunit') == 'm/s':
 					flag_chans = np.divide(flag_chans,1e3)
 				index_flags_l = (np.abs(x_data - flag_chans[0])).argmin()
 				for k in xrange(1,len(flag_chans)):
@@ -136,7 +136,7 @@ def abs_plot(spec_name,cfg_par):
 
 			if flag_chans1 != None:
 				flag_chans = np.array(flag_chans1) 
-				if 	cfg_par['abs_ex'].get('zunit') == 'm/s':
+				if 	cfg_par['spec_ex'].get('zunit') == 'm/s':
 					flag_chans = np.divide(flag_chans,1e3)
 				index_flags_l = (np.abs(x_data - flag_chans[0])).argmin()
 				for k in xrange(1,len(flag_chans)):
@@ -171,6 +171,7 @@ def abs_plot(spec_name,cfg_par):
 			outplot = cfg_par['general']['plotdir']+outplot+'.png'
 			plt.savefig(outplot,
 						overwrite = True)
-			print '# Plotted spectrum of source ' + os.path.basename(spec_name)+'. #'
+			if verb==True:
+				print '# Plotted spectrum of source ' + os.path.basename(spec_name)+'. #'
 		else:
 			print '# Missing spectrum of source ' + os.path.basename(spec_name)+'. #'

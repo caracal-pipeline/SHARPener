@@ -3,6 +3,7 @@ general:
     workdir: /Users/maccagni/Projects/FornaX/ATCA/ 
     contname: cont/cont_im.fits 
     cubename: cube/mfs_atca.fits 
+    verbose: False
 
 source_catalog: 
     __helpstr: Find sources in a f.o.v. from source_catalog 

@@ -1,13 +1,10 @@
-__author__ = "Filippo Maccagni"
-__copyright__ = "Fil8"
-__email__ = "filippo.maccagni@gmail.com"
-
 import sys,string,os,math
 import numpy as np
-import Cosmo as c
+#import Cosmo as c
 from kk import *
 from astropy import units
 from astropy.io import fits
+
 
 class hi:
 	'''
