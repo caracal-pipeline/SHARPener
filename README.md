@@ -9,7 +9,7 @@ a spectrum from each line of sight of these sources.
 
 The spectra are then plotted. 
 
-`sharpener` can be run using a `.yml` parameter file (link to default) as `python sharpener.py <parameter_file.yml>`, or through a `IPython`
+`sharpener` can be run using a `.yml` parameter file (link to default) as `python sharpener.py <path_to_parameter_file.yml>`, or through a `IPython`
 notebook. 
 
 The following tutorials can guide you through the different capabilities of `sharpener`.
