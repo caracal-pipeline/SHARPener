@@ -1,6 +1,6 @@
 # SHARPener
 
-This is a set of tools that have been developed in preparation of the [SHARP radio survey](
+This is a set of tools that have been developed in preparation of the [SHARP survey](
 https://www.astron.nl/astronomy-group/apertif/science-projects/sharp-search-hi-absorption-apertif/sharp). 
 
 The main function of `sharpener` is to identify the position of all continuum sources in a continuum image and extract
