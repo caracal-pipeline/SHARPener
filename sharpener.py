@@ -53,8 +53,6 @@ class sharpener:
 			cfg = open(file_default)
 		self.cfg_par = yaml.load(cfg)
 	
-		print(json.dumps(self.cfg_par, indent=4, sort_keys=True))
-
 		self.set_dirs()
 
 	def enable_task(self,config,task):

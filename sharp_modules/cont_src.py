@@ -35,14 +35,16 @@ def source_catalog(cfg_par,tablename):
 	catalog = cfg_par[key].get('catalog', 'NVSS')
 	thresh = cfg_par[key].get('thresh', 10e-3)
 	centre = cfg_par[key].get('centre_coord',None)
-	catalog_table = tablename 
+	catalog_table = cfg_par['general']['workdir']+tablename
 	Vizier.ROW_LIMIT = -1
 
+	
 	p = Vizier.query_region(coord.SkyCoord(centre[0],centre[1], unit=(u.hourangle, u.deg), 
 		frame = 'icrs'), width = width, catalog = catalog)
 	tab = p[0]
 	ra_deg = []
 	dec_deg = []
+	
 	if catalog == 'NVSS':
 		for i in xrange (0, len(tab['RAJ2000'])):
 		   tab['RAJ2000'][i] = string.join(string.split(tab['RAJ2000'][i],' '),':')
@@ -51,6 +53,7 @@ def source_catalog(cfg_par,tablename):
 		   dec_deg.append(conv_units.dec2deg(tab['DEJ2000'][i]))
 
 		above_thresh = tab['S1.4']<thresh
+	
 	for i in xrange(1,len(tab.colnames)):
 		tab[tab.colnames[i]][above_thresh] = np.nan
 
@@ -61,7 +64,7 @@ def source_catalog(cfg_par,tablename):
 
 def sim_cont_from_cube(tablename,catalog,infile,outfile):
 
-	tab = ascii.read(table)
+	tab = ascii.read(tablename)
 
 	if catalog == 'NVSS':
 
@@ -142,6 +145,8 @@ def sim_cont_from_cube(tablename,catalog,infile,outfile):
 				contdata[int(yc),int(xc)] = 1
 
 	pyfits.writeto(outfile,contdata,cubehead,overwrite=True)
+
+	return 0
 
 def write_src_csv(tot,cfg_par):
 	'''

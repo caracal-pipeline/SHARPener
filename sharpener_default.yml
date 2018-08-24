@@ -7,7 +7,7 @@ general:
 
 source_catalog: 
     __helpstr: Find sources in a f.o.v. from source_catalog 
-    enable: true 
+    enable: false 
     catalog: NVSS    
     width: 5.2d 
     thresh: 30 
@@ -15,7 +15,7 @@ source_catalog:
 
 simulate_continuum:
     __helpstr: Simulate continuum from source catalog
-    enable: true 
+    enable: false 
     
 source_finder: 
     __helpstr: Find sources in continuum image using miriad imsad 
@@ -26,24 +26,24 @@ source_finder:
  
 spec_ex: 
     __helpstr: Extract spectra from datacube 
-    enable: true 
-    chrom_aberration: true 
-    zunit: hz 
+    enable: false 
+    chrom_aberration: false 
+    zunit: m/s 
     flag_chans: null
 
 polynomial_subtraction: 
     __helpstr: Subtract polynomial from spectrum
-    enable: yes
+    enable: false
     degree_pol: 6
 
 hanning:
     __helpstr: Hanning smoothing spectrum
-    enable: true 
+    enable: false 
     window: 3 
 
 abs_plot: 
     __helpstr: plot spectra
-    enable: true 
+    enable: false 
     title: null 
     redshift_sources: [800 2200] 
  

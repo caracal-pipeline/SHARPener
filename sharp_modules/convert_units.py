@@ -149,13 +149,15 @@ def coord_to_pix(imagename,ra,dec,verbose=False):
 		del prihdr['CRVAL4']
 		del prihdr['CRPIX4']
 		del prihdr['CUNIT4']
+	
 
 	del prihdr['CTYPE3']
 	del prihdr['CDELT3']
 	del prihdr['CRVAL3']
 	del prihdr['CRPIX3'] 
 	del prihdr['NAXIS3']
-	del prihdr['CUNIT3']
+	if 'CUNIT3' in prihdr:
+		del prihdr['CUNIT3']
 
 	del prihdr['NAXIS']
 	prihdr['NAXIS']=2
