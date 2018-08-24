@@ -8,6 +8,8 @@ from astropy.io import fits, ascii
 from astropy import units as u
 from astropy.table import Table, Column, MaskedColumn
 
+import warnings
+
 sys.path.append('/Users/maccagni/notebooks/sharpener/sharp_modules/')
 import cont_src as cont_src
 import convert_units as conv_units
@@ -23,6 +25,9 @@ __email__ = "filippo.maccagni@gmail.com"
 __status__ = "Development"
 
 
+
+if not sys.warnoptions:
+    warnings.simplefilter("ignore")
 
 ####################################################################################################
 
@@ -45,15 +50,19 @@ class sharpener:
 	
 		'''
 
+
 		file_default = '/Users/maccagni/notebooks/sharpener/sharpener_default.yml'
 
 		if file != None:
 			cfg = open(file)
 		else:
 			cfg = open(file_default)
+		
 		self.cfg_par = yaml.load(cfg)
 	
 		self.set_dirs()
+
+		return
 
 	def enable_task(self,config,task):
 
@@ -149,4 +158,6 @@ class sharpener:
 
 		
 		return 0
+
+
 

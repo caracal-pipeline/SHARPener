@@ -19,14 +19,14 @@ simulate_continuum:
     
 source_finder: 
     __helpstr: Find sources in continuum image using miriad imsad 
-    enable: false
+    enable: true
     region: null 
     clip: 5e-3 
     options: null
  
 spec_ex: 
     __helpstr: Extract spectra from datacube 
-    enable: false 
+    enable: true 
     chrom_aberration: false 
     zunit: m/s 
     flag_chans: null
