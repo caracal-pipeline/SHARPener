@@ -13,3 +13,23 @@ notebook.
 
 The following tutorials can guide you through the different capabilities of `sharpener`.
 
+### Installation
+
+**Requisites**
+- SHARPener makes use of the most common `python` packages (e.g. `numpy`, `scipy`, `astropy`). 
+- The parameter file is in `yaml` format, hence `pyaml`, and `json` packages should be installed
+
+**Insallation instructions**
+- Clone this repository. From terminal type:
+
+```
+git clone https://github.com/Fil8/SHARPener.git
+```
+
+- add `sharpener` directory to `PYTHONPATH` (for permanent use save it in your `.cshrc_profile`, or `.bash_profile`
+
+```
+setenv PYTHONPATH $path_to_sharpener:${PYTHONPATH}
+
+export PYTHONPATH=$PYTHONPATH:path_to_sharpener
+```
