@@ -41,7 +41,6 @@ def source_catalog(cfg_par,tablename):
 	p = Vizier.query_region(coord.SkyCoord(centre[0],centre[1], unit=(u.hourangle, u.deg), 
 		frame = 'icrs'), width = width, catalog = catalog)
 	tab = p[0]
-	print tab
 	ra_deg = []
 	dec_deg = []
 	if catalog == 'NVSS':
@@ -52,12 +51,10 @@ def source_catalog(cfg_par,tablename):
 		   dec_deg.append(conv_units.dec2deg(tab['DEJ2000'][i]))
 
 		above_thresh = tab['S1.4']<thresh
-	print tab['S1.4']
 	for i in xrange(1,len(tab.colnames)):
 		tab[tab.colnames[i]][above_thresh] = np.nan
 
 	tab =  Table(tab, masked=True)
-	print catalog_table
 	ascii.write(tab, catalog_table, overwrite=True)
 
 	return tab
@@ -196,7 +193,6 @@ def mosaic_continuum(cfg_par):
 			dec_deg = float(heads['CRVAL2'])
 			rad = np.pi/180.*ra_deg
 			decd = np.pi/180.*dec_deg
-			print ra_deg,dec_deg
 
 			mircont = os.path.basename(filelist[i])
 			mircont = string.split(mircont,'.')[0]

@@ -12,7 +12,7 @@ sys.path.append('/Users/maccagni/notebooks/sharpener/sharp_modules/')
 import cont_src as cont_src
 import convert_units as conv_units
 import spec_ex as spec_ex
-import abs_plot as abs_plot
+import absorption_plot as absorption_plot
 from hi import *
 
 
@@ -60,7 +60,6 @@ class sharpener:
 	def enable_task(self,config,task):
 
 		a = config.get(task, False)
-		print a
 		if a:
 			return a['enable']
 		else:
@@ -102,8 +101,10 @@ class sharpener:
 		if os.path.exists(self.plotdir) == False:
 			 os.makedirs(self.plotdir)
 
-	def go(self):
+	def go(self,cfg_par):
 		'''
+		Automated pipeline to extract spectra from each continuum source in a given field.
+
 	 	Calls the following functions
 		
 		- cont_src
@@ -146,7 +147,8 @@ class sharpener:
 			spectra = glob.glob(self.cfg_par['general']['specdir']+'/*.txt')
 			for i in xrange(0,len(spectra)):
 				spectra[i] = os.path.basename(spectra[i])
-				abs_plot.abs_plot(spectra[i],self.cfg_par)
+				abs_plot.absorption_plot(spectra[i],self.cfg_par)
 
-
+		
+		return 0
 
