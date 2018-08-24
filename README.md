@@ -1,5 +1,6 @@
 # SHARPener
 
+
 This is a set of tools that have been developed in preparation of the [SHARP survey](
 https://www.astron.nl/astronomy-group/apertif/science-projects/sharp-search-hi-absorption-apertif/sharp). 
 
@@ -12,6 +13,8 @@ The spectra are then plotted.
 notebook. 
 
 The following tutorials can guide you through the different capabilities of `sharpener`.
+
+***
 
 ### Installation
 
@@ -34,3 +37,6 @@ setenv PYTHONPATH $path_to_sharpener:${PYTHONPATH}
 
 export PYTHONPATH=$PYTHONPATH:path_to_sharpener
 ```
+ 
+ ***
+ <p>&copy <sub> Filippo M. Maccagni 2018 </sub></p>
