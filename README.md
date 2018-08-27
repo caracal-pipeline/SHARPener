@@ -37,6 +37,8 @@ setenv PYTHONPATH $path_to_sharpener:${PYTHONPATH}
 
 export PYTHONPATH=$PYTHONPATH:path_to_sharpener
 ```
+
+- change path at `line16` of `sharpener.py` as follows: `sys.path.append('/path-to-sharpener/sharp_modules/')` 
  
  ***
  <p>&copy <sub> Filippo M. Maccagni 2018 </sub></p>
