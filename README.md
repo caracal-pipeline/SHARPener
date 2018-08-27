@@ -9,10 +9,10 @@ a spectrum from each line of sight of these sources.
 
 The spectra are then plotted. 
 
-`sharpener` can be run using a `.yml` parameter file (link to default) as `python sharpipeline.py <path_to_parameter_file.yml>`, or through a `IPython`
-notebook. 
+`sharpener` can be run automatically using a `.yml` [parameter file](https://github.com/Fil8/SHARPener/wiki/Parameter-file)) as `python sharpipeline.py <path_to_parameter_file.yml>`, or through a `IPython`
+[notebook](https://github.com/Fil8/SHARPener/blob/master/tutorials/T2_automated_run.ipynb). 
 
-The following tutorials can guide you through the different capabilities of `sharpener`.
+The following [tutorials](https://github.com/Fil8/SHARPener/tree/master/tutorials) can guide you through the different capabilities of `sharpener`.
 
 ***
 
