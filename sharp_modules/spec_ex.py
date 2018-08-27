@@ -53,7 +53,7 @@ def abs_ex(cfg_par):
 		key = 'source_catalog'
 		if cfg_par['source_catalog'].get('enable',False) == True:
 
-			catalog_table = str(cfg_par['general'].get('absdir')) + 'cat_src_absex.txt'
+			catalog_table = str(cfg_par['general'].get('absdir')) + 'cat_src_sharpener.txt'
 		   
 			tab = ascii.read(catalog_table)
 		
@@ -66,7 +66,7 @@ def abs_ex(cfg_par):
 
 		elif cfg_par['source_finder'].get('enable',False) == True:
 
-			src_list_csv = cfg_par['general']['absdir']+'mir_src_absex.csv'
+			src_list_csv = cfg_par['general']['absdir']+'mir_src_sharpener.csv'
 			# open file
 			src_list_vec = ascii.read(src_list_csv)
 			J2000_name = np.array(src_list_vec['J2000'],dtype=str)

@@ -1,49 +1,49 @@
 general:
     __helpstr: General INPUT directories and filenames
-    workdir: /Users/maccagni/Projects/FornaX/ATCA/ 
-    contname: cont/cont_im.fits 
-    cubename: cube/mfs_atca.fits 
-    verbose: False
+    workdir: /Users/maccagni/Projects/FornaX/ATCA/ # full path to working directory
+    contname: cont/cont_im.fits #name of input continuum image
+    cubename: cube/mfs_atca.fits #Name of input datacube
+    verbose: False #if True warnings and Miriad outputs are printed on terminal
 
 source_catalog: 
     __helpstr: Find sources in a f.o.v. from source_catalog 
-    enable: false 
-    catalog: NVSS    
-    width: 5.2d 
-    thresh: 30 
-    centre_coord: ['03:40:0.989', '-35:28:34.53']
+    enable: false #if True this module is enabled
+    catalog: NVSS #NVSS or SUMSS are allowed
+    width: 5.2d #Field of view in degrees (d)
+    thresh: 30 #Threshold for catalog query [mJy]
+    centre_coord: ['03:40:0.989', '-35:28:34.53'] #RA(hms):DEC(hms) centre of the field for catalog query
 
 simulate_continuum:
-    __helpstr: Simulate continuum from source catalog
-    enable: false 
+    __helpstr: Simulate continuum from source catalog output
+    enable: false #if True this module is enabled. Will simulate continuum given the output of source_catalog
     
 source_finder: 
     __helpstr: Find sources in continuum image using miriad imsad 
-    enable: true
-    region: null 
-    clip: 5e-3 
-    options: null
+    enable: true #if True this module is enabled
+    region: null #subregion where to find sources in continuum image [xmin,xmax,ymin,ymax]
+    clip: 5e-3  #threshold for finding sources in continuum image [Jy]
+    options: null #....
  
 spec_ex: 
     __helpstr: Extract spectra from datacube 
-    enable: true 
-    chrom_aberration: false 
-    zunit: m/s 
-    flag_chans: null
+    enable: true #if True this module is enabled
+    chrom_aberration: false #correct for chromatic aberration of datacube while extracting the spectrum
+    zunit: m/s #z-units of the datacube
+    flag_chans: null #channel interval to be flagged on the spectrum [zmin,zmax]
 
 polynomial_subtraction: 
-    __helpstr: Subtract polynomial from spectrum
-    enable: false
-    degree_pol: 6
+    __helpstr: Subtract polynomial from spectrum to improve continuum subtraction
+    enable: false #if True this module is enabled
+    degree_pol: 6 #degree of polynomial to fit to continuum signal
 
 hanning:
     __helpstr: Hanning smoothing spectrum
-    enable: false 
-    window: 3 
+    enable: false #if True this module is enabled
+    window: 3  #window size for hanning
 
 abs_plot: 
-    __helpstr: plot spectra
-    enable: false 
-    title: null 
-    redshift_sources: [800 2200] 
+    __helpstr: plot spectra from a given folder
+    enable: false #if True this module is enabled
+    title: null #title of plots
+    redshift_sources: [800 2200] #redshift of sources to be marked by a vertical line in plots
  

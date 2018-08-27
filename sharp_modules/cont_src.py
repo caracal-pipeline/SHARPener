@@ -379,12 +379,18 @@ def find_src_imsad(cfg_par):
 	dec_coord = []
 	for i in xrange (0, len_lines):
 		line = dec_tmp[i].split(':')
+		first_dig =  line[0][-2:]
 		last_dig = int(round(float(line[2]),0))
-		first_dig = line[0].split('-')
-		dec_vec.append(first_dig[1]+line[1]+str(last_dig))
-		dec_coord.append('-'+first_dig[1]+':'+line[1]+':'+str(last_dig))        
 
-	J2000_tmp = np.array([ a+'+'+b for a,b in zip(ra_vec,dec_vec)])
+		dec_vec.append(first_dig[1]+line[1]+str(last_dig))
+
+		if line[0][-3] == '-':
+			dec_coord.append('-'+first_dig+':'+line[1]+':'+str(last_dig)) 
+			J2000_tmp = np.array([ a+'-'+b for a,b in zip(ra_vec,dec_vec)])
+		if line[0][-3] == '+':
+			dec_coord.append('+'+first_dig+':'+line[1]+':'+str(last_dig))        
+			J2000_tmp = np.array([ a+'+'+b for a,b in zip(ra_vec,dec_vec)])
+
 	dec_coord = np.array(dec_coord)
    
 	### Find pixels of sources in continuum image

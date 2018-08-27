@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+
+# Import modules
 import sys, string, os
 import numpy as np
 import yaml

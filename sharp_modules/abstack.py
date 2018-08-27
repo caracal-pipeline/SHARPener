@@ -1,7 +1,3 @@
-__author__ = "Filippo Maccagni"
-__copyright__ = "ASTRON"
-__email__ = "maccagni@astron.nl"
-
 import ConfigParser
 import logging
 
@@ -13,8 +9,14 @@ from astropy.io import ascii
 from matplotlib import gridspec
 from matplotlib import pyplot as plt
 
-C=2.99792458e5 #km/s
-HI=1.420405751e9 #Hz
+
+
+__author__ = "Filippo Maccagni"
+__copyright__ = "RadioLife"
+__version__ = "1.0.0"
+__email__ = "filippo.maccagni@gmail.com"
+__status__ = "Development"
+
 
 ####################################################################################################
 
@@ -23,6 +25,10 @@ class abstack:
     '''
     Class for absorption studies (find continuum sources, extract spectra, analyze spectra)
     '''
+
+    C=2.99792458e5 #km/s
+    HI=1.420405751e9 #Hz
+
     def __init__(self, file=None, **kwargs):
         self.logger = logging.getLogger('STACK')
         config = ConfigParser.ConfigParser() # Initialise the config parser
