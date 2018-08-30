@@ -34,7 +34,22 @@ HI=1.420405751e9 #Hz
 ####################################################################################################
 
 def abs_ex(cfg_par):
-
+		'''
+		Extract spectra from all l.o.s. exctracted using a catalog of sources or a source finder
+		WARNING:
+			source finder, or extraction of sources from a catalog (cont_src module) must be run first
+		INPUT:
+			dictionary of parameter file
+		OUTPUT:
+			spectra are saved in ascii format in cfg_par['general']['workdir']+/spec/
+			spectra have the following columns: 
+			frequency, flux, noise (MADFM), optical depth, optical depth noise, mean noise
+		OPTIONS:
+			chromatic aberration correction
+			continuum subtraction
+			hanning smoothing
+		''''
+			
 		verb = cfg_par['general']['verbose']
 
 		cubename = cfg_par['general'].get('cubename',None)
@@ -263,7 +278,15 @@ def abs_ex(cfg_par):
 		return 0 
 
 def hanning_spec(flux):
-
+		'''
+		Hanning smoothing of a spectrum
+		
+		INPUT:
+			flux column of the spectrum
+		OUTPUT:
+			hanned flux column
+		'''
+		
 		new_flux = flux.copy()
 		new_flux[0] = (flux[0]+flux[1])/2.
 		for i in xrange(1,len(flux)-1):
@@ -275,7 +298,19 @@ def hanning_spec(flux):
 		return new_flux
 
 def poly_sub(cfg_par,x, y,deg):
-
+		'''
+		Continuum subtraction on spectrum through polynomial fitting	
+		
+		INPUT:
+			parameter file
+			x-axis of the spectrum	
+			y-axis of the spectrum
+			degre of polynomial to fit
+		OUTPUT:
+			continuum subtracted y-axis of spectrum	
+		'''
+			
+		
 		if cfg_par['abs_ex'].get('zunit') == 'm/s':
 			unit_z = u.m / u.s
 		else:
