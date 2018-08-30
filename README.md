@@ -33,7 +33,7 @@ git clone https://github.com/Fil8/SHARPener.git
 - add `sharpener` directory to `PYTHONPATH` (for permanent use save it in your `.cshrc_profile`, or `.bash_profile`, respectively)
 
 ```
-setenv PYTHONPATH $path_to_sharpener:${PYTHONPATH}
+setenv PYTHONPATH path_to_sharpener:${PYTHONPATH}
 
 export PYTHONPATH=$PYTHONPATH:path_to_sharpener
 ```
