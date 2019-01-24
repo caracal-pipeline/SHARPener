@@ -48,7 +48,7 @@ def abs_ex(cfg_par):
 			chromatic aberration correction
 			continuum subtraction
 			hanning smoothing
-		''''
+		'''
 			
 		verb = cfg_par['general']['verbose']
 
