@@ -135,7 +135,7 @@ def abs_ex(cfg_par):
 							scale = (freq_real0 - j*freq_del) / freq_real0
 
 						pix_x = (pix_x_or - hdr['CRPIX1']) * scale + hdr['CRPIX1']
-						pix_y = (pix_y_or - hdr['CRPIX1']) * scale + hdr['CRPIX1']
+						pix_y = (pix_y_or - hdr['CRPIX2']) * scale + hdr['CRPIX2']
 						pix_x = int(round(pix_x,0))
 						pix_y = int(round(pix_y,0))
 					else:
