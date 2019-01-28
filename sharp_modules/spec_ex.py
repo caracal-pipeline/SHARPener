@@ -128,10 +128,10 @@ def abs_ex(cfg_par):
 
 						if (cfg_par[key].get('zunit','Hz') == 'm/s'):
 							freq_real= freq* 1e2
-							freq_real = (kk.C*kk.HI) /  (freq + kk.C)
+							freq_real = (kk.C*kk.HI) /  (freq_real + kk.C)
 							freq_real0 = (kk.C*kk.HI) /  (hdr['CRVAL3']*1e2 + kk.C)
 							freq_del = (freq_real0 - freq_real[-1] )/ len(freq_real)
-						#depending if the cube is in velocity or frequency ?
+						#depending if the cube is in velocity or frequency ? 
 							scale = (freq_real0 - j*freq_del) / freq_real0
 
 						pix_x = (pix_x_or - hdr['CRPIX1']) * scale + hdr['CRPIX1']
