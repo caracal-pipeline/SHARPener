@@ -1,5 +1,6 @@
 # ++++++++++++++++++++++++++++++++++
 # Tracking changes to sharpener
+# compared to v1.0
 # ++++++++++++++++++++++++++++++++++
 
 # README
