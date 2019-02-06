@@ -188,7 +188,7 @@ def abs_plot(spec_name, cfg_par):
 
         # Add title
         if cfg_par[key]['title'] == True:
-            ax1.set_title("{0:s} (\#{1:d}): {2:s}".format(cfg_par['general']['workdir'].split("/")[-2], int(os.path.basename(spec_name).split('_')[0])+1, os.path.basename(spec_name).replace(
+            ax1.set_title("{0:s} (\#{1:d}): {2:s}".format(cfg_par['general']['workdir'].split("/")[-2], int(os.path.basename(spec_name).split('_')[0]), os.path.basename(spec_name).replace(
                 '.txt', '').split('_')[-1]), fontsize=font_size+2)
             # if self.abs_ex_plot_title == True:
         #	ax1.set_title('%s' % (self.J2000_name[i]), fontsize=font_size+2)
@@ -241,7 +241,7 @@ def abs_plot(spec_name, cfg_par):
             #     0.05, 0.95), xycoords='axes fraction', ha='left')
 
             if cfg_par[key]['title'] == True:
-                ax[0].set_title("{0:s} (\#{1:d}): {2:s}".format(cfg_par['general']['workdir'].split("/")[-2], int(os.path.basename(spec_name).split('_')[0])+1, os.path.basename(spec_name).replace(
+                ax[0].set_title("{0:s} (\#{1:d}): {2:s}".format(cfg_par['general']['workdir'].split("/")[-2], int(os.path.basename(spec_name).split('_')[0]), os.path.basename(spec_name).replace(
                     '.txt', '').split('_')[-1]), fontsize=font_size+2)
 
             # go through the rest of the plots and create them
