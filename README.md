@@ -19,7 +19,7 @@ The following [tutorials](https://github.com/Fil8/SHARPener/tree/master/tutorial
 ### Installation
 
 **Requisites**
-- SHARPener makes use of the most common `python` packages (e.g. `numpy`, `scipy`, `astropy`). 
+- SHARPener makes use of the most common `python` packages (e.g. `numpy`, `scipy`, `astropy`) and addition to `mpdaf` and `pypdf2`. 
 - The parameter file is in `yaml` format, hence `pyaml`, and `json` packages should be installed.
 - Tutorials make use of `tabulate` and `glob` for fancy outputs.
 
@@ -41,4 +41,4 @@ export PYTHONPATH=$PYTHONPATH:path_to_sharpener
 - change path at `line16` of `sharpener.py` as follows: `sys.path.append('/path-to-sharpener/sharp_modules/')` 
  
  ***
- <p>&copy <sub> Filippo M. Maccagni 2018 </sub></p>
+ <p>&copy <sub> Filippo M. Maccagni 2018-2019 </sub></p>

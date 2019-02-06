@@ -1,0 +1,57 @@
+# ++++++++++++++++++++++++++++++++++
+# Tracking changes to sharpener
+# ++++++++++++++++++++++++++++++++++
+
+# README
+- expanded the list of python packages necessary to run sharpener
+
+# convert_unifts.py
+- fct: coord_to_pix
+    - added if-clauses to check for header values to avoid error messages
+
+# cont_src.py
+- fct: find_src_imsad
+    - changed declaration of src_imsad_out
+    - disabled if-clauses which check the header for additional axis and delete them (lines 402 - 426)
+        - replaced this by wcs function dropaxis() 
+    - replaced reading-in of the imsad output txt file with ascii.read
+        - it seems that miriad can write files with different line lenghts (or for astropy different number of columns per line)
+        - this a problem and I added a check function that handles the one case that I discovered
+        - maybe another package like pybdsf would be better on the long run
+    - added a function that generates a karma annotation file
+    - replaced table making with astropy function
+    - get pixels by using astropy skycoordinates instead of package function
+    - replaced csv creation with astropy function
+    - added option to plot image with detected sources overplotted
+        - it uses astropy wcs
+        - and the SkyCoords values of the sources
+
+# spec_ex.py
+    - changed src_id variable to reference the source ID from the CSV table instead of a new number
+    - temporarily deactivated mpdaf import because of issues with tkinter backend
+        - function poly_abs is also deactivated
+        => is activated again
+
+# absorption_plot.py
+- fct: abs_plot
+    - added option to set source name as title in plot
+    - added bbox_inches='tight' to saving of plot
+    - added an option for multi-plot spectra
+    - added an option for a fixed y-axis
+- add fct: create_all_abs_plot()
+    - works as a wrapper for abs_plot()
+    - avoids having to do this in run_sharpener
+
+# run_sharpener.py
+- added new package PyPDF2 to merge pdfs created by the routine
+- added new package zipfile (Python standard) to create zip files for all plots
+
+# ++++++++++++++++++++++++++++++++++
+# TO DO
+# ++++++++++++++++++++++++++++++++++
+
+# Add SDSS query
+- Independent of IMSAD or any other source finder, query SDSS to get redshifts for the different sources
+- this should be an additional feature after the source finder ran and before the spectra extraction
+- will require a new module
+- 

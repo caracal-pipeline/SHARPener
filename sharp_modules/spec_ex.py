@@ -22,9 +22,12 @@ from astropy.table import Table, Column, MaskedColumn
 from astroquery.vizier import Vizier
 import astropy.coordinates as coord
 from mpdaf.obj import Spectrum, WaveCoord
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import gridspec
 from matplotlib import pyplot as plt
 from matplotlib import rc
+
 
 hi = hi.hi()
 
@@ -48,7 +51,7 @@ def abs_ex(cfg_par):
 			chromatic aberration correction
 			continuum subtraction
 			hanning smoothing
-		''''
+		'''
 			
 		verb = cfg_par['general']['verbose']
 
@@ -95,7 +98,8 @@ def abs_ex(cfg_par):
 
 		key = 'spec_ex'
 
-		src_id = np.arange(0,ra.size+1,1)
+		#src_id = np.arange(0,ra.size+1,1)
+		src_id = src_list_vec['ID']
 		freq = cubef.zaxis(cubename)
 
 		abs_mean_rms = np.zeros(pixels.shape[0])
@@ -128,14 +132,15 @@ def abs_ex(cfg_par):
 
 						if (cfg_par[key].get('zunit','Hz') == 'm/s'):
 							freq_real= freq* 1e2
-							freq_real = (kk.C*kk.HI) /  (freq + kk.C)
+							freq_real = (kk.C*kk.HI) /  (freq_real + kk.C)
 							freq_real0 = (kk.C*kk.HI) /  (hdr['CRVAL3']*1e2 + kk.C)
 							freq_del = (freq_real0 - freq_real[-1] )/ len(freq_real)
 						#depending if the cube is in velocity or frequency ?
 							scale = (freq_real0 - j*freq_del) / freq_real0
 
 						pix_x = (pix_x_or - hdr['CRPIX1']) * scale + hdr['CRPIX1']
-						pix_y = (pix_y_or - hdr['CRPIX1']) * scale + hdr['CRPIX1']
+						pix_y = (pix_y_or - hdr['CRPIX2']) * scale + hdr['CRPIX2']
+						#print('before rounding: x={0:.3f}, y={1:.3f}'.format(pix_x, pix_y))
 						pix_x = int(round(pix_x,0))
 						pix_y = int(round(pix_y,0))
 					else:
@@ -147,6 +152,8 @@ def abs_ex(cfg_par):
 						flux[j] = sci[j, pix_y, pix_x]
 					else:
 						flux[j] = 0.0
+					
+					#print('x={0:d}, y={1:d}, flux={2:.5f}'.format(pix_x, pix_y, flux[j]))
 
 
 					# determine the noise of the spectrum [Whiting 2012 et al.] in each channel
@@ -189,7 +196,9 @@ def abs_ex(cfg_par):
 					tau_noise = np.zeros(sci.shape[0])
 
 				#write spectrum
-				out_spec = str(cfg_par['general']['specdir']+str(src_id[i])+'_J'+J2000_name[i])+'.txt'
+				#out_spec = str(cfg_par['general']['specdir']+str(src_id[i])+'_J'+J2000_name[i])+'.txt'
+				out_spec = "{0:s}{1:02d}_J{2:s}.txt".format(
+                                    cfg_par['general']['specdir'], src_id[i], J2000_name[i])
 				outnames.append(out_spec)
 
 				flag_chans = cfg_par[key].get('flag_chans', None)
@@ -266,9 +275,9 @@ def abs_ex(cfg_par):
 						meta={'name': 'Spectrum'})
 					ascii.write(t,out_spec_han,overwrite=True)
 
-
-
-
+		# close fits file
+		cubefile.close()
+		
 		print '\n# Total number of sources: \t'+str(pixels.shape[0])
 		print '# Sources flagged: \t\t'+str(count_thresh)
 		print '# Blank spectra:\t\t'+str(count_blanks)

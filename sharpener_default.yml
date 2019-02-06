@@ -1,49 +1,46 @@
+abs_plot:
+  __helpstr: plot spectra from a given folder
+  enable: true
+  redshift_sources:
+  - 800 2200
+  title: true
+  detailed_plot: true
+  fixed_scale: true
 general:
-    __helpstr: General INPUT directories and filenames
-    workdir: /Users/maccagni/Projects/FornaX/ATCA/ # full path to working directory
-    contname: cont/cont_im.fits #name of input continuum image
-    cubename: cube/mfs_atca.fits #Name of input datacube
-    verbose: False #if True warnings and Miriad outputs are printed on terminal
-
-source_catalog: 
-    __helpstr: Find sources in a f.o.v. from source_catalog 
-    enable: false #if True this module is enabled
-    catalog: NVSS #NVSS or SUMSS are allowed
-    width: 5.2d #Field of view in degrees (d)
-    thresh: 30 #Threshold for catalog query [mJy]
-    centre_coord: ['03:40:0.989', '-35:28:34.53'] #RA(hms):DEC(hms) centre of the field for catalog query
-
-simulate_continuum:
-    __helpstr: Simulate continuum from source catalog output
-    enable: false #if True this module is enabled. Will simulate continuum given the output of source_catalog
-    
-source_finder: 
-    __helpstr: Find sources in continuum image using miriad imsad 
-    enable: true #if True this module is enabled
-    region: null #subregion where to find sources in continuum image [xmin,xmax,ymin,ymax]
-    clip: 5e-3  #threshold for finding sources in continuum image [Jy]
-    options: null #....
- 
-spec_ex: 
-    __helpstr: Extract spectra from datacube 
-    enable: true #if True this module is enabled
-    chrom_aberration: false #correct for chromatic aberration of datacube while extracting the spectrum
-    zunit: m/s #z-units of the datacube
-    flag_chans: null #channel interval to be flagged on the spectrum [zmin,zmax]
-
-polynomial_subtraction: 
-    __helpstr: Subtract polynomial from spectrum to improve continuum subtraction
-    enable: false #if True this module is enabled
-    degree_pol: 6 #degree of polynomial to fit to continuum signal
-
+  __helpstr: General INPUT directories and filenames
+  contname: NGC315.Continuum.fits
+  cubename: NGC315.Cube.fits
+  verbose: false
+  workdir: /home/schulz/Projects/APERTIF/Analysis/NGC315/beam00/
+  plot_format: pdf
+  merge_plots: true
 hanning:
-    __helpstr: Hanning smoothing spectrum
-    enable: false #if True this module is enabled
-    window: 3  #window size for hanning
-
-abs_plot: 
-    __helpstr: plot spectra from a given folder
-    enable: false #if True this module is enabled
-    title: null #title of plots
-    redshift_sources: [800 2200] #redshift of sources to be marked by a vertical line in plots
- 
+  __helpstr: Hanning smoothing spectrum
+  enable: false
+  window: 3
+polynomial_subtraction:
+  __helpstr: Subtract polynomial from spectrum to improve continuum subtraction
+  degree_pol: 6
+  enable: false
+simulate_continuum:
+  __helpstr: Simulate continuum from source catalog output
+  enable: false
+source_catalog:
+  __helpstr: Find sources in a f.o.v. from source_catalog
+  catalog: NVSS
+  enable: false
+  thresh: 30
+  width: 5.2d
+source_finder:
+  __helpstr: Find sources in continuum image using miriad imsad
+  clip: 5e-3
+  enable: true
+  options: null
+  region: null
+  plot_image: true
+spec_ex:
+  __helpstr: Extract spectra from datacube
+  chrom_aberration: true
+  enable: true
+  flag_chans: null
+  zunit: m/s
