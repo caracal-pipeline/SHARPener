@@ -16,11 +16,11 @@ from astropy.table import Table, Column, MaskedColumn
 import warnings
 
 # sys.path.append('/Users/maccagni/notebooks/sharpener/sharp_modules/')
-import cont_src as cont_src
-import convert_units as conv_units
-import spec_ex as spec_ex
-import absorption_plot as absorption_plot
-from hi import *
+from sharp_modules import cont_src as cont_src
+from sharp_modules import convert_units as conv_units
+from sharp_modules import spec_ex as spec_ex
+from sharp_modules import absorption_plot as absorption_plot
+from sharp_modules import hi
 
 
 __author__ = "Filippo Maccagni"
