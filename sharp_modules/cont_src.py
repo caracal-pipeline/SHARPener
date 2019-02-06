@@ -482,7 +482,7 @@ def find_src_imsad(cfg_par):
 
 	# create two new columns
 	# column 1: ID will be filled after sorting the columns
-	src_id = zeros(n_src)
+	src_id = np.zeros(n_src)
 
 	# column 2: Source name
 	j2000 = np.array(["{0:s}{1:s}".format(src_list['ra'][k].replace(':',''), src_list['dec'][k].replace(':','')) for k in range(n_src)])
