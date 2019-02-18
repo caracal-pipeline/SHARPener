@@ -29,9 +29,7 @@
 
 # spec_ex.py
     - changed src_id variable to reference the source ID from the CSV table instead of a new number
-    - temporarily deactivated mpdaf import because of issues with tkinter backend
-        - function poly_abs is also deactivated
-        => is activated again
+    - changed the if-clause which checks for nan-values in the list of ra/dec pixels to use the np.isnan function
 
 # absorption_plot.py
 - fct: abs_plot
