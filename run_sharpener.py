@@ -18,10 +18,10 @@ import argparse
 from astropy.io import ascii
 import sharpener as sharpy
 import tabulate
-import cont_src as cont_src
-import spec_ex as spec_ex
+from sharp_modules import cont_src as cont_src
+from sharp_modules import spec_ex as spec_ex
+from sharp_modules import absorption_plot as abs_pl
 import time
-import absorption_plot as abs_pl
 import glob
 from PyPDF2 import PdfFileMerger
 import zipfile
@@ -64,6 +64,8 @@ print("## Load parameter file")
 
 spar = sharpy.sharpener(
     args.yml_name)
+
+print(spar.cfg_par)
 
 print("## Load parameter file ... Done ({0:.2f}s)".format(
     time.time() - time_start_load))

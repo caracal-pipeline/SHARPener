@@ -30,9 +30,9 @@ import zipfile
 
 def run_sharpener(beam_directory_list, do_continuum_extraction, do_spectra_extraction, do_plots, beam_count):
     import sharpener as sharpy
-    import cont_src as cont_src
-    import spec_ex as spec_ex
-    import absorption_plot as abs_pl
+    from sharp_modules import cont_src as cont_src
+    from sharp_modules import spec_ex as spec_ex
+    from sharp_modules import absorption_plot as abs_pl
     imp.reload(sharpy)
 
     """Function to run sharpener
@@ -272,6 +272,34 @@ if __name__ == '__main__':
 
             for plot in plot_list:
                 myzip.write(plot, os.path.basename(plot))
+
+        print("## Create zip files for plots ... Done ({0:.2f}s)".format(
+            time.time() - time_start_zip))
+    else:
+        print("No files to zip.")
+
+    time_start_zip = time.time()
+    print("## Create zip files")
+
+    csv_list = glob.glob(
+        "{0:s}beam??/abs/mir_src_sharpener.csv".format(beam_path))
+    karma_list = glob.glob(
+        "{0:s}beam??/abs/karma_src_sharpener.ann".format(beam_path))
+
+    if len(csv_list) != 0:
+
+        csv_list.sort()
+        karma_list.sort()
+
+        with zipfile.ZipFile('{0:s}all_sources.zip'.format(beam_path), 'w') as myzip:
+
+            for csv in csv_list:
+                myzip.write(csv, "{0:s}_{1:s}".format(csv.replace(
+                    beam_path, "").split("/")[0], os.path.basename(csv)))
+
+            for karma in karma_list:
+                myzip.write(karma, "{0:s}_{1:s}".format(karma.replace(
+                    beam_path, "").split("/")[0], os.path.basename(karma)))
 
         print("## Create zip files ... Done ({0:.2f}s)".format(
             time.time() - time_start_zip))
