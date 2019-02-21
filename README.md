@@ -19,7 +19,7 @@ The following [tutorials](https://github.com/Fil8/SHARPener/tree/master/tutorial
 ### Installation
 
 **Requisites**
-- SHARPener makes use of the most common `python` packages (e.g. `numpy`, `scipy`, `astropy`) and addition to `mpdaf` and `pypdf2`. 
+- SHARPener makes use of the most common `python` packages (e.g. `numpy`, `scipy`, `astropy`, `astroquery`, `prettytable`) and addition to `mpdaf` and `pypdf2`. 
 - The parameter file is in `yaml` format, hence `pyaml`, and `json` packages should be installed.
 - Tutorials make use of `tabulate` and `glob` for fancy outputs.
 
