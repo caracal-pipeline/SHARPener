@@ -168,7 +168,7 @@ def write_src_csv(tot,cfg_par):
 	out_file = str(cfg_par['general'].get('absdir')) + 'mir_src_sharpener.csv'
 
 	f = open(out_file, 'w')
-	f.write('ID,J2000,ra,dec,Pix_x,Pix_y,peak\n')
+	f.write('ID,J2000,ra,dec,Pix_x,Pix_y,peak,flux_int,beam_major_decon,beam_minor_decon,beam_pang_decon,FLAG,DFLAG,FFLAG\n')
 	np.savetxt(f, tot, delimiter=",", fmt="%s")
 	f.close()
 	
@@ -480,10 +480,17 @@ def find_src_imsad(cfg_par):
 	# dec_coord = np.array(dec_coord)
 
 	# read in data and rename columns
-	src_list = ascii.read(src_imsad_out, include_names=['col3', 'col4', 'col5'])
+	src_list = ascii.read(src_imsad_out, include_names=['col3', 'col4', 'col5', 'col6', 'col7', 'col8', 'col9', 'col10', 'col11', 'col12'])
 	src_list.rename_column('col3', 'ra')
 	src_list.rename_column('col4', 'dec')
 	src_list.rename_column('col5', 'peak')
+	src_list.rename_column('col6', 'flux_int')
+	src_list.rename_column('col7', 'beam_major_decon')
+	src_list.rename_column('col8', 'beam_minor_decon')
+	src_list.rename_column('col9', 'beam_pang_decon')
+	src_list.rename_column('col10', 'FLAG')
+	src_list.rename_column('col11', 'DFLAG')
+	src_list.rename_column('col12', 'FFLAG')
 	n_src = np.size(src_list['ra'])
 
 	# correct the miriad bug
