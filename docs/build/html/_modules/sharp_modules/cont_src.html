@@ -1,0 +1,718 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>sharp_modules.cont_src &#8212; SHARPener 1.5 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SHARPener 1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for sharp_modules.cont_src</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Filippo Maccagni&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Fil8&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;filippo.maccagni@gmail.com&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">string</span><span class="o">,</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">yaml</span><span class="o">,</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">convert_units</span> <span class="k">as</span> <span class="nn">conv_units</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="k">import</span> <span class="n">wcs</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">fits</span> <span class="k">as</span> <span class="n">pyfits</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">ascii</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="k">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">astropy.coordinates</span> <span class="k">import</span> <span class="n">SkyCoord</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="k">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">Column</span><span class="p">,</span> <span class="n">MaskedColumn</span><span class="p">,</span> <span class="n">hstack</span>
+<span class="kn">from</span> <span class="nn">astroquery.vizier</span> <span class="k">import</span> <span class="n">Vizier</span>
+<span class="kn">import</span> <span class="nn">astropy.coordinates</span> <span class="k">as</span> <span class="nn">coord</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.colors</span> <span class="k">as</span> <span class="nn">mc</span>
+
+<span class="kn">import</span> <span class="nn">mirlib</span> <span class="k">as</span> <span class="nn">lib</span>
+<span class="kn">import</span> <span class="nn">convert_units</span> <span class="k">as</span> <span class="nn">conv_units</span>
+
+
+<span class="c1">####################################################################################################</span>
+
+
+
+<div class="viewcode-block" id="source_catalog"><a class="viewcode-back" href="../../cont_src.html#sharp_modules.cont_src.source_catalog">[docs]</a><span class="k">def</span> <span class="nf">source_catalog</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">,</span><span class="n">tablename</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Takes a dictionary with the following parameters:</span>
+
+
+<span class="sd">	&#39;&#39;&#39;</span>
+	<span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;source_catalog&#39;</span>
+	<span class="n">width</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;width&#39;</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">)</span>
+	<span class="n">catalog</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;catalog&#39;</span><span class="p">,</span> <span class="s1">&#39;NVSS&#39;</span><span class="p">)</span>
+	<span class="n">thresh</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;thresh&#39;</span><span class="p">,</span> <span class="mf">10e-3</span><span class="p">)</span>
+	<span class="n">centre</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;centre_coord&#39;</span><span class="p">,</span><span class="kc">None</span><span class="p">)</span>
+	<span class="n">catalog_table</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;workdir&#39;</span><span class="p">]</span><span class="o">+</span><span class="n">tablename</span>
+	<span class="n">Vizier</span><span class="o">.</span><span class="n">ROW_LIMIT</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+	
+	<span class="n">p</span> <span class="o">=</span> <span class="n">Vizier</span><span class="o">.</span><span class="n">query_region</span><span class="p">(</span><span class="n">coord</span><span class="o">.</span><span class="n">SkyCoord</span><span class="p">(</span><span class="n">centre</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">centre</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">hourangle</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span> 
+		<span class="n">frame</span> <span class="o">=</span> <span class="s1">&#39;icrs&#39;</span><span class="p">),</span> <span class="n">width</span> <span class="o">=</span> <span class="n">width</span><span class="p">,</span> <span class="n">catalog</span> <span class="o">=</span> <span class="n">catalog</span><span class="p">)</span>
+	<span class="n">tab</span> <span class="o">=</span> <span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+	<span class="n">ra_deg</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">dec_deg</span> <span class="o">=</span> <span class="p">[]</span>
+	
+	<span class="k">if</span> <span class="n">catalog</span> <span class="o">==</span> <span class="s1">&#39;NVSS&#39;</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s1">&#39;RAJ2000&#39;</span><span class="p">])):</span>
+		   <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;RAJ2000&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s1">&#39;RAJ2000&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span><span class="s1">&#39; &#39;</span><span class="p">),</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+		   <span class="n">ra_deg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conv_units</span><span class="o">.</span><span class="n">ra2deg</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s1">&#39;RAJ2000&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
+		   <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;DEJ2000&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s1">&#39;DEJ2000&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">],</span><span class="s1">&#39; &#39;</span><span class="p">),</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+		   <span class="n">dec_deg</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">conv_units</span><span class="o">.</span><span class="n">dec2deg</span><span class="p">(</span><span class="n">tab</span><span class="p">[</span><span class="s1">&#39;DEJ2000&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">]))</span>
+
+		<span class="n">above_thresh</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;S1.4&#39;</span><span class="p">]</span><span class="o">&lt;</span><span class="n">thresh</span>
+	
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">tab</span><span class="o">.</span><span class="n">colnames</span><span class="p">)):</span>
+		<span class="n">tab</span><span class="p">[</span><span class="n">tab</span><span class="o">.</span><span class="n">colnames</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="n">above_thresh</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+	<span class="n">tab</span> <span class="o">=</span>  <span class="n">Table</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="n">masked</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+	<span class="n">ascii</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tab</span><span class="p">,</span> <span class="n">catalog_table</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">tab</span></div>
+
+<span class="k">def</span> <span class="nf">sim_cont_from_cube</span><span class="p">(</span><span class="n">tablename</span><span class="p">,</span><span class="n">catalog</span><span class="p">,</span><span class="n">infile</span><span class="p">,</span><span class="n">outfile</span><span class="p">):</span>
+
+	<span class="n">tab</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">tablename</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">catalog</span> <span class="o">==</span> <span class="s1">&#39;NVSS&#39;</span><span class="p">:</span>
+
+			<span class="n">ra</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;RAJ2000&#39;</span><span class="p">]</span>
+			<span class="n">dec</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;DEJ2000&#39;</span><span class="p">]</span>
+	
+			<span class="n">major</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;MajAxis&#39;</span><span class="p">]</span>
+			<span class="n">minor</span> <span class="o">=</span> <span class="n">tab</span><span class="p">[</span><span class="s1">&#39;MinAxis&#39;</span><span class="p">]</span>		
+
+			<span class="n">angle1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+			<span class="n">cosangle1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle1</span><span class="p">)</span>
+			<span class="n">sinangle1</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle1</span><span class="p">)</span>
+
+	<span class="n">pixels</span> <span class="o">=</span> <span class="n">conv_units</span><span class="o">.</span><span class="n">coord_to_pix</span><span class="p">(</span><span class="n">infile</span><span class="p">,</span><span class="n">ra</span><span class="p">,</span><span class="n">dec</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+	<span class="n">cubefile</span> <span class="o">=</span> <span class="n">pyfits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">infile</span><span class="p">)</span>
+	<span class="n">contdata</span> <span class="o">=</span> <span class="n">cubefile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+	<span class="n">cubehead</span> <span class="o">=</span> <span class="n">cubefile</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+
+	<span class="k">if</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+
+		<span class="n">contdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">contdata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span><span class="n">contdata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
+		<span class="k">if</span> <span class="s1">&#39;CTYPE4&#39;</span> <span class="ow">in</span> <span class="n">cubehead</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;CTYPE4&#39;</span><span class="p">]</span>
+		<span class="k">if</span> <span class="s1">&#39;CDELT4&#39;</span> <span class="ow">in</span> <span class="n">cubehead</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;CDELT4&#39;</span><span class="p">]</span>    
+		<span class="k">if</span> <span class="s1">&#39;CRVAL4&#39;</span> <span class="ow">in</span> <span class="n">cubehead</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;CRVAL4&#39;</span><span class="p">]</span>
+		<span class="k">if</span> <span class="s1">&#39;CRPIX4&#39;</span> <span class="ow">in</span> <span class="n">cubehead</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;CRPIX4&#39;</span><span class="p">]</span>
+		<span class="k">if</span> <span class="s1">&#39;NAXIS4&#39;</span> <span class="ow">in</span> <span class="n">cubehead</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;NAXIS4&#39;</span><span class="p">]</span>
+
+	<span class="k">elif</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+
+		<span class="n">contdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">contdata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">contdata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+		<span class="k">if</span> <span class="s1">&#39;CRPIX3&#39;</span> <span class="ow">in</span> <span class="n">cubehead</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;CRPIX3&#39;</span><span class="p">]</span> 
+		<span class="k">if</span> <span class="s1">&#39;CRVAL3&#39;</span> <span class="ow">in</span> <span class="n">cubehead</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;CRVAL3&#39;</span><span class="p">]</span>
+		<span class="k">if</span> <span class="s1">&#39;CDELT3&#39;</span> <span class="ow">in</span> <span class="n">cubehead</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;CDELT3&#39;</span><span class="p">]</span>
+		<span class="k">if</span> <span class="s1">&#39;CTYPE3&#39;</span> <span class="ow">in</span> <span class="n">cubehead</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;CTYPE3&#39;</span><span class="p">]</span>
+		<span class="k">if</span> <span class="s1">&#39;NAXIS3&#39;</span> <span class="ow">in</span> <span class="n">cubehead</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;NAXIS3&#39;</span><span class="p">]</span>
+
+	<span class="k">else</span><span class="p">:</span> 
+		<span class="n">contdata</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="n">contdata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">contdata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]])</span>
+
+
+
+	<span class="k">del</span> <span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span>
+
+	<span class="n">w</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">WCS</span><span class="p">(</span><span class="n">cubehead</span><span class="p">)</span> 
+
+	<span class="n">xnum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;NAXIS1&#39;</span><span class="p">],</span><span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;NAXIS1&#39;</span><span class="p">])</span>
+	<span class="n">ynum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;NAXIS2&#39;</span><span class="p">],</span><span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;NAXIS2&#39;</span><span class="p">])</span>	
+	<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> 	<span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xnum</span><span class="p">,</span> <span class="n">ynum</span><span class="p">)</span>
+
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">pixels</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+
+		<span class="n">xc</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">pixels</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+		<span class="n">yc</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">pixels</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+
+		<span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">xc</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;nan&#39;</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">yc</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;nan&#39;</span><span class="p">:</span>
+			<span class="k">pass</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">minor</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="mf">3600.</span> <span class="o">&gt;=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;CDELT2&#39;</span><span class="p">])</span> <span class="ow">and</span> <span class="n">major</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="mf">3600.</span> <span class="o">&gt;=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;CDELT2&#39;</span><span class="p">]):</span>
+				<span class="n">a</span> <span class="o">=</span> <span class="n">major</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="mf">3600.</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;CDELT2&#39;</span><span class="p">])</span><span class="o">/</span><span class="mf">2.</span>
+				<span class="n">b</span> <span class="o">=</span> <span class="n">minor</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">/</span><span class="mf">3600.</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">cubehead</span><span class="p">[</span><span class="s1">&#39;CDELT2&#39;</span><span class="p">])</span><span class="o">/</span><span class="mf">2.</span>
+
+				<span class="n">ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">x</span><span class="o">-</span><span class="n">xc</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">y</span><span class="o">-</span><span class="n">yc</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">b</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+				<span class="n">index_ell</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">less_equal</span><span class="p">(</span><span class="n">ell</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+				<span class="n">contdata</span><span class="p">[</span><span class="n">index_ell</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">contdata</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">yc</span><span class="p">),</span><span class="nb">int</span><span class="p">(</span><span class="n">xc</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>
+
+	<span class="n">pyfits</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span><span class="n">contdata</span><span class="p">,</span><span class="n">cubehead</span><span class="p">,</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="write_src_csv"><a class="viewcode-back" href="../../cont_src.html#sharp_modules.cont_src.write_src_csv">[docs]</a><span class="k">def</span> <span class="nf">write_src_csv</span><span class="p">(</span><span class="n">tot</span><span class="p">,</span><span class="n">cfg_par</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;This funcions saves the output of MIRIAD in a csv table</span>
+
+<span class="sd">	Parameter</span>
+<span class="sd">	---------</span>
+<span class="sd">	tot: array with output of imsad (final product of find_src_imsad)</span>
+<span class="sd">	</span>
+<span class="sd">	Return</span>
+<span class="sd">	------</span>
+<span class="sd">	mir_src_sharpener.csv : default name, table saved in absdir (see parameter file)</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="c1"># write the spectrum on file</span>
+	<span class="n">out_file</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;absdir&#39;</span><span class="p">))</span> <span class="o">+</span> <span class="s1">&#39;mir_src_sharpener.csv&#39;</span>
+
+	<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+	<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;ID,J2000,ra,dec,Pix_x,Pix_y,peak</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+	<span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">tot</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+	<span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+	
+	<span class="nb">print</span> <span class="s1">&#39;# List of continuum sources saved on file. #&#39;</span> 
+
+	<span class="k">return</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="check_miriad_output"><a class="viewcode-back" href="../../cont_src.html#sharp_modules.cont_src.check_miriad_output">[docs]</a><span class="k">def</span> <span class="nf">check_miriad_output</span><span class="p">(</span><span class="n">imsad_file</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Function to check the imsad output file</span>
+
+<span class="sd">	The function corrects the lengths of the imsad</span>
+<span class="sd">	output file from miriad assuming that it is basically</span>
+<span class="sd">	the last flag and not more.</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Checking imsad output file from Miriad&quot;</span><span class="p">)</span>
+
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">imsad_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+		<span class="n">src_list</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+	<span class="c1"># get the length of the lines</span>
+	<span class="n">line_length_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">src_list</span><span class="p">])</span>
+	<span class="n">min_line_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">line_length_list</span><span class="p">)</span>
+	<span class="n">max_line_length</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">line_length_list</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">min_line_length</span> <span class="o">!=</span> <span class="n">max_line_length</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Found lines with different lengths. Attempting to correct.&quot;</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="n">max_line_length</span> <span class="o">==</span> <span class="mi">98</span> <span class="ow">and</span> <span class="n">min_line_length</span> <span class="o">==</span> <span class="mi">96</span><span class="p">:</span>
+			<span class="n">short_lines_index_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">line_length_list</span> <span class="o">==</span> <span class="mi">96</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+			<span class="k">for</span> <span class="n">line_index</span> <span class="ow">in</span> <span class="n">short_lines_index_list</span><span class="p">:</span>
+				<span class="n">src_list</span><span class="p">[</span><span class="n">line_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_list</span><span class="p">[</span><span class="n">line_index</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; -</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: Unknown difference in columns of imsad output&quot;</span><span class="p">)</span>
+			<span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+		<span class="c1"># save the file temporarily</span>
+		<span class="n">tmp_file</span> <span class="o">=</span> <span class="s2">&quot;abs/tmp.txt&quot;</span>
+		<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tmp_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">writelines</span><span class="p">(</span><span class="n">src_list</span><span class="p">)</span>
+
+		<span class="c1"># rename temporary file by overwriting original file</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">tmp_file</span><span class="p">,</span> <span class="n">imsad_file</span><span class="p">)</span>
+
+		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;... Done. Continue&quot;</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;... File looks good. Continue.&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="create_karma_annotation_file"><a class="viewcode-back" href="../../cont_src.html#sharp_modules.cont_src.create_karma_annotation_file">[docs]</a><span class="k">def</span> <span class="nf">create_karma_annotation_file</span><span class="p">(</span><span class="n">coord_list</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Function to create carma annotation file of the extracted source</span>
+
+<span class="sd">	The function uses the astropy table objects to create the karma</span>
+<span class="sd">	annotation file</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating karma annotation file&quot;</span><span class="p">)</span>
+
+	<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;abs/karma_src_sharpener.ann&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+		<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;COORD W</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;PA STANDARD</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;COLOR GREEN</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">coords</span> <span class="ow">in</span> <span class="n">coord_list</span><span class="p">:</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;CIRCLE </span><span class="si">{0:.5f}</span><span class="s2"> </span><span class="si">{1:.5f}</span><span class="s2"> </span><span class="si">{2:.5f}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+				<span class="n">coords</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">coords</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="mi">50</span><span class="o">/</span><span class="mf">3.6e3</span><span class="p">))</span>
+
+	<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;... Done&quot;</span><span class="p">)</span></div>
+
+<span class="k">def</span> <span class="nf">mosaic_continuum</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">):</span>
+		
+		<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;workdir&#39;</span><span class="p">])</span>
+
+		<span class="nb">print</span> <span class="s1">&#39;# Convert continuum images to miriad format&#39;</span>   
+	
+		<span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;mosaic_continuum&#39;</span>
+		<span class="n">mosaicdir</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;mosaic_directory&#39;</span><span class="p">]</span>
+
+
+		<span class="c1">#baseimage = cfg_par[key][&#39;base_image&#39;]</span>
+		<span class="c1">#baseimage_mir = string.split(baseimage,&#39;.&#39;)[0]</span>
+		<span class="c1">#baseimage_mir = baseimage_mir+&#39;.mir&#39;</span>
+		<span class="c1">#mirfits = lib.miriad(&#39;fits&#39;)</span>
+		<span class="c1">#mirfits.op = &#39;xyin&#39;</span>
+		<span class="c1">#mirfits.in_ = baseimage</span>
+		<span class="c1">#mirfits.out = baseimage_mir</span>
+		<span class="c1">#mirfits.go(rmfiles=True)</span>
+		
+		<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">mosaicdir</span><span class="p">)</span>
+		<span class="n">filelist</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s1">&#39;*.fits&#39;</span><span class="p">)]</span>
+		<span class="n">mirlist</span><span class="o">=</span><span class="p">[]</span>
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">filelist</span><span class="p">)):</span>		
+			<span class="n">ff</span> <span class="o">=</span> <span class="n">pyfits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filelist</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+			<span class="n">heads</span> <span class="o">=</span> <span class="n">ff</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+			<span class="n">ra_deg</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">heads</span><span class="p">[</span><span class="s1">&#39;CRVAL1&#39;</span><span class="p">])</span>
+			<span class="n">dec_deg</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">heads</span><span class="p">[</span><span class="s1">&#39;CRVAL2&#39;</span><span class="p">])</span>
+			<span class="n">rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.</span><span class="o">*</span><span class="n">ra_deg</span>
+			<span class="n">decd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mf">180.</span><span class="o">*</span><span class="n">dec_deg</span>
+
+			<span class="n">mircont</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filelist</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+			<span class="n">mircont</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">mircont</span><span class="p">,</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+			<span class="n">mircont</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;.mir&#39;</span>
+			
+			<span class="n">mirfits</span> <span class="o">=</span> <span class="n">lib</span><span class="o">.</span><span class="n">miriad</span><span class="p">(</span><span class="s1">&#39;fits&#39;</span><span class="p">)</span>
+			<span class="n">mirfits</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;xyin&#39;</span>
+			<span class="n">mirfits</span><span class="o">.</span><span class="n">in_</span> <span class="o">=</span> <span class="n">filelist</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+			<span class="n">mirfits</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">mircont</span>
+			<span class="n">mirfits</span><span class="o">.</span><span class="n">go</span><span class="p">(</span><span class="n">rmfiles</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+			<span class="n">mirlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">mircont</span><span class="p">)</span>
+
+			<span class="n">puthd</span> <span class="o">=</span> <span class="n">lib</span><span class="o">.</span><span class="n">miriad</span><span class="p">(</span><span class="s1">&#39;puthd&#39;</span><span class="p">)</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">in_</span><span class="o">=</span><span class="n">mircont</span><span class="o">+</span><span class="s1">&#39;/pbfwhm&#39;</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">value</span><span class="o">=</span><span class="mf">3409.5199738</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">go</span><span class="p">()</span>
+			<span class="n">puthd</span> <span class="o">=</span> <span class="n">lib</span><span class="o">.</span><span class="n">miriad</span><span class="p">(</span><span class="s1">&#39;puthd&#39;</span><span class="p">)</span>
+
+			<span class="n">puthd</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s1">&#39;double&#39;</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">in_</span><span class="o">=</span><span class="n">mircont</span><span class="o">+</span><span class="s1">&#39;/pntra&#39;</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">value</span><span class="o">=</span><span class="n">ra_deg</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">go</span><span class="p">()</span>
+			<span class="n">puthd</span> <span class="o">=</span> <span class="n">lib</span><span class="o">.</span><span class="n">miriad</span><span class="p">(</span><span class="s1">&#39;puthd&#39;</span><span class="p">)</span>
+
+			<span class="n">puthd</span><span class="o">.</span><span class="n">in_</span><span class="o">=</span><span class="n">mircont</span><span class="o">+</span><span class="s1">&#39;/pntdec&#39;</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">value</span><span class="o">=</span><span class="n">dec_deg</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s1">&#39;r&#39;</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">go</span><span class="p">()</span>
+			<span class="n">puthd</span> <span class="o">=</span> <span class="n">lib</span><span class="o">.</span><span class="n">miriad</span><span class="p">(</span><span class="s1">&#39;puthd&#39;</span><span class="p">)</span>
+
+			<span class="n">puthd</span><span class="o">.</span><span class="n">in_</span><span class="o">=</span><span class="n">mircont</span><span class="o">+</span><span class="s1">&#39;/pbinit&#39;</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">value</span><span class="o">=</span><span class="mf">1.370031054688e9</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="s1">&#39;double&#39;</span>
+			<span class="n">puthd</span><span class="o">.</span><span class="n">go</span><span class="p">()</span>
+
+		<span class="c1"># print &#39;# Regrid continuum images to base image&#39;   </span>
+		<span class="c1"># mireg_list=[]</span>
+		<span class="c1"># for i in xrange(0,len(mirlist)):</span>
+
+		<span class="c1"># 	mireg = os.path.basename(mirlist[i])</span>
+		<span class="c1"># 	mireg = string.split(mireg,&#39;.&#39;)[0]</span>
+		<span class="c1"># 	mireg = str(i)+&#39;_reg.mir&#39;			</span>
+
+		<span class="c1"># 	miregrid = lib.miriad(&#39;regrid&#39;)</span>
+		<span class="c1"># 	miregrid.tin = &#39;../&#39;+baseimage_mir</span>
+		<span class="c1"># 	miregrid.in_ = mirlist[i]</span>
+		<span class="c1"># 	miregrid.bw = cfg_par[key].get(&#39;mosaic_bw&#39;,0)</span>
+		<span class="c1"># 	miregrid.out = mireg</span>
+		<span class="c1"># 	miregrid.go(rmfiles=True)</span>
+		<span class="c1"># 	mireg_list.append(mireg)</span>
+		<span class="c1"># 	puthd = lib.miriad(&#39;puthd&#39;)</span>
+		<span class="c1"># 	puthd.in_=mireg+&#39;/pbfwhm&#39;</span>
+		<span class="c1"># 	puthd.value=3409.5199738</span>
+		<span class="c1"># 	puthd.go()</span>
+		<span class="c1"># 	puthd = lib.miriad(&#39;puthd&#39;)</span>
+
+		<span class="c1"># 	puthd.type = &#39;double&#39;</span>
+		<span class="c1"># 	puthd.in_=mireg+&#39;/pntra&#39;</span>
+		<span class="c1"># 	puthd.value=ra_deg</span>
+		<span class="c1"># 	puthd.type = &#39;r&#39;</span>
+		<span class="c1"># 	puthd.go()</span>
+		<span class="c1"># 	puthd = lib.miriad(&#39;puthd&#39;)</span>
+
+		<span class="c1"># 	puthd.in_=mireg+&#39;/pntdec&#39;</span>
+		<span class="c1"># 	puthd.value=dec_deg</span>
+		<span class="c1"># 	puthd.type = &#39;r&#39;</span>
+		<span class="c1"># 	puthd.go()</span>
+		<span class="c1"># 	puthd = lib.miriad(&#39;puthd&#39;)</span>
+
+		<span class="c1"># 	puthd.in_=mireg+&#39;/pbinit&#39;</span>
+		<span class="c1"># 	puthd.value=1.370031054688e9</span>
+		<span class="c1"># 	puthd.type = &#39;double&#39;</span>
+		<span class="c1"># 	puthd.go()</span>
+			
+		
+
+		<span class="c1"># print &#39;# Mosaic continuum images&#39;   </span>
+
+		<span class="c1"># mirmos = lib.miriad(&#39;linmos&#39;)</span>
+		<span class="c1"># mirmos.tin = &#39;../&#39;+baseimage_mir</span>
+		<span class="c1"># print mirmos.tin</span>
+		<span class="c1"># mirmos.in_ = mireg_list</span>
+		<span class="c1"># print mirmos.in_</span>
+		<span class="c1"># mirmos.out = &#39;mosaic.mir&#39;</span>
+		<span class="c1"># mirmos.rms = cfg_par[key][&#39;mosaic_rms&#39;]</span>
+		<span class="c1"># print mirmos.rms</span>
+		<span class="c1"># mirmos.cutoff = cfg_par[key][&#39;mosaic_cutoff&#39;]</span>
+		<span class="c1"># mirmos.go(rmfiles=True)	</span>
+
+		<span class="c1"># fits = lib.miriad(&#39;fits&#39;)</span>
+		<span class="c1"># fits.op = &#39;xyout&#39;</span>
+		<span class="c1"># fits.in_ = &#39;mosaic.mir&#39;</span>
+		<span class="c1"># fits.out = &#39;mosaic.fits&#39;</span>
+		<span class="c1"># fits.go(rmfiles=True)</span>
+
+
+<div class="viewcode-block" id="find_src_imsad"><a class="viewcode-back" href="../../cont_src.html#sharp_modules.cont_src.find_src_imsad">[docs]</a><span class="k">def</span> <span class="nf">find_src_imsad</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Finds the continuum sources according to the options set in the source_finder sub-keys</span>
+
+<span class="sd">	The function stores the sources as a raw txt file straight from miriad, a formatted csv file and a karma annotation file.</span>
+
+<span class="sd">	Parameters</span>
+<span class="sd">	----------</span>
+<span class="sd">	cfg_par : str</span>
+<span class="sd">		Parameter file loaded with sharpener</span>
+<span class="sd">	</span>
+<span class="sd">	Returns</span>
+<span class="sd">	-------</span>
+<span class="sd">	src_list : str</span>
+<span class="sd">		csv table of continuum sources (output of MIRIAD imsad)</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="nb">print</span> <span class="s1">&#39;# Find continuum sources &#39;</span>   
+
+	<span class="c1"># Getting directories and convert files if necessary</span>
+	<span class="c1"># ++++++++++++++++++++++++++++++++++++++++++++++++++</span>
+	<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;workdir&#39;</span><span class="p">])</span>
+	<span class="n">cont_im_mir</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;mircontname&#39;</span><span class="p">]</span>
+	<span class="n">cont_im</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;contname&#39;</span><span class="p">])</span>
+
+	<span class="c1"># cannot use cfg_par, probably because file name would be too long for miriad</span>
+	<span class="n">src_imsad_out</span> <span class="o">=</span> <span class="s1">&#39;abs/mir_src_sharpener.txt&#39;</span>
+	<span class="c1"># src_imsad_out = &#39;{0:s}mir_src_sharpener.txt&#39;.format(</span>
+	<span class="c1"># 	cfg_par[&#39;general&#39;].get(&#39;absdir&#39;))</span>
+	<span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;source_finder&#39;</span>
+
+	<span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cont_im_mir</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cont_im</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span> 
+	
+		<span class="n">fits</span> <span class="o">=</span> <span class="n">lib</span><span class="o">.</span><span class="n">miriad</span><span class="p">(</span><span class="s1">&#39;fits&#39;</span><span class="p">)</span>
+		<span class="n">fits</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;xyin&#39;</span>
+		<span class="n">fits</span><span class="o">.</span><span class="n">in_</span> <span class="o">=</span> <span class="n">cont_im</span>
+		<span class="n">fits</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">cont_im_mir</span>
+		<span class="n">fits</span><span class="o">.</span><span class="n">go</span><span class="p">(</span><span class="n">rmfiles</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+	<span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cont_im</span><span class="p">)</span> <span class="o">==</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cont_im_mir</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span> 
+	
+		<span class="n">fits</span> <span class="o">=</span> <span class="n">lib</span><span class="o">.</span><span class="n">miriad</span><span class="p">(</span><span class="s1">&#39;fits&#39;</span><span class="p">)</span>
+		<span class="n">fits</span><span class="o">.</span><span class="n">op</span> <span class="o">=</span> <span class="s1">&#39;xyout&#39;</span>
+		<span class="n">fits</span><span class="o">.</span><span class="n">in_</span> <span class="o">=</span> <span class="n">cont_im_mir</span>
+		<span class="n">fits</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">cont_im</span>
+		<span class="n">fits</span><span class="o">.</span><span class="n">go</span><span class="p">(</span><span class="n">rmfiles</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+	<span class="c1"># Run IMSAD in Miriad to get the source</span>
+	<span class="c1"># ++++++++++++++++++++++++++++++++++++++</span>
+	<span class="n">imsad</span> <span class="o">=</span> <span class="n">lib</span><span class="o">.</span><span class="n">miriad</span><span class="p">(</span><span class="s1">&#39;imsad&#39;</span><span class="p">)</span>
+	<span class="n">imsad</span><span class="o">.</span><span class="n">in_</span> <span class="o">=</span><span class="n">cont_im_mir</span>
+	<span class="n">imsad</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">src_imsad_out</span>
+	<span class="n">imsad</span><span class="o">.</span><span class="n">clip</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;clip&#39;</span><span class="p">]</span>
+	<span class="c1">#imsad.region = &#39;boxes\(&#39;+self.abs_ex_imsad_region+&#39;\)&#39;</span>
+	<span class="n">imsad</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;options&#39;</span><span class="p">]</span>
+
+	<span class="n">imsad</span><span class="o">.</span><span class="n">go</span><span class="p">(</span><span class="n">rmfiles</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+	<span class="c1"># It seems that the length of a line in the Miriad</span>
+	<span class="c1"># output file from imsad can vary depending on the flags.</span>
+	<span class="c1"># It is necessary to check for this and adjust the length</span>
+	<span class="n">check_miriad_output</span><span class="p">(</span><span class="n">src_imsad_out</span><span class="p">)</span>
+	
+	
+	<span class="c1"># Modify output of imsad to save it as csv</span>
+	<span class="c1"># ++++++++++++++++++++++++++++++++++++++++</span>
+	<span class="c1"># changed to use ascii.read functionality</span>
+	<span class="c1"># src_list = open(src_imsad_out,&#39;r&#39;)</span>
+	<span class="c1"># lines = src_list.readlines()</span>
+	<span class="c1"># len_lines = len(lines)</span>
+	
+	<span class="c1"># ra_tmp = []</span>
+	<span class="c1"># dec_tmp = []</span>
+	<span class="c1"># peak_tmp = []        </span>
+	
+	<span class="c1"># for i in xrange (0,len_lines):</span>
+	<span class="c1"># 	lines[i] = lines[i].strip()</span>
+	<span class="c1"># 	tmp = lines[i].split(&#39; &#39;)</span>
+	<span class="c1"># 	ra_tmp.append(str(tmp[3]))</span>
+	<span class="c1"># 	dec_tmp.append(str(tmp[4]))</span>
+	<span class="c1"># 	peak_tmp.append(str(tmp[6]))</span>
+	
+	<span class="c1"># ra_tmp = np.array(ra_tmp)</span>
+	<span class="c1"># dec_tmp = np.array(dec_tmp)</span>
+	<span class="c1"># peak_tmp = np.array(peak_tmp)</span>
+   
+	<span class="c1"># #ID</span>
+	<span class="c1"># ids = np.array(np.arange(1,len_lines+1,1),dtype=str)</span>
+	
+	<span class="c1"># #J2000</span>
+	<span class="c1"># #convert ra</span>
+	<span class="c1"># ra_vec = []</span>
+	<span class="c1"># for i in xrange (0, len_lines):</span>
+	<span class="c1"># 	line = ra_tmp[i].split(&#39;:&#39;)</span>
+	<span class="c1"># 	last_dig = int(round(float(line[2]),0))</span>
+	<span class="c1"># 	if last_dig &lt; 10:</span>
+	<span class="c1"># 		last_dig = &#39;0&#39;+str(last_dig)</span>
+	<span class="c1"># 	ra_vec.append(line[0]+line[1]+str(last_dig))</span>
+	
+	<span class="c1"># #convert dec </span>
+	<span class="c1"># dec_vec = []</span>
+	<span class="c1"># dec_coord = []</span>
+	<span class="c1"># for i in xrange (0, len_lines):</span>
+	<span class="c1"># 	line = dec_tmp[i].split(&#39;:&#39;)</span>
+	<span class="c1"># 	first_dig =  line[0][-2:]</span>
+	<span class="c1"># 	last_dig = int(round(float(line[2]),0))</span>
+
+	<span class="c1"># 	dec_vec.append(first_dig[1]+line[1]+str(last_dig))</span>
+
+	<span class="c1"># 	if line[0][-3] == &#39;-&#39;:</span>
+	<span class="c1"># 		dec_coord.append(&#39;-&#39;+first_dig+&#39;:&#39;+line[1]+&#39;:&#39;+str(last_dig)) </span>
+	<span class="c1"># 		J2000_tmp = np.array([ a+&#39;-&#39;+b for a,b in zip(ra_vec,dec_vec)])</span>
+	<span class="c1"># 	if line[0][-3] == &#39;+&#39;:</span>
+	<span class="c1"># 		dec_coord.append(&#39;+&#39;+first_dig+&#39;:&#39;+line[1]+&#39;:&#39;+str(last_dig))        </span>
+	<span class="c1"># 		J2000_tmp = np.array([ a+&#39;+&#39;+b for a,b in zip(ra_vec,dec_vec)])</span>
+
+	<span class="c1"># dec_coord = np.array(dec_coord)</span>
+
+	<span class="c1"># read in data and rename columns</span>
+	<span class="n">src_list</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">src_imsad_out</span><span class="p">,</span> <span class="n">include_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;col3&#39;</span><span class="p">,</span> <span class="s1">&#39;col4&#39;</span><span class="p">,</span> <span class="s1">&#39;col5&#39;</span><span class="p">])</span>
+	<span class="n">src_list</span><span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s1">&#39;col3&#39;</span><span class="p">,</span> <span class="s1">&#39;ra&#39;</span><span class="p">)</span>
+	<span class="n">src_list</span><span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s1">&#39;col4&#39;</span><span class="p">,</span> <span class="s1">&#39;dec&#39;</span><span class="p">)</span>
+	<span class="n">src_list</span><span class="o">.</span><span class="n">rename_column</span><span class="p">(</span><span class="s1">&#39;col5&#39;</span><span class="p">,</span> <span class="s1">&#39;peak&#39;</span><span class="p">)</span>
+	<span class="n">n_src</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">src_list</span><span class="p">[</span><span class="s1">&#39;ra&#39;</span><span class="p">])</span>
+
+	<span class="c1"># correct the miriad bug</span>
+	<span class="n">src_list</span><span class="p">[</span><span class="s1">&#39;dec&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">src</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;+0+&#39;</span><span class="p">,</span><span class="s1">&#39;+&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">src_list</span><span class="p">[</span><span class="s1">&#39;dec&#39;</span><span class="p">]])</span>
+
+	<span class="c1"># create two new columns</span>
+	<span class="c1"># column 1: ID will be filled after sorting the columns</span>
+	<span class="n">src_id</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_src</span><span class="p">)</span>
+
+	<span class="c1"># column 2: Source name</span>
+	<span class="n">j2000</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="s2">&quot;</span><span class="si">{0:s}{1:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">src_list</span><span class="p">[</span><span class="s1">&#39;ra&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">),</span> <span class="n">src_list</span><span class="p">[</span><span class="s1">&#39;dec&#39;</span><span class="p">][</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">,</span><span class="s1">&#39;&#39;</span><span class="p">))</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_src</span><span class="p">)])</span>
+
+	<span class="c1"># create a table and merge it</span>
+	<span class="n">new_columns</span> <span class="o">=</span> <span class="n">Table</span><span class="p">([</span><span class="n">src_id</span><span class="p">,</span> <span class="n">j2000</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;ID&#39;</span><span class="p">,</span> <span class="s1">&#39;J2000&#39;</span><span class="p">))</span>
+	<span class="n">src_list</span> <span class="o">=</span> <span class="n">hstack</span><span class="p">([</span><span class="n">new_columns</span><span class="p">,</span> <span class="n">src_list</span><span class="p">])</span>
+
+	<span class="c1"># sort the sources after source names</span>
+	<span class="n">src_list</span> <span class="o">=</span> <span class="n">src_list</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s1">&#39;J2000&#39;</span><span class="p">)</span>
+
+	<span class="c1"># now assign ID</span>
+	<span class="n">src_list</span><span class="p">[</span><span class="s1">&#39;ID&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">n_src</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+	<span class="c1">### Find pixels of sources in continuum image</span>
+	<span class="c1">#open continuum image</span>
+	<span class="n">hdulist</span> <span class="o">=</span> <span class="n">pyfits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">cont_im</span><span class="p">)</span>  <span class="c1"># read input</span>
+	<span class="c1"># read data and header</span>
+	<span class="c1">#what follows works for wcs, but can be written better</span>
+	<span class="n">prihdr</span> <span class="o">=</span> <span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>   
+	<span class="c1"># if &#39;CTYPE4&#39; in prihdr:</span>
+	<span class="c1"># 	del prihdr[&#39;CTYPE4&#39;]</span>
+	<span class="c1"># if &#39;CDELT4&#39; in prihdr:</span>
+	<span class="c1"># 	del prihdr[&#39;CDELT4&#39;]    </span>
+	<span class="c1"># if &#39;CRVAL4&#39; in prihdr:</span>
+	<span class="c1"># 	del prihdr[&#39;CRVAL4&#39;]</span>
+	<span class="c1"># if &#39;CUNIT4&#39; in prihdr:</span>
+	<span class="c1"># 	del prihdr[&#39;CUNIT4&#39;]</span>
+	<span class="c1"># if &#39;CRPIX4&#39; in prihdr:			</span>
+	<span class="c1"># 	del prihdr[&#39;CRPIX4&#39;]</span>
+	<span class="c1"># if &#39;CTYPE3&#39; in prihdr:</span>
+	<span class="c1"># 	del prihdr[&#39;CTYPE3&#39;]</span>
+	<span class="c1"># if &#39;CDELT3&#39; in prihdr:</span>
+	<span class="c1"># 	del prihdr[&#39;CDELT3&#39;]</span>
+	<span class="c1"># if &#39;CRVAL3&#39; in prihdr:</span>
+	<span class="c1"># 	del prihdr[&#39;CRVAL3&#39;]</span>
+	<span class="c1"># if &#39;CRPIX3&#39; in prihdr:</span>
+	<span class="c1"># 	del prihdr[&#39;CRPIX3&#39;] </span>
+	<span class="c1"># if &#39;CUNIT3&#39; in prihdr:</span>
+	<span class="c1"># 	del prihdr[&#39;CUNIT3&#39;]</span>
+	<span class="c1"># if &#39;NAXIS3&#39; in prihdr:</span>
+	<span class="c1"># 	del prihdr[&#39;NAXIS3&#39;]</span>
+	<span class="c1"># if &#39;NAXIS&#39; in prihdr:</span>
+	<span class="c1"># 	del prihdr[&#39;NAXIS&#39;]</span>
+	<span class="c1"># prihdr[&#39;NAXIS&#39;]=2</span>
+	<span class="c1">#load wcs system</span>
+	<span class="n">w</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">WCS</span><span class="p">(</span><span class="n">prihdr</span><span class="p">)</span>    
+
+	<span class="c1"># RS: the rest of the function requires only 2 axis images</span>
+	<span class="k">if</span> <span class="n">w</span><span class="o">.</span><span class="n">naxis</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+		<span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">dropaxis</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+		<span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">dropaxis</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+		<span class="n">img</span> <span class="o">=</span> <span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+	<span class="k">elif</span> <span class="n">w</span><span class="o">.</span><span class="n">naxis</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+		<span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">dropaxis</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+		<span class="n">img</span> <span class="o">=</span> <span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+	<span class="n">coord_list</span> <span class="o">=</span> <span class="n">SkyCoord</span><span class="p">(</span><span class="n">src_list</span><span class="p">[</span><span class="s1">&#39;ra&#39;</span><span class="p">],</span> <span class="n">src_list</span><span class="p">[</span><span class="s1">&#39;dec&#39;</span><span class="p">],</span> <span class="n">unit</span><span class="o">=</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">hourangle</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span> <span class="n">frame</span><span class="o">=</span><span class="s1">&#39;fk5&#39;</span><span class="p">)</span>
+
+	<span class="n">px_ra</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_src</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+	<span class="n">px_dec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_src</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+	<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_src</span><span class="p">):</span>
+		<span class="n">px_ra</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">px_dec</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">wcs_world2pix</span><span class="p">(</span><span class="n">coord_list</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">ra</span><span class="p">,</span> <span class="n">coord_list</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">dec</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+		<span class="n">px_ra</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">px_ra</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="mi">0</span><span class="p">))</span>
+		<span class="n">px_dec</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">px_dec</span><span class="p">[</span><span class="n">k</span><span class="p">],</span><span class="mi">0</span><span class="p">))</span>
+
+	<span class="c1"># create a table and merge it</span>
+	<span class="n">new_columns</span> <span class="o">=</span> <span class="n">Table</span><span class="p">([</span><span class="n">px_ra</span><span class="p">,</span> <span class="n">px_dec</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;pixel_ra&#39;</span><span class="p">,</span> <span class="s1">&#39;pixel_dec&#39;</span><span class="p">))</span>
+	<span class="n">src_list</span> <span class="o">=</span> <span class="n">hstack</span><span class="p">([</span><span class="n">src_list</span><span class="p">,</span> <span class="n">new_columns</span><span class="p">])</span>
+
+	<span class="c1"># print(src_list)</span>
+	<span class="c1"># print(cfg_par[&#39;general&#39;].get(&#39;absdir&#39;))</span>
+	<span class="n">src_list</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{0:s}</span><span class="s1">mir_src_sharpener.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;absdir&#39;</span><span class="p">)),</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+	<span class="c1"># create a karma annotation file</span>
+	<span class="n">create_karma_annotation_file</span><span class="p">(</span><span class="n">coord_list</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;plot_image&#39;</span><span class="p">]:</span>
+		<span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="n">w</span><span class="p">)</span>
+		<span class="c1"># ax.imshow(img, vmin=cfg_par[key][&#39;clip&#39;],</span>
+		<span class="c1">#           vmax=np.max(img), norm=mc.LogNorm(cfg_par[key][&#39;clip&#39;]), origin=&#39;lower&#39;)</span>
+		<span class="c1">#ax.imshow(img, vmin=float(cfg_par[key][&#39;clip&#39;])/10000., vmax=np.min([np.max(img), float(cfg_par[key][&#39;clip&#39;])*1]), origin=&#39;lower&#39;)</span>
+		<span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;clip&#39;</span><span class="p">])</span><span class="o">/</span><span class="mi">5</span><span class="p">,</span> <span class="n">origin</span> <span class="o">=</span> <span class="s1">&#39;lower&#39;</span><span class="p">)</span>
+		<span class="c1"># fig = ax.imshow(img, norm=mc.SymLogNorm(</span>
+		<span class="c1"># 	float(cfg_par[key][&#39;clip&#39;])*10), origin=&#39;lower&#39;)</span>
+		<span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+		<span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s1">&#39;Flux Density [Jy/beam]&#39;</span><span class="p">)</span>
+        <span class="c1">#ax.imshow(img, vmin=, origin=&#39;lower&#39;)</span>
+		<span class="c1">#ax.coords.grid(color=&#39;white&#39;, ls=&#39;solid&#39;)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_axislabel</span><span class="p">(</span><span class="s1">&#39;Right Ascension&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_axislabel</span><span class="p">(</span><span class="s1">&#39;Declination&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">coords</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="s1">&#39;hh:mm&#39;</span><span class="p">)</span>
+		<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;workdir&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">]))</span>
+		<span class="c1">#ax.coords[0].set_ticks(direction=&#39;in&#39;)</span>
+		<span class="c1">#ax.coords[1].set_ticks(direction=&#39;in&#39;)</span>
+		<span class="c1"># ax.tick_params(axis=&#39;both&#39;, bottom=&#39;on&#39;, top=&#39;on&#39;, left=&#39;on&#39;, right=&#39;on&#39;,</span>
+        <span class="c1">#          which=&#39;major&#39;, direction=&#39;in&#39;)</span>
+
+		<span class="c1"># add sources</span>
+		<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_src</span><span class="p">):</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">coord_list</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">coord_list</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">get_transform</span><span class="p">(</span><span class="s1">&#39;fk5&#39;</span><span class="p">),</span>
+                            <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;none&#39;</span><span class="p">)</span>
+			<span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="n">coord_list</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">coord_list</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">dec</span><span class="o">.</span><span class="n">value</span><span class="p">),</span> <span class="n">xycoords</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">get_transform</span><span class="p">(</span><span class="s1">&#39;fk5&#39;</span><span class="p">),</span>
+			                           <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">textcoords</span><span class="o">=</span><span class="s1">&#39;offset points&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)</span>
+
+		<span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0:s}{1:s}</span><span class="s2">_continuum.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+			<span class="s1">&#39;plotdir&#39;</span><span class="p">),</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;workdir&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+
+		<span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;plot_format&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pdf&quot;</span><span class="p">:</span>
+			<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.png&quot;</span><span class="p">,</span> <span class="s2">&quot;.pdf&quot;</span><span class="p">),</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+	
+	<span class="c1"># pixels_cont=np.zeros([ra_tmp.shape[0],2])</span>
+	<span class="c1"># ra_list_tmp = np.zeros([ra_tmp.shape[0]])</span>
+	<span class="c1"># for i in xrange (0,ra_tmp.shape[0]):</span>
+		
+	<span class="c1"># 	ra_deg_tmp = conv_units.ra2deg(ra_tmp[i])</span>
+	<span class="c1"># 	dec_deg_tmp = conv_units.dec2deg(dec_coord[i])</span>
+		
+	<span class="c1"># 	px,py=w.wcs_world2pix(ra_deg_tmp,dec_deg_tmp,0)</span>
+	<span class="c1"># 	pixels_cont[i,0]= str(round(px,0))</span>
+	<span class="c1"># 	pixels_cont[i,1]= str(round(py,0))        </span>
+
+
+	<span class="c1"># #make csv file with ID, J2000, Ra, Dec, Pix_y, Pix_y, Peak[Jy] </span>
+	<span class="c1"># tot = np.column_stack((ids,J2000_tmp,ra_tmp,dec_coord,</span>
+	<span class="c1"># 					   pixels_cont[:,0],pixels_cont[:,1],peak_tmp))</span>
+
+	<span class="c1"># write_src_csv(tot,cfg_par)  </span>
+	
+	<span class="n">hdulist</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+	<span class="nb">print</span> <span class="s1">&#39;# Continuum sources found #&#39;</span>    
+
+	
+	<span class="k">return</span> <span class="n">src_list</span>  </div>
+
+
+
+
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SHARPener 1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Filippo Maccagni, Robert Schulz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

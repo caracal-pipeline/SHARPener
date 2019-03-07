@@ -1,0 +1,298 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>sharp_modules.convert_units &#8212; SHARPener 1.5 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SHARPener 1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for sharp_modules.convert_units</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Filippo Maccagni&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Fil8&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;filippo.maccagni@gmail.com&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span><span class="nn">string</span><span class="o">,</span><span class="nn">os</span><span class="o">,</span><span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="k">import</span> <span class="n">units</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">fits</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="k">import</span> <span class="n">wcs</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+
+<span class="c1">#define constants</span>
+<span class="n">RAD2DEG</span><span class="o">=</span><span class="mf">180.</span><span class="o">/</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span>
+<span class="n">HI</span><span class="o">=</span><span class="mf">1.42040575177e+09</span> <span class="c1">#Hz</span>
+<span class="n">TSPIN</span><span class="o">=</span><span class="mi">100</span>            <span class="c1">#K</span>
+<span class="n">MSUN</span><span class="o">=</span><span class="mf">1.98855e33</span>      <span class="c1">#g</span>
+<span class="n">MHI</span><span class="o">=</span><span class="mf">1.6749E-24</span>       <span class="c1">#g</span>
+<span class="n">CHI</span><span class="o">=</span><span class="mf">2.36E5</span>
+<span class="n">PC</span><span class="o">=</span><span class="mf">3.08567758E18</span>    <span class="c1">#cm</span>
+<span class="n">JANSKY</span><span class="o">=</span><span class="mf">1e-23</span>        <span class="c1">#erg/scm2Hz</span>
+<span class="n">C</span><span class="o">=</span><span class="mf">2.99792458E10</span>     <span class="c1">#cm/s</span>
+<span class="n">G</span><span class="o">=</span><span class="mf">6.6742E-08</span>        <span class="c1">#cm3kg-1s-1      </span>
+<span class="n">MP</span><span class="o">=</span><span class="mf">1.67492728E-24</span>   <span class="c1">#g</span>
+<span class="n">SIGMAT</span><span class="o">=</span><span class="mf">6.66524E-25</span>  <span class="c1">#cm2</span>
+
+<div class="viewcode-block" id="ra2deg"><a class="viewcode-back" href="../../convert_units.html#sharp_modules.convert_units.ra2deg">[docs]</a><span class="k">def</span> <span class="nf">ra2deg</span><span class="p">(</span><span class="n">ra_hms</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Converts right ascension in hms coordinates to degrees and radians</span>
+
+<span class="sd">	INPUT</span>
+<span class="sd">	</span>
+<span class="sd">	rahms: ra in HH:MM:SS format (str)</span>
+<span class="sd">	</span>
+<span class="sd">	OUTPUT</span>
+<span class="sd">	</span>
+<span class="sd">	conv_units.radeg: ra in degrees</span>
+<span class="sd">	conv_units.rarad: ra in radians</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+
+	<span class="n">ra</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">ra_hms</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">)</span>
+
+	<span class="n">hh</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ra</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="mi">15</span>
+	<span class="n">mm</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ra</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="mi">60</span><span class="p">)</span><span class="o">*</span><span class="mi">15</span>
+	<span class="n">ss</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">ra</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="mi">3600</span><span class="p">)</span><span class="o">*</span><span class="mi">15</span>
+
+	<span class="k">return</span> <span class="n">hh</span><span class="o">+</span><span class="n">mm</span><span class="o">+</span><span class="n">ss</span></div>
+
+<span class="k">def</span> <span class="nf">ra2hms</span><span class="p">(</span> <span class="n">ra</span><span class="p">):</span>
+
+	<span class="n">RA</span> <span class="p">,</span> <span class="n">rs</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+	<span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">ra</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
+		<span class="n">rs</span><span class="p">,</span> <span class="n">ra</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ra</span><span class="p">)</span>
+	<span class="n">raH</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ra</span><span class="o">/</span><span class="mi">15</span><span class="p">)</span>
+	<span class="n">raM</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(((</span><span class="n">ra</span><span class="o">/</span><span class="mi">15</span><span class="p">)</span><span class="o">-</span><span class="n">raH</span><span class="p">)</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span>
+	<span class="n">raS</span> <span class="o">=</span> <span class="p">((((</span><span class="n">ra</span><span class="o">/</span><span class="mi">15</span><span class="p">)</span><span class="o">-</span><span class="n">raH</span><span class="p">)</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span><span class="o">-</span><span class="n">raM</span><span class="p">)</span><span class="o">*</span><span class="mi">60</span>
+	<span class="n">RA</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}{1}</span><span class="s1">:</span><span class="si">{2}</span><span class="s1">:</span><span class="si">{3}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rs</span><span class="p">,</span> <span class="n">raH</span><span class="p">,</span> <span class="n">raM</span><span class="p">,</span> <span class="n">raS</span><span class="p">)</span>		
+	
+	<span class="k">return</span> <span class="n">ra</span>
+
+<div class="viewcode-block" id="dec2deg"><a class="viewcode-back" href="../../convert_units.html#sharp_modules.convert_units.dec2deg">[docs]</a><span class="k">def</span> <span class="nf">dec2deg</span><span class="p">(</span><span class="n">dec_dms</span><span class="p">):</span>
+
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Converts right ascension in hms coordinates to degrees and radians</span>
+<span class="sd">	</span>
+<span class="sd">	INPUT</span>
+<span class="sd">	</span>
+<span class="sd">	rahms: ra in HH:MM:SS format (str)</span>
+<span class="sd">	</span>
+<span class="sd">	OUTPUT</span>
+<span class="sd">	</span>
+<span class="sd">	conv_units.radeg: ra in degrees</span>
+<span class="sd">	conv_units.rarad: ra in radians</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+
+	<span class="n">dec</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">dec_dms</span><span class="p">,</span> <span class="s1">&#39;:&#39;</span><span class="p">)</span>
+
+	<span class="n">hh</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">dec</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+	<span class="n">mm</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dec</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">/</span><span class="mi">60</span>
+	<span class="n">ss</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">dec</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span><span class="o">/</span><span class="mi">3600</span>
+
+	<span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">dec</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+		<span class="k">return</span> <span class="n">hh</span><span class="o">+</span><span class="n">mm</span><span class="o">+</span><span class="n">ss</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="n">hh</span><span class="o">+</span><span class="n">mm</span><span class="o">+</span><span class="n">ss</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">hh</span><span class="o">+</span><span class="n">mm</span><span class="o">+</span><span class="n">ss</span>   </div>
+
+<span class="k">def</span> <span class="nf">dec2dms</span><span class="p">(</span><span class="n">ra</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">dec</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="nb">round</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	
+	<span class="n">DEC</span><span class="p">,</span> <span class="n">ds</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span>
+  	<span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">dec</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;-&#39;</span><span class="p">:</span>
+	  <span class="n">ds</span><span class="p">,</span> <span class="n">dec</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="nb">abs</span><span class="p">(</span><span class="n">dec</span><span class="p">)</span>
+	<span class="n">deg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">dec</span><span class="p">)</span>
+	<span class="n">decM</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">((</span><span class="n">dec</span><span class="o">-</span><span class="n">deg</span><span class="p">)</span><span class="o">*</span><span class="mi">60</span><span class="p">))</span>
+	<span class="n">decS</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">((</span><span class="n">dec</span><span class="o">-</span><span class="n">deg</span><span class="p">)</span><span class="o">*</span><span class="mi">60</span><span class="p">)</span><span class="o">-</span><span class="n">decM</span><span class="p">)</span><span class="o">*</span><span class="mi">60</span>
+	<span class="n">DEC</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{0}{1}</span><span class="s1">:</span><span class="si">{2}</span><span class="s1">:</span><span class="si">{3}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">deg</span><span class="p">,</span> <span class="n">decM</span><span class="p">,</span> <span class="n">decS</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">DEC</span>
+
+<div class="viewcode-block" id="fov_of_cube"><a class="viewcode-back" href="../../convert_units.html#sharp_modules.convert_units.fov_of_cube">[docs]</a><span class="k">def</span> <span class="nf">fov_of_cube</span><span class="p">(</span><span class="n">cubename</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	</span>
+<span class="sd">	Module called by abs_ex</span>
+<span class="sd">	Converts ra,dec of continuum sources</span>
+<span class="sd">	into pixel coordinates of the datacube</span>
+<span class="sd">	</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+
+	<span class="c1">#I load the WCS coordinate system:</span>
+	<span class="c1">#open file</span>
+
+	<span class="n">hdulist</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">cubename</span><span class="p">)</span>  <span class="c1"># read input</span>
+	
+	<span class="c1"># read data and header</span>
+	<span class="c1">#what follows works for wcs, but can be written better</span>
+	<span class="n">prihdr</span> <span class="o">=</span> <span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+	<span class="k">if</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+		<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CTYPE4&#39;</span><span class="p">]</span>
+		<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CDELT4&#39;</span><span class="p">]</span>    
+		<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CRVAL4&#39;</span><span class="p">]</span>
+		<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CRPIX4&#39;</span><span class="p">]</span>
+	<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CTYPE3&#39;</span><span class="p">]</span>
+	<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CDELT3&#39;</span><span class="p">]</span>
+	<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CRVAL3&#39;</span><span class="p">]</span>
+	<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CRPIX3&#39;</span><span class="p">]</span> 
+	<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;NAXIS3&#39;</span><span class="p">]</span>
+	<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span>
+	<span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">2</span>
+	
+
+	<span class="n">w</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">WCS</span><span class="p">(</span><span class="n">prihdr</span><span class="p">)</span> 
+
+	<span class="n">foot</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">calc_footprint</span><span class="p">(</span><span class="n">prihdr</span><span class="p">)</span>
+
+	<span class="k">return</span> <span class="n">foot</span></div>
+
+<div class="viewcode-block" id="coord_to_pix"><a class="viewcode-back" href="../../convert_units.html#sharp_modules.convert_units.coord_to_pix">[docs]</a><span class="k">def</span> <span class="nf">coord_to_pix</span><span class="p">(</span><span class="n">imagename</span><span class="p">,</span><span class="n">ra</span><span class="p">,</span><span class="n">dec</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	</span>
+<span class="sd">	Module called by abs_ex</span>
+<span class="sd">	Converts ra,dec of continuum sources</span>
+<span class="sd">	into pixel coordinates of the datacube</span>
+<span class="sd">	</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+
+	<span class="c1">#I load the WCS coordinate system:</span>
+	<span class="c1">#open file</span>
+
+	<span class="n">hdulist</span> <span class="o">=</span> <span class="n">fits</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">imagename</span><span class="p">)</span>  <span class="c1"># read input</span>
+
+	<span class="c1"># read data and header</span>
+	<span class="c1">#what follows works for wcs, but can be written better</span>
+	<span class="c1"># RS added some additional if clauses</span>
+	<span class="n">prihdr</span> <span class="o">=</span> <span class="n">hdulist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">header</span>
+	<span class="k">if</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+		<span class="k">if</span> <span class="s1">&#39;CTYPE4&#39;</span> <span class="ow">in</span> <span class="n">prihdr</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CTYPE4&#39;</span><span class="p">]</span>
+		<span class="k">if</span> <span class="s1">&#39;CDELT4&#39;</span> <span class="ow">in</span> <span class="n">prihdr</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CDELT4&#39;</span><span class="p">]</span>
+		<span class="k">if</span> <span class="s1">&#39;CRVAL4&#39;</span> <span class="ow">in</span> <span class="n">prihdr</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CRVAL4&#39;</span><span class="p">]</span>
+		<span class="k">if</span> <span class="s1">&#39;CRPIX4&#39;</span> <span class="ow">in</span> <span class="n">prihdr</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CRPIX4&#39;</span><span class="p">]</span>
+		<span class="k">if</span> <span class="s1">&#39;CUNIT4&#39;</span> <span class="ow">in</span> <span class="n">prihdr</span><span class="p">:</span>
+			<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CUNIT4&#39;</span><span class="p">]</span>
+	
+	<span class="k">if</span> <span class="s1">&#39;CTYPE3&#39;</span> <span class="ow">in</span> <span class="n">prihdr</span><span class="p">:</span>
+		<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CTYPE3&#39;</span><span class="p">]</span>
+	<span class="k">if</span> <span class="s1">&#39;CDELT3&#39;</span> <span class="ow">in</span> <span class="n">prihdr</span><span class="p">:</span>
+		<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CDELT3&#39;</span><span class="p">]</span>
+	<span class="k">if</span> <span class="s1">&#39;CRVAL3&#39;</span> <span class="ow">in</span> <span class="n">prihdr</span><span class="p">:</span>
+		<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CRVAL3&#39;</span><span class="p">]</span>
+	<span class="k">if</span> <span class="s1">&#39;CRPIX3&#39;</span> <span class="ow">in</span> <span class="n">prihdr</span><span class="p">:</span>
+		<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CRPIX3&#39;</span><span class="p">]</span> 
+	<span class="k">if</span> <span class="s1">&#39;NAXIS3&#39;</span> <span class="ow">in</span> <span class="n">prihdr</span><span class="p">:</span>
+		<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;NAXIS3&#39;</span><span class="p">]</span>
+	<span class="k">if</span> <span class="s1">&#39;CUNIT3&#39;</span> <span class="ow">in</span> <span class="n">prihdr</span><span class="p">:</span>
+		<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;CUNIT3&#39;</span><span class="p">]</span>
+
+	<span class="k">del</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span>
+	<span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;NAXIS&#39;</span><span class="p">]</span><span class="o">=</span><span class="mi">2</span>
+	
+	<span class="n">w</span><span class="o">=</span><span class="n">wcs</span><span class="o">.</span><span class="n">WCS</span><span class="p">(</span><span class="n">prihdr</span><span class="p">)</span>    
+
+	<span class="n">pixels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">ra</span><span class="p">),</span><span class="mi">2</span><span class="p">])</span>
+	<span class="n">count_out</span> <span class="o">=</span> <span class="mi">0</span>
+	<span class="n">count_flag</span> <span class="o">=</span> <span class="mi">0</span> 
+	<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">ra</span><span class="p">)):</span>
+		<span class="k">if</span> <span class="n">ra</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;nan&#39;</span><span class="p">:</span>
+			<span class="n">pixels</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+			<span class="n">pixels</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+			<span class="n">count_flag</span> <span class="o">+=</span><span class="mi">1</span>
+			<span class="k">if</span> <span class="n">verbose</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+				<span class="nb">print</span> <span class="s1">&#39;# Source # &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">([</span><span class="n">i</span><span class="p">])</span><span class="o">+</span> <span class="s1">&#39; is flagged #&#39;</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">ra_deg</span> <span class="o">=</span> <span class="n">ra2deg</span><span class="p">(</span><span class="n">ra</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+			<span class="n">dec_deg</span> <span class="o">=</span> <span class="n">dec2deg</span><span class="p">(</span><span class="n">dec</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+			<span class="n">px</span><span class="p">,</span><span class="n">py</span><span class="o">=</span><span class="n">w</span><span class="o">.</span><span class="n">wcs_world2pix</span><span class="p">(</span><span class="n">ra_deg</span><span class="p">,</span><span class="n">dec_deg</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="k">if</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;</span> <span class="nb">round</span><span class="p">(</span><span class="n">px</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;NAXIS1&#39;</span><span class="p">]</span> <span class="ow">and</span>
+					<span class="mi">0</span> <span class="o">&lt;</span> <span class="nb">round</span><span class="p">(</span><span class="n">py</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">prihdr</span><span class="p">[</span><span class="s1">&#39;NAXIS2&#39;</span><span class="p">]):</span> 
+				<span class="n">pixels</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">px</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+				<span class="n">pixels</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">py</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+			<span class="k">else</span> <span class="p">:</span>
+				<span class="n">pixels</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+				<span class="n">pixels</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+				<span class="n">count_out</span> <span class="o">+=</span><span class="mi">1</span>
+				<span class="k">if</span> <span class="n">verbose</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+					<span class="nb">print</span> <span class="s1">&#39;# Source # &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">([</span><span class="n">i</span><span class="p">])</span><span class="o">+</span> <span class="s1">&#39; lies outside the fov of the data cube #&#39;</span>
+
+	<span class="nb">print</span> <span class="s1">&#39;# Total number of sources: </span><span class="se">\t</span><span class="s1">&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ra</span><span class="p">))</span>
+	<span class="nb">print</span> <span class="s1">&#39;# Sources below threshold: </span><span class="se">\t</span><span class="s1">&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">count_flag</span><span class="p">)</span>
+	<span class="nb">print</span> <span class="s1">&#39;# Sources outside f.o.v.:</span><span class="se">\t</span><span class="s1">&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">count_out</span><span class="p">)</span>
+	<span class="nb">print</span> <span class="s1">&#39;# Sources to analyze: </span><span class="se">\t\t</span><span class="s1">&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ra</span><span class="p">)</span><span class="o">-</span><span class="n">count_flag</span><span class="o">-</span><span class="n">count_out</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+
+	<span class="k">return</span> <span class="n">pixels</span></div>
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SHARPener 1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Filippo Maccagni, Robert Schulz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

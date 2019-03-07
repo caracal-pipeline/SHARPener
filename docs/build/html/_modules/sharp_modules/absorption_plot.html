@@ -1,0 +1,419 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>sharp_modules.absorption_plot &#8212; SHARPener 1.5 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SHARPener 1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for sharp_modules.absorption_plot</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Filippo Maccagni&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Fil8&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;filippo.maccagni@gmail.com&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="k">import</span> <span class="n">wcs</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">fits</span><span class="p">,</span> <span class="n">ascii</span>
+<span class="kn">from</span> <span class="nn">astropy</span> <span class="k">import</span> <span class="n">units</span> <span class="k">as</span> <span class="n">u</span>
+<span class="kn">from</span> <span class="nn">astropy.table</span> <span class="k">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">Column</span><span class="p">,</span> <span class="n">MaskedColumn</span>
+<span class="kn">from</span> <span class="nn">astroquery.vizier</span> <span class="k">import</span> <span class="n">Vizier</span>
+<span class="kn">import</span> <span class="nn">astropy.coordinates</span> <span class="k">as</span> <span class="nn">coord</span>
+<span class="kn">from</span> <span class="nn">mpdaf.obj</span> <span class="k">import</span> <span class="n">Spectrum</span><span class="p">,</span> <span class="n">WaveCoord</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">gridspec</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">rc</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+
+<span class="n">C</span> <span class="o">=</span> <span class="mf">2.99792458e5</span>  <span class="c1"># km/s</span>
+<span class="n">HI</span> <span class="o">=</span> <span class="mf">1.420405751e9</span>  <span class="c1"># Hz</span>
+
+<span class="c1">####################################################################################################</span>
+
+
+<div class="viewcode-block" id="create_all_abs_plots"><a class="viewcode-back" href="../../absorption_plot.html#sharp_modules.absorption_plot.create_all_abs_plots">[docs]</a><span class="k">def</span> <span class="nf">create_all_abs_plots</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Function to create all absorption plots</span>
+
+<span class="sd">    This function creates all absorption plots by calling abs_plot() for each source.</span>
+<span class="sd">    Works as a kind of wrapper and is used by run_sharpener.py</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="c1"># get the list of spectra</span>
+    <span class="n">spectra</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span>
+        <span class="s1">&#39;</span><span class="si">{0:s}</span><span class="s1">*.txt&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;specdir&#39;</span><span class="p">]))</span>
+
+    <span class="c1"># check whether the previous step was successful</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spectra</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ERROR: No spectra found. Abort&quot;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># go through all spectra</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">spectra</span><span class="p">)):</span>
+        <span class="n">spectra</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">spectra</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="n">abs_plot</span><span class="p">(</span><span class="n">spectra</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">cfg_par</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="abs_plot"><a class="viewcode-back" href="../../absorption_plot.html#sharp_modules.absorption_plot.abs_plot">[docs]</a><span class="k">def</span> <span class="nf">abs_plot</span><span class="p">(</span><span class="n">spec_name</span><span class="p">,</span> <span class="n">cfg_par</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Plots spectra of all radio sources found by find_src_imsad</span>
+<span class="sd">    saved in basedir/beam/abs/spec.</span>
+<span class="sd">    Plots are stored in basedir/beam/abs/plot</span>
+
+<span class="sd">    IN</span>
+<span class="sd">            Spectra extracted by spec_ex</span>
+
+<span class="sd">    IN cfga</span>
+<span class="sd">            abs_ex_plot_xaxis= &#39; &#39;      #: X-axis units [&#39;velocity&#39;,&#39;frequency&#39;]</span>
+<span class="sd">            abs_ex_plot_yaxis= &#39; &#39;      #: Y axis units [&#39;flux&#39;,&#39;optical depth&#39;]</span>
+<span class="sd">            #: plots line at redshift of source in spectrum redshift must be stored in table of load_src_csv</span>
+<span class="sd">            abs_ex_plot_redsrc= True</span>
+<span class="sd">            abs_ex_plot_title= True     #: plot title: J2000 name of radio source</span>
+<span class="sd">            abs_ex_plot_format= &#39; &#39;     #: format of plot [&#39;.pdf&#39;,&#39;.jpeg&#39;,&#39;.png&#39;]</span>
+
+<span class="sd">    OUT</span>
+<span class="sd">            For each source outputs have the following name:</span>
+<span class="sd">            J2000_xaxis-unit_yaxis-unit.plot_format = J220919.87+180920.17_vel_flux.pdf</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">verb</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;verbose&#39;</span><span class="p">]</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="s1">&#39;abs_plot&#39;</span>
+
+    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;specdir&#39;</span><span class="p">])</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;text.usetex&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s1">&#39;text.latex.unicode&#39;</span><span class="p">:</span> <span class="kc">True</span>
+    <span class="p">}</span>
+    <span class="n">rc</span><span class="p">(</span><span class="s1">&#39;font&#39;</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="s1">&#39;family&#39;</span><span class="p">:</span> <span class="s1">&#39;serif&#39;</span><span class="p">,</span> <span class="s1">&#39;serif&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;serif&#39;</span><span class="p">]})</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="c1"># for i in xrange(0,len(np.atleast_1d(spec_src_name))):</span>
+
+    <span class="c1"># load data and labels</span>
+    <span class="c1">#	spec_name = spec_src_name[i]</span>
+    <span class="c1">#	print spec_name</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">spec_name</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+
+        <span class="n">spec_vec</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">spec_name</span><span class="p">)</span>
+        <span class="n">x_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">spec_vec</span><span class="p">[</span><span class="n">spec_vec</span><span class="o">.</span><span class="n">colnames</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">n_channels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">x_data</span><span class="p">)</span>
+
+        <span class="c1"># Set plot specs</span>
+        <span class="n">font_size</span> <span class="o">=</span> <span class="mi">16</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">ioff</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s1">&#39;xtick&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">font_size</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">rc</span><span class="p">(</span><span class="s1">&#39;ytick&#39;</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="n">font_size</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+        <span class="c1">#fig = plt.figure(figsize=(9, 6))</span>
+        <span class="c1"># fig.subplots_adjust(hspace=0.0)</span>
+        <span class="c1">#gs = gridspec.GridSpec(1, 1)</span>
+
+        <span class="c1"># Initialize subplots</span>
+        <span class="c1">#ax1 = fig.add_subplot(gs[0])</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span>
+                        <span class="n">left</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span>
+                        <span class="n">left</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;minor&#39;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
+
+        <span class="n">flag_chans</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;spec_ex&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;flag_chans&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">flag_chans1</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;spec_ex&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;flag_chans&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;spec_ex&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zunit&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;m/s&#39;</span><span class="p">:</span>
+            <span class="n">x_data</span> <span class="o">/=</span> <span class="mf">1e3</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s1">&#39;$cz\,(\mathrm</span><span class="si">{km}</span><span class="s1">\,\mathrm</span><span class="si">{s}</span><span class="s1">^{-1})$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">font_size</span><span class="p">)</span>
+        <span class="n">y_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">spec_vec</span><span class="p">[</span><span class="n">spec_vec</span><span class="o">.</span><span class="n">colnames</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">*</span><span class="mf">1e3</span>
+        <span class="n">y_sigma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">spec_vec</span><span class="p">[</span><span class="n">spec_vec</span><span class="o">.</span><span class="n">colnames</span><span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+
+        <span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;spec_ex&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zunit&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;MHz&#39;</span><span class="p">:</span>
+            <span class="n">x_data</span> <span class="o">/=</span> <span class="mf">1e6</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;Frequency [MHz]&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">font_size</span><span class="p">)</span>
+
+        <span class="n">ylabh</span> <span class="o">=</span> <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s1">&#39;S\,$[\mathrm</span><span class="si">{mJy}</span><span class="s1">\,\mathrm</span><span class="si">{beam}</span><span class="s1">^{-1}]$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">font_size</span><span class="p">)</span>
+        <span class="n">ylabh</span><span class="o">.</span><span class="n">set_verticalalignment</span><span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Plot spectra</span>
+<span class="c1">#                if self.abs_ex_plot_linestyle == &#39;step&#39;:</span>
+        <span class="c1"># ax1.plot(x_data, y_data, color=&#39;black&#39;, linestyle=&#39;-&#39;)</span>
+
+        <span class="k">if</span> <span class="n">flag_chans</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">flag_chans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">flag_chans</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;spec_ex&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zunit&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;m/s&#39;</span><span class="p">:</span>
+                <span class="n">flag_chans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">flag_chans</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">)</span>
+            <span class="n">index_flags_l</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x_data</span> <span class="o">-</span> <span class="n">flag_chans</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">flag_chans</span><span class="p">)):</span>
+                <span class="n">index_flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x_data</span> <span class="o">-</span> <span class="n">flag_chans</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+                <span class="c1"># y_data[index_flags] = 0.0</span>
+            <span class="n">y_data</span><span class="p">[</span><span class="n">index_flags_l</span><span class="p">:</span><span class="n">index_flags</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="n">y_data</span><span class="p">,</span> <span class="n">where</span><span class="o">=</span><span class="s1">&#39;mid&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Calculate axis limits and aspect ratio</span>
+        <span class="n">x_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x_data</span><span class="p">)</span>
+        <span class="n">x_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x_data</span><span class="p">)</span>
+        <span class="n">y1_array</span> <span class="o">=</span> <span class="n">y_data</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">x_data</span> <span class="o">&gt;</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x_data</span> <span class="o">&lt;</span> <span class="n">x_max</span><span class="p">))]</span>
+        <span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;fixed_scale&#39;</span><span class="p">]:</span>
+            <span class="n">y1_min</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span>
+            <span class="n">y1_max</span> <span class="o">=</span> <span class="mi">50</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">y1_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span><span class="o">*</span><span class="mf">1.1</span>
+            <span class="n">y1_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">y_data</span><span class="p">)</span><span class="o">*</span><span class="mf">1.1</span>
+
+        <span class="c1"># Set axis limits</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y1_min</span><span class="p">,</span> <span class="n">y1_max</span><span class="p">)</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">labelpad</span> <span class="o">=</span> <span class="mi">6</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">labelpad</span> <span class="o">=</span> <span class="mi">10</span>
+
+        <span class="k">if</span> <span class="n">flag_chans1</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">flag_chans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">flag_chans1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;spec_ex&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zunit&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;m/s&#39;</span><span class="p">:</span>
+                <span class="n">flag_chans</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">flag_chans</span><span class="p">,</span> <span class="mf">1e3</span><span class="p">)</span>
+            <span class="n">index_flags_l</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x_data</span> <span class="o">-</span> <span class="n">flag_chans</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">flag_chans</span><span class="p">)):</span>
+                <span class="n">index_flags</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">x_data</span> <span class="o">-</span> <span class="n">flag_chans</span><span class="p">[</span><span class="n">k</span><span class="p">]))</span><span class="o">.</span><span class="n">argmin</span><span class="p">()</span>
+                <span class="n">ax1</span><span class="o">.</span><span class="n">fill_between</span><span class="p">([</span><span class="n">x_data</span><span class="p">[</span><span class="n">index_flags_l</span><span class="p">],</span> <span class="n">x_data</span><span class="p">[</span><span class="n">index_flags</span><span class="p">]],</span>
+                                 <span class="n">y1_min</span><span class="p">,</span> <span class="n">y1_max</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+        <span class="c1"># Plot noise</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">x_data</span><span class="p">,</span> <span class="o">-</span><span class="n">y_sigma</span><span class="p">,</span> <span class="n">y_sigma</span><span class="p">,</span>
+                         <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;grey&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+        <span class="c1"># Plot stuff</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">redshifts</span> <span class="o">=</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;redshift_sources&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">redshifts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">fill_between</span><span class="p">([</span><span class="n">redshifts</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">redshifts</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">y1_min</span><span class="p">,</span>
+                             <span class="n">y1_max</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+
+        <span class="c1"># Add title</span>
+        <span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:s}</span><span class="s2"> (\#</span><span class="si">{1:d}</span><span class="s2">): </span><span class="si">{2:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;workdir&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">spec_name</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">spec_name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">font_size</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+            <span class="c1"># if self.abs_ex_plot_title == True:</span>
+        <span class="c1">#	ax1.set_title(&#39;%s&#39; % (self.J2000_name[i]), fontsize=font_size+2)</span>
+        <span class="c1"># ax1.axes.titlepad = 8</span>
+
+        <span class="c1"># Add minor tick marks</span>
+        <span class="n">ax1</span><span class="o">.</span><span class="n">minorticks_on</span><span class="p">()</span>
+
+        <span class="c1"># Save figure to file</span>
+        <span class="c1"># name of plot is combination of beam number and name of extracted source</span>
+        <span class="n">outplot</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">spec_name</span><span class="p">)</span>
+        <span class="c1"># changed this to account for the different name convention</span>
+        <span class="c1"># outplot = string.split(outplot,&#39;.&#39;)[0]</span>
+        <span class="c1"># outplot = cfg_par[&#39;general&#39;][&#39;plotdir&#39;]+outplot+&#39;.png&#39;</span>
+
+        <span class="n">outplot</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0:s}{1:s}</span><span class="s2">_</span><span class="si">{2:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;plotdir&#39;</span><span class="p">],</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;workdir&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">outplot</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;_compact.png&#39;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;plot_format&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pdf&quot;</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outplot</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="s2">&quot;.pdf&quot;</span><span class="p">),</span>
+                        <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outplot</span><span class="p">,</span>
+                        <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+
+        <span class="c1"># also create multi-plot spectra</span>
+        <span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;detailed_plot&#39;</span><span class="p">]:</span>
+            <span class="c1"># print(n_channels)</span>
+
+            <span class="c1"># number of channels at which to split</span>
+            <span class="n">n_channel_per_plot</span> <span class="o">=</span> <span class="mi">500</span>
+
+            <span class="c1"># get the number of plots</span>
+            <span class="n">n_plots</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">n_channels</span><span class="p">)</span><span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">n_channel_per_plot</span><span class="p">)))</span>
+
+            <span class="c1"># print(n_plots)</span>
+
+            <span class="n">n_rows</span> <span class="o">=</span> <span class="n">n_plots</span>
+
+            <span class="c1"># add one row for the plot with full channel width</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+                <span class="n">ncols</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="n">n_rows</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="o">*</span><span class="n">n_rows</span><span class="p">))</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+
+            <span class="c1"># ax1.annotate(&quot;Full spectrum&quot;, xy=(</span>
+            <span class="c1">#     0.05, 0.95), xycoords=&#39;axes fraction&#39;, ha=&#39;left&#39;)</span>
+
+            <span class="c1"># ax[1].annotate(&quot;Detailed spectrum&quot;, xy=(</span>
+            <span class="c1">#     0.05, 0.95), xycoords=&#39;axes fraction&#39;, ha=&#39;left&#39;)</span>
+
+            <span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s1">&#39;title&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{0:s}</span><span class="s2"> (\#</span><span class="si">{1:d}</span><span class="s2">): </span><span class="si">{2:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;workdir&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">spec_name</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">spec_name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                    <span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">font_size</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="c1"># go through the rest of the plots and create them</span>
+            <span class="k">for</span> <span class="n">plot_count</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_rows</span><span class="p">):</span>
+
+                <span class="c1"># the chunk of data corresponding to the plot</span>
+                <span class="n">data_indices_min</span> <span class="o">=</span> <span class="n">plot_count</span> <span class="o">*</span> <span class="n">n_channel_per_plot</span>
+                <span class="n">data_indices_max</span> <span class="o">=</span> <span class="p">(</span><span class="n">plot_count</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_channel_per_plot</span>
+                <span class="c1"># print(data_indices_min)</span>
+                <span class="c1"># print(data_indices_max)</span>
+                <span class="n">x_data_plot</span> <span class="o">=</span> <span class="n">x_data</span><span class="p">[</span><span class="n">data_indices_min</span><span class="p">:</span><span class="n">data_indices_max</span><span class="p">]</span>
+                <span class="n">y_data_plot</span> <span class="o">=</span> <span class="n">y_data</span><span class="p">[</span><span class="n">data_indices_min</span><span class="p">:</span><span class="n">data_indices_max</span><span class="p">]</span>
+                <span class="n">y_sigma_plot</span> <span class="o">=</span> <span class="n">y_data</span><span class="p">[</span><span class="n">data_indices_min</span><span class="p">:</span><span class="n">data_indices_max</span><span class="p">]</span>
+
+                <span class="c1"># set the plot limits (only the x-axis needs to be adjusted)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">plot_count</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">y1_min</span><span class="p">,</span> <span class="n">y1_max</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">plot_count</span><span class="p">]</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">labelpad</span> <span class="o">=</span> <span class="mi">6</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">plot_count</span><span class="p">]</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">labelpad</span> <span class="o">=</span> <span class="mi">10</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">plot_count</span><span class="p">]</span><span class="o">.</span><span class="n">minorticks_on</span><span class="p">()</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">plot_count</span><span class="p">]</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span>
+                                           <span class="n">left</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">plot_count</span><span class="p">]</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">,</span> <span class="n">bottom</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span>
+                                           <span class="n">left</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="s1">&#39;on&#39;</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;minor&#39;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;in&#39;</span><span class="p">)</span>
+                <span class="n">ylabh</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="n">plot_count</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span>
+                    <span class="sa">r</span><span class="s1">&#39;S\,$[\mathrm</span><span class="si">{mJy}</span><span class="s1">\,\mathrm</span><span class="si">{beam}</span><span class="s1">^{-1}]$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">font_size</span><span class="p">)</span>
+                <span class="n">ylabh</span><span class="o">.</span><span class="n">set_verticalalignment</span><span class="p">(</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+
+                <span class="c1"># adjust the plot range of the last plot to match the others if the number</span>
+                <span class="c1"># of channels cannot be divided by the number of channels per plot without rest</span>
+                <span class="k">if</span> <span class="n">plot_count</span> <span class="o">==</span> <span class="n">n_plots</span><span class="o">-</span><span class="mi">1</span> <span class="ow">and</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_channels</span><span class="p">)</span> <span class="o">%</span> <span class="nb">float</span><span class="p">(</span><span class="n">n_channel_per_plot</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># get channel spacing assuming the spacing is linear</span>
+                    <span class="n">channel_width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">x_data_plot</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="c1"># number of missing channels</span>
+                    <span class="n">n_missing_channels</span> <span class="o">=</span> <span class="n">n_channel_per_plot</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">x_data_plot</span><span class="p">)</span>
+
+                    <span class="n">x_data_plot_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span>
+                        <span class="n">x_data_plot</span><span class="p">)</span> <span class="o">+</span> <span class="n">channel_width</span> <span class="o">*</span> <span class="n">n_missing_channels</span>
+
+                    <span class="c1"># fill array up to the number of channels</span>
+                    <span class="c1"># for k in range(n_missing_channels):</span>
+                    <span class="c1">#     x_data_plot = np.append(</span>
+                    <span class="c1">#         x_data_plot, x_data_plot[-1]+channel_width)</span>
+                    <span class="c1">#     y_data_plot = np.append(y_data_plot, 0.)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">x_data_plot_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x_data_plot</span><span class="p">)</span>
+
+                <span class="n">x_data_plot_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x_data_plot</span><span class="p">)</span>
+                <span class="c1">#print(x_data_plot_max - x_data_plot_min)</span>
+
+                <span class="n">ax</span><span class="p">[</span><span class="n">plot_count</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_data_plot</span><span class="p">,</span> <span class="n">y_data_plot</span><span class="p">)</span>
+
+                <span class="n">ax</span><span class="p">[</span><span class="n">plot_count</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">x_data_plot_min</span><span class="p">,</span> <span class="n">x_data_plot_max</span><span class="p">)</span>
+
+                <span class="c1"># ax[plot_count].fill_between(x_data_plot, -y_sigma_plot, y_sigma_plot,</span>
+                <span class="c1">#                             facecolor=&#39;grey&#39;, alpha=0.5)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="n">plot_count</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;:&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+                <span class="c1"># for the last plot add the x-axis label</span>
+                <span class="k">if</span> <span class="n">plot_count</span> <span class="o">==</span> <span class="n">n_plots</span><span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+
+                    <span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;spec_ex&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zunit&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;m/s&#39;</span><span class="p">:</span>
+                        <span class="n">x_data</span> <span class="o">/=</span> <span class="mf">1e3</span>
+                        <span class="n">ax</span><span class="p">[</span><span class="n">plot_count</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span>
+                            <span class="sa">r</span><span class="s1">&#39;$cz\,(\mathrm</span><span class="si">{km}</span><span class="s1">\,\mathrm</span><span class="si">{s}</span><span class="s1">^{-1})$&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">font_size</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;spec_ex&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;zunit&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;MHz&#39;</span><span class="p">:</span>
+                        <span class="n">x_data</span> <span class="o">/=</span> <span class="mf">1e6</span>
+                        <span class="n">ax</span><span class="p">[</span><span class="n">plot_count</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span>
+                            <span class="sa">r</span><span class="s1">&#39;Frequency [MHz]&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="n">font_size</span><span class="p">)</span>
+
+                    <span class="c1"># in case the last plot contains less channels than the others</span>
+                    <span class="c1"># if n_channels % n_channel_per_plot == 0:</span>
+                    <span class="c1">#     n_channels_subplot = np.size(x_data_plot)</span>
+                    <span class="c1">#     figwidth = fig.get_figwidth()</span>
+                    <span class="c1">#     ax[plot_count].set_figwidth(</span>
+                    <span class="c1">#         figwidth * n_channels_subplot/n_channel_per_plot)</span>
+
+            <span class="c1"># name of plot</span>
+            <span class="n">outplot</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">spec_name</span><span class="p">)</span>
+            <span class="n">outplot</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0:s}{1:s}</span><span class="s2">_</span><span class="si">{2:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;plotdir&#39;</span><span class="p">],</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;workdir&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> <span class="n">outplot</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;_detailed.png&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">cfg_par</span><span class="p">[</span><span class="s1">&#39;general&#39;</span><span class="p">][</span><span class="s1">&#39;plot_format&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pdf&quot;</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outplot</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.png&#39;</span><span class="p">,</span> <span class="s2">&quot;.pdf&quot;</span><span class="p">),</span>
+                            <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">outplot</span><span class="p">,</span>
+                            <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">bbox_inches</span><span class="o">=</span><span class="s1">&#39;tight&#39;</span><span class="p">,</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verb</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="nb">print</span> <span class="s1">&#39;# Plotted spectrum of source &#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">spec_name</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;. #&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span> <span class="s1">&#39;# Missing spectrum of source &#39;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">spec_name</span><span class="p">)</span><span class="o">+</span><span class="s1">&#39;. #&#39;</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SHARPener 1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Filippo Maccagni, Robert Schulz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

@@ -7,6 +7,7 @@ import numpy as np
 from astropy import units
 from astropy.io import fits
 from astropy import wcs
+import logging
 
 
 #define constants
@@ -26,11 +27,15 @@ SIGMAT=6.66524E-25  #cm2
 def ra2deg(ra_hms):
 	'''
 	Converts right ascension in hms coordinates to degrees and radians
+
 	INPUT
-		rahms: ra in HH:MM:SS format (str)
+	
+	rahms: ra in HH:MM:SS format (str)
+	
 	OUTPUT
-		conv_units.radeg: ra in degrees
-		conv_units.rarad: ra in radians
+	
+	conv_units.radeg: ra in degrees
+	conv_units.rarad: ra in radians
 	'''
 
 	ra = string.split(ra_hms, ':')
@@ -57,11 +62,15 @@ def dec2deg(dec_dms):
 
 	'''
 	Converts right ascension in hms coordinates to degrees and radians
+	
 	INPUT
-		rahms: ra in HH:MM:SS format (str)
+	
+	rahms: ra in HH:MM:SS format (str)
+	
 	OUTPUT
-		conv_units.radeg: ra in degrees
-		conv_units.rarad: ra in radians
+	
+	conv_units.radeg: ra in degrees
+	conv_units.rarad: ra in radians
 	'''
 
 	dec = string.split(dec_dms, ':')

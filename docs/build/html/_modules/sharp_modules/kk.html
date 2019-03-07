@@ -1,0 +1,164 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>sharp_modules.kk &#8212; SHARPener 1.5 documentation</title>
+    <link rel="stylesheet" href="../../_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SHARPener 1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for sharp_modules.kk</h1><div class="highlight"><pre>
+<span></span><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Filippo Maccagni&quot;</span>
+<span class="n">__copyright__</span> <span class="o">=</span> <span class="s2">&quot;Fil8&quot;</span>
+<span class="n">__email__</span> <span class="o">=</span> <span class="s2">&quot;filippo.maccagni@gmail.com&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">prettytable</span> <span class="k">import</span> <span class="n">PrettyTable</span>
+<span class="kn">from</span> <span class="nn">astropy.io</span> <span class="k">import</span> <span class="n">ascii</span>
+
+
+
+<div class="viewcode-block" id="kk"><a class="viewcode-back" href="../../kk.html#sharp_modules.kk.kk">[docs]</a><span class="k">class</span> <span class="nc">kk</span><span class="p">:</span>
+	<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">	Useful constants called by other radiobs classes as kk.constant</span>
+<span class="sd">	&#39;&#39;&#39;</span>
+
+	<span class="c1">#converstions</span>
+	<span class="n">RAD2DEG</span><span class="o">=</span><span class="mf">180.</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+	<span class="n">PC</span><span class="o">=</span><span class="mf">3.08567758E18</span>    <span class="c1">#cm</span>
+	<span class="n">JANSKY</span><span class="o">=</span><span class="mf">1e-23</span>        <span class="c1">#erg/scm2Hz</span>
+	
+	<span class="c1">#constants</span>
+	<span class="n">HI</span><span class="o">=</span><span class="mf">1.42040575177e+09</span> <span class="c1">#Hz</span>
+	<span class="n">TSPIN</span><span class="o">=</span><span class="mi">100</span>            <span class="c1">#K</span>
+	<span class="n">C</span><span class="o">=</span><span class="mf">2.99792458E10</span>     <span class="c1">#cm/s</span>
+	<span class="n">G</span><span class="o">=</span><span class="mf">6.6742E-08</span>        <span class="c1">#cm3kg-1s-1 </span>
+	<span class="n">MSUN</span><span class="o">=</span><span class="mf">1.98855e33</span>      <span class="c1">#g</span>
+	<span class="n">MHI</span><span class="o">=</span><span class="mf">1.6749E-24</span>       <span class="c1">#g</span>
+	<span class="n">CHI</span><span class="o">=</span><span class="mf">2.36E5</span>
+	<span class="n">MP</span><span class="o">=</span><span class="mf">1.67492728E-24</span>   <span class="c1">#g</span>
+	<span class="n">SIGMAT</span><span class="o">=</span><span class="mf">6.66524E-25</span>  <span class="c1">#cm2</span>
+	
+	<span class="c1">#convert to column density of HI</span>
+	<span class="n">KnhiABS</span> <span class="o">=</span> <span class="mf">1.8216E18</span>
+	<span class="n">KnhiEM</span> <span class="o">=</span> <span class="mf">3.1E17</span>
+	
+	<span class="c1">#magnitudes &amp; factors for Tully-Fisher</span>
+	<span class="n">M26</span> <span class="o">=</span> <span class="o">-</span><span class="mf">23.33</span>
+	<span class="n">STULLY</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9.64</span>
+
+	<span class="c1">#cosmological constants</span>
+	<span class="n">h0</span> <span class="o">=</span> <span class="mi">70</span>
+	<span class="n">omega_l</span> <span class="o">=</span> <span class="mf">0.7</span> 
+	<span class="n">omega_m</span> <span class="o">=</span> <span class="mf">0.3</span>
+
+	<span class="c1">#HI</span>
+	<span class="n">MILKY_LEFT</span> <span class="o">=</span> <span class="o">-</span><span class="mf">30.</span>
+	<span class="n">MILKY_RIGHT</span> <span class="o">=</span> <span class="o">+</span><span class="mf">30.</span>
+
+
+<div class="viewcode-block" id="kk.tablefy"><a class="viewcode-back" href="../../kk.html#sharp_modules.kk.kk.tablefy">[docs]</a>	<span class="k">def</span> <span class="nf">tablefy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tablename</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">columnames</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		Print pretty table out of array of columnames and columns</span>
+<span class="sd">		INPUT</span>
+<span class="sd">			tablename : name of outputable</span>
+<span class="sd">			column: array with data of columns, shape (len(columnames),data)</span>
+<span class="sd">			columnames: list of names of columns</span>
+<span class="sd">		OUTPUT</span>
+<span class="sd">			x: table in txt format in tablename file</span>
+<span class="sd">		RETURN</span>
+<span class="sd">			x: table in PrettyTable format</span>
+
+<span class="sd">		&#39;&#39;&#39;</span>	
+		<span class="n">x</span> <span class="o">=</span> <span class="n">PrettyTable</span><span class="p">()</span>
+
+
+		<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">columnames</span><span class="p">)):</span>
+
+			<span class="n">x</span><span class="o">.</span><span class="n">add_column</span><span class="p">(</span><span class="n">columnames</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">columns</span><span class="p">[</span><span class="n">i</span><span class="p">,:])</span>
+
+		<span class="n">basename</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">tablename</span><span class="p">,</span><span class="s1">&#39;.&#39;</span><span class="p">)</span>
+		<span class="n">datatmp</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">get_html_string</span><span class="p">()</span>
+		<span class="n">htmltable</span> <span class="o">=</span> <span class="n">basename</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="s1">&#39;.html&#39;</span>
+		<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">htmltable</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+			<span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">datatmp</span><span class="p">)</span>
+
+		<span class="n">datatmp</span> <span class="o">=</span> <span class="n">ascii</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">htmltable</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;html&#39;</span><span class="p">)</span>
+		<span class="n">ascii</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">datatmp</span><span class="p">,</span><span class="n">tablename</span><span class="p">,</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span><span class="n">names</span> <span class="o">=</span> <span class="n">datatmp</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+		<span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">htmltable</span><span class="p">)</span>
+		<span class="nb">print</span> <span class="n">x</span>
+
+		<span class="k">return</span> <span class="n">x</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">SHARPener 1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Filippo Maccagni, Robert Schulz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

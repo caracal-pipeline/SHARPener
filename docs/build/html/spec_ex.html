@@ -1,0 +1,150 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>spec_ex &#8212; SHARPener 1.5 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="kk" href="kk.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="kk.html" title="kk"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SHARPener 1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" accesskey="U">List of modules</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="kk.html"
+                        title="previous chapter">kk</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/spec_ex.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-sharp_modules.spec_ex">
+<span id="spec-ex"></span><h1>spec_ex<a class="headerlink" href="#module-sharp_modules.spec_ex" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="sharp_modules.spec_ex.abs_ex">
+<code class="descclassname">sharp_modules.spec_ex.</code><code class="descname">abs_ex</code><span class="sig-paren">(</span><em>cfg_par</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sharp_modules/spec_ex.html#abs_ex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sharp_modules.spec_ex.abs_ex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract spectra from all l.o.s. exctracted using a catalog of sources or a source finder</p>
+<dl class="docutils">
+<dt>WARNING:</dt>
+<dd>source finder, or extraction of sources from a catalog (cont_src module) must be run first</dd>
+<dt>INPUT:</dt>
+<dd>dictionary of parameter file</dd>
+</dl>
+<p>OUTPUT:</p>
+<blockquote>
+<div>spectra are saved in ascii format in cfg_par[‘general’][‘workdir’]+/spec/
+spectra have the following columns: 
+frequency, flux, noise (MADFM), optical depth, optical depth noise, mean noise</div></blockquote>
+<dl class="docutils">
+<dt>OPTIONS:</dt>
+<dd>chromatic aberration correction
+continuum subtraction
+hanning smoothing</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sharp_modules.spec_ex.hanning_spec">
+<code class="descclassname">sharp_modules.spec_ex.</code><code class="descname">hanning_spec</code><span class="sig-paren">(</span><em>flux</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sharp_modules/spec_ex.html#hanning_spec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sharp_modules.spec_ex.hanning_spec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hanning smoothing of a spectrum</p>
+<dl class="docutils">
+<dt>INPUT:</dt>
+<dd>flux column of the spectrum</dd>
+<dt>OUTPUT:</dt>
+<dd>hanned flux column</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="sharp_modules.spec_ex.poly_sub">
+<code class="descclassname">sharp_modules.spec_ex.</code><code class="descname">poly_sub</code><span class="sig-paren">(</span><em>cfg_par</em>, <em>x</em>, <em>y</em>, <em>deg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sharp_modules/spec_ex.html#poly_sub"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sharp_modules.spec_ex.poly_sub" title="Permalink to this definition">¶</a></dt>
+<dd><p>Continuum subtraction on spectrum through polynomial fitting</p>
+<dl class="docutils">
+<dt>INPUT:</dt>
+<dd>parameter file
+x-axis of the spectrum      
+y-axis of the spectrum
+degre of polynomial to fit</dd>
+<dt>OUTPUT:</dt>
+<dd>continuum subtracted y-axis of spectrum</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="kk.html" title="kk"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SHARPener 1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >List of modules</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Filippo Maccagni, Robert Schulz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>

@@ -153,13 +153,16 @@ def sim_cont_from_cube(tablename,catalog,infile,outfile):
 	return 0
 
 def write_src_csv(tot,cfg_par):
-	'''
-		- This module saves the output of MIRIAD in a csv table
-	INPUT:
-		tot: array with output of imsad (final product of find_src_imsad)
-	OUTPUT
-		mir_src_sharpener.csv : default name, table saved in absdir (see parameter file)
-	'''
+	"""This funcions saves the output of MIRIAD in a csv table
+
+	Parameter
+	---------
+	tot: array with output of imsad (final product of find_src_imsad)
+	
+	Return
+	------
+	mir_src_sharpener.csv : default name, table saved in absdir (see parameter file)
+	"""
 
 	# write the spectrum on file
 	out_file = str(cfg_par['general'].get('absdir')) + 'mir_src_sharpener.csv'
@@ -360,15 +363,21 @@ def mosaic_continuum(cfg_par):
 
 
 def find_src_imsad(cfg_par):
-	'''
+	"""Finds the continuum sources according to the options set in the source_finder sub-keys
 
-	Finds the continuum sources according to the options set in the source_finder sub-keys
-	INPUT:
-		cfg_par : parameter file loaded with sharpener
-	OUTPUT:
+	The function stores the sources as a raw txt file straight from miriad, a formatted csv file and a karma annotation file.
+
+	Parameters
+	----------
+	cfg_par : str
+		Parameter file loaded with sharpener
+	
+	Returns
+	-------
+	src_list : str
 		csv table of continuum sources (output of MIRIAD imsad)
+	"""
 
-	'''		
 	print '# Find continuum sources '   
 
 	# Getting directories and convert files if necessary

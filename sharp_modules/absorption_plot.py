@@ -19,6 +19,7 @@ from mpdaf.obj import Spectrum, WaveCoord
 from matplotlib import gridspec
 from matplotlib import pyplot as plt
 from matplotlib import rc
+import logging
 
 
 C = 2.99792458e5  # km/s
