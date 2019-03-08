@@ -185,14 +185,14 @@ def get_sdss_sources(cfg_par):
         image_pixel = wcs.wcs_world2pix(
             [[sdss_cat['ra'][k], sdss_cat['dec'][k], 0, 0]], 1)
 
-        if 
+        if image_pixel[0][1] < image_shape[-2] and image_pixel[0][0] < image_shape[-1]:
 
-        # get the image value
-        image_value = image[int(
-            image_pixel[0][1])][int(image_pixel[0][0])]
+            # get the image value
+            image_value = image[int(
+                image_pixel[0][1])][int(image_pixel[0][0])]
 
-        if not np.isnan(image_value):
-            src_list_keep = np.append(src_list_keep, k)
+            if not np.isnan(image_value):
+                src_list_keep = np.append(src_list_keep, k)
 
     sdss_cat = sdss_cat[src_list_keep]
 
