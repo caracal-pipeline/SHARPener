@@ -11,7 +11,7 @@ APERTIF image cubes.
 
 .. Warning::
 
-   This documentation is not yet complete.
+   This documentation is in development and not yet complete.
 
 
 .. toctree::
@@ -20,6 +20,7 @@ APERTIF image cubes.
 
    README
    modules
+   sharpener_default
 
 
 Indices and tables

@@ -4,3 +4,4 @@
 .virtualenv*/
 *.egg-info/
 .eggs/
+.vscode/

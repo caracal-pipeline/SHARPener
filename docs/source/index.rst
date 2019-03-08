@@ -20,6 +20,7 @@ APERTIF image cubes.
 
    README
    modules
+   sharpener_default
 
 
 Indices and tables

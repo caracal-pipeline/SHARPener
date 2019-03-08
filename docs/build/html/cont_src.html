@@ -81,7 +81,22 @@
 <dd><p>Function to check the imsad output file</p>
 <p>The function corrects the lengths of the imsad
 output file from miriad assuming that it is basically
-the last flag and not more.</p>
+the last flag and not more. If imsad does not produce
+an FFLAG entry for some sources (or all), then it is left
+without value. This creates different column numbers for
+different rows.</p>
+<dl class="docutils">
+<dt>Parameter:</dt>
+<dd><dl class="first last docutils">
+<dt>imsad_file <span class="classifier-delimiter">:</span> <span class="classifier">str</span></dt>
+<dd>Name of imsad output file</dd>
+</dl>
+</dd>
+<dt>Return:</dt>
+<dd>No return value</dd>
+<dt>Output:</dt>
+<dd>Overwrites existing imsad file with corrected version</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
