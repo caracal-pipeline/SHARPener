@@ -137,7 +137,7 @@ def get_sdss_sources(cfg_par):
     # because a radius is used, this step is not enough
     # and the SDSS have to further processed
     sdss_cat = SDSS.query_region(
-        image_coordinates_center, radius=image_radius, spectro=True, timeout=300)
+        image_coordinates_center, radius=image_radius, spectro=True, timeout=int(cfg_par[key]['sdss_query_timeout']))
 
     print("Query SDSS catalogue ... Done {0:.1f}s".format(
         time.time()-start_time_query))
@@ -184,6 +184,8 @@ def get_sdss_sources(cfg_par):
         # get pixel from coordinates
         image_pixel = wcs.wcs_world2pix(
             [[sdss_cat['ra'][k], sdss_cat['dec'][k], 0, 0]], 1)
+
+        if 
 
         # get the image value
         image_value = image[int(

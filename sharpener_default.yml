@@ -31,6 +31,7 @@ sdss_match:
   match_cat: true
   max_sep: 30
   min_radio_flux: 0
+  sdss_query_timeout: 300
 simulate_continuum:
   __helpstr: Simulate continuum from source catalog output
   enable: false
