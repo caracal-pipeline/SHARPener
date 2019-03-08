@@ -5,6 +5,10 @@
 This version of the script is parrallelised.
 The script assumes that it is located in the directory
 
+Issue:
+    SDSS query does not work in parallel. Best to run parallel witout SDSS first
+    and then run with a single process just SDSS
+
 """
 
 import os

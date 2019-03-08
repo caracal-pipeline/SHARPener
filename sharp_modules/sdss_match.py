@@ -11,6 +11,8 @@ range (i.e., redshift range). The remaining SDSS catalogue
 entries will be saved or simply printed. If requested an image
 will be plotted with the SDSS and radio sources in the field.
 
+Issue: does not work in parrallel mode
+
 __author__ = "Robert Schulz"
 __copyright__ = "Robert Schulz"
 __email__ = "schulz@astron.nl"
