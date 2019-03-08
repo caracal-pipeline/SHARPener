@@ -28,11 +28,12 @@ from PyPDF2 import PdfFileMerger
 import zipfile
 
 
-def run_sharpener(beam_directory_list, do_continuum_extraction, do_spectra_extraction, do_plots, beam_count):
+def run_sharpener(beam_directory_list, do_continuum_extraction, do_spectra_extraction, do_plots, do_sdss, beam_count):
     import sharpener as sharpy
     from sharp_modules import cont_src as cont_src
     from sharp_modules import spec_ex as spec_ex
     from sharp_modules import absorption_plot as abs_pl
+    from sharp_modules import sdss_match
     imp.reload(sharpy)
 
     """Function to run sharpener
@@ -87,6 +88,18 @@ def run_sharpener(beam_directory_list, do_continuum_extraction, do_spectra_extra
             #                       ['absdir']+'mir_src_sharpener.csv')
             # print(src_list)
 
+        # Find continuum sources
+        # ++++++++++++++++++++++
+        if do_sdss:
+            # time_start_find = time.time()
+
+            # print("(Pid {0:d}) ## Find continuum sources".format(proc))
+
+            # get sources in continuum image
+            sdss_match.get_sdss_sources(spar.cfg_par)
+
+            # print("(Pid {0:d}) ## Find continuum sources ... Done".format(proc))
+
         # Extract spectra
         # +++++++++++++++
         if do_spectra_extraction:
@@ -126,8 +139,21 @@ def run_sharpener(beam_directory_list, do_continuum_extraction, do_spectra_extra
 
                 plot_list.sort()
 
-                plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
-                    spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2]))
+                # continuum plot only with radio sources
+                cont_plot_name = "{0:s}{1:s}_continuum.pdf".format(
+                    spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])
+
+                # continuum plot with radio and sdss sources
+                cont_sdss_plot_name = "{0:s}{1:s}_continuum_and_sdss.pdf".format(
+                    spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])
+
+                if os.path.exists(cont_sdss_plot_name):
+
+                    plot_list.insert(0, cont_sdss_plot_name)
+
+                if os.path.exists(cont_plot_name):
+
+                    plot_list.insert(0, cont_plot_name)
 
                 pdf_merger = PdfFileMerger()
 
@@ -151,8 +177,21 @@ def run_sharpener(beam_directory_list, do_continuum_extraction, do_spectra_extra
 
                 plot_list.sort()
 
-                plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
-                    spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2]))
+                # continuum plot only with radio sources
+                cont_plot_name = "{0:s}{1:s}_continuum.pdf".format(
+                    spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])
+
+                # continuum plot with radio and sdss sources
+                cont_sdss_plot_name = "{0:s}{1:s}_continuum_and_sdss.pdf".format(
+                    spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])
+
+                if os.path.exists(cont_sdss_plot_name):
+
+                    plot_list.insert(0, cont_sdss_plot_name)
+
+                if os.path.exists(cont_plot_name):
+
+                    plot_list.insert(0, cont_plot_name)
 
                 pdf_merger = PdfFileMerger()
 
@@ -204,6 +243,9 @@ if __name__ == '__main__':
     parser.add_argument("--do_plots", action="store_true", default=False,
                         help='Enable plotting')
 
+    parser.add_argument("--do_sdss", action="store_true", default=False,
+                        help='Enable plotting')
+
     parser.add_argument("--do_not_all", action="store_true", default=False,
                         help='Enable plotting')
 
@@ -224,10 +266,12 @@ if __name__ == '__main__':
         do_continuum_extraction = args.do_cont
         do_spectra_extraction = args.do_spectra
         do_plots = args.do_plots
+        do_sdss = args.do_sdss
     else:
         do_continuum_extraction = True
         do_spectra_extraction = True
         do_plots = True
+        do_sdss = True
 
     # get a list of directories
     beam_directory_list = glob.glob("{0:s}beam??".format(beam_path))
@@ -249,7 +293,7 @@ if __name__ == '__main__':
 
     # create function iterater to provide additional arguments
     fct_partial = functools.partial(
-        run_sharpener, beam_directory_list, do_continuum_extraction, do_spectra_extraction, do_plots)
+        run_sharpener, beam_directory_list, do_continuum_extraction, do_spectra_extraction, do_plots, do_sdss)
 
     # create and run map
     pool.map(fct_partial, beam_count)
@@ -259,7 +303,7 @@ if __name__ == '__main__':
     # Create a zip file with all the plots
     # ++++++++++++++++++++++++++++++++++++
     time_start_zip = time.time()
-    print("## Create zip files")
+    print("## Create zip files for plots")
 
     plot_list = glob.glob(
         "{0:s}beam??/plot/*all_plots*.pdf".format(beam_path))
@@ -279,27 +323,43 @@ if __name__ == '__main__':
         print("No files to zip.")
 
     time_start_zip = time.time()
-    print("## Create zip files")
+    print("## Create zip files for source list")
 
     csv_list = glob.glob(
         "{0:s}beam??/abs/mir_src_sharpener.csv".format(beam_path))
+    csv_sdss_list = glob.glob(
+        "{0:s}beam??/abs/beam??_sdss_src.csv".format(beam_path))
+    csv_sdss_radio_list = glob.glob(
+        "{0:s}beam??/abs/beam??_radio_sdss_src.csv".format(beam_path))
     karma_list = glob.glob(
         "{0:s}beam??/abs/karma_src_sharpener.ann".format(beam_path))
 
+    # do not create if there are no source at all
     if len(csv_list) != 0:
-
-        csv_list.sort()
-        karma_list.sort()
 
         with zipfile.ZipFile('{0:s}all_sources.zip'.format(beam_path), 'w') as myzip:
 
-            for csv in csv_list:
-                myzip.write(csv, "{0:s}_{1:s}".format(csv.replace(
-                    beam_path, "").split("/")[0], os.path.basename(csv)))
+            if len(csv_list) != 0:
+                csv_list.sort()
+                for csv in csv_list:
+                    myzip.write(csv, "{0:s}_{1:s}".format(csv.replace(
+                        beam_path, "").split("/")[0], os.path.basename(csv)))
 
-            for karma in karma_list:
-                myzip.write(karma, "{0:s}_{1:s}".format(karma.replace(
-                    beam_path, "").split("/")[0], os.path.basename(karma)))
+            if len(csv_sdss_list) != 0:
+                csv_sdss_list.sort()
+                for csv in csv_sdss_list:
+                    myzip.write(csv)
+
+            if len(csv_sdss_radio_list) != 0:
+                csv_sdss_radio_list.sort()
+                for csv in csv_sdss_radio_list:
+                    myzip.write(csv)
+
+            if len(karma_list) != 0:
+                karma_list.sort()
+                for karma in karma_list:
+                    myzip.write(karma, "{0:s}_{1:s}".format(karma.replace(
+                        beam_path, "").split("/")[0], os.path.basename(karma)))
 
         print("## Create zip files ... Done ({0:.2f}s)".format(
             time.time() - time_start_zip))
