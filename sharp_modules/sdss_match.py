@@ -261,7 +261,7 @@ def get_sdss_sources(cfg_par):
 
             # center of continuum image which is assumed to be the same as center of cube
             position = SkyCoord(
-                wcs.wcs.crval[0] * u.deg, wcs.wcs.crval[1] * u.deg, frame='fk5')
+                wcs_cube.wcs.crval[0] * u.deg, wcs_cube.wcs.crval[1] * u.deg, frame='fk5')
 
             # create the cutout
             cutout = Cutout2D(img, position, img_ch1_shape, wcs=wcs)
