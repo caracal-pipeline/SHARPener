@@ -181,7 +181,20 @@ def check_miriad_output(imsad_file):
 
 	The function corrects the lengths of the imsad
 	output file from miriad assuming that it is basically
-	the last flag and not more.
+	the last flag and not more. If imsad does not produce
+	an FFLAG entry for some sources (or all), then it is left
+	without value. This creates different column numbers for
+	different rows.
+
+	Parameter:
+		imsad_file : str
+			Name of imsad output file
+
+	Return:
+		No return value
+	
+	Output:
+		Overwrites existing imsad file with corrected version
 	"""
 
 	print("Checking imsad output file from Miriad")
@@ -204,6 +217,23 @@ def check_miriad_output(imsad_file):
 		else:
 			print("ERROR: Unknown difference in columns of imsad output")
 			sys.exit(1)
+
+		# save the file temporarily
+		tmp_file = "abs/tmp.txt"
+		with open(tmp_file, "w") as f:
+			f.writelines(src_list)
+
+		# rename temporary file by overwriting original file
+		os.rename(tmp_file, imsad_file)
+
+		print("... Done. Continue")
+	# in case there are only 96 lines
+	elif min_line_length == max_line_length and max_line_length == 96:
+		print("Found lines with different lengths. Attempting to correct.")
+
+		short_lines_index_list = np.where(line_length_list == 96)[0]
+		for line_index in short_lines_index_list:
+			src_list[line_index] = src_list[line_index].replace("\n", " -\n")
 
 		# save the file temporarily
 		tmp_file = "abs/tmp.txt"
@@ -360,7 +390,6 @@ def mosaic_continuum(cfg_par):
 		# fits.in_ = 'mosaic.mir'
 		# fits.out = 'mosaic.fits'
 		# fits.go(rmfiles=True)
-
 
 def find_src_imsad(cfg_par):
 	"""Finds the continuum sources according to the options set in the source_finder sub-keys
