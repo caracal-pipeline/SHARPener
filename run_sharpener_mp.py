@@ -23,10 +23,10 @@ import multiprocessing as mp
 import functools
 from astropy.io import ascii
 import tabulate
-#import cont_src as cont_src
-#import spec_ex as spec_ex
+# import cont_src as cont_src
+# import spec_ex as spec_ex
 import time
-#import absorption_plot as abs_pl
+# import absorption_plot as abs_pl
 import glob
 from PyPDF2 import PdfFileMerger
 import zipfile
@@ -130,7 +130,7 @@ def run_sharpener(beam_directory_list, do_continuum_extraction, do_spectra_extra
         # ++++++++++++
         if spar.cfg_par['general']['merge_plots'] and spar.cfg_par['general']['plot_format'] == "pdf":
 
-            #time_start_merge = time.time()
+            # time_start_merge = time.time()
 
             # print("(Pid {0:d}) ## Merging plots".format(proc))
 
@@ -352,12 +352,12 @@ if __name__ == '__main__':
             if len(csv_sdss_list) != 0:
                 csv_sdss_list.sort()
                 for csv in csv_sdss_list:
-                    myzip.write(csv)
+                    myzip.write(csv, os.path.basename(csv))
 
             if len(csv_sdss_radio_list) != 0:
                 csv_sdss_radio_list.sort()
                 for csv in csv_sdss_radio_list:
-                    myzip.write(csv)
+                    myzip.write(csv, os.path.basename(csv))
 
             if len(karma_list) != 0:
                 karma_list.sort()
