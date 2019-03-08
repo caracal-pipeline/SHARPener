@@ -5,13 +5,13 @@ abs_plot:
   - 800 2200
   title: true
   detailed_plot: true
-  fixed_scale: true
+  fixed_scale: false
 general:
   __helpstr: General INPUT directories and filenames
   contname: NGC315.Continuum.fits
   cubename: NGC315.Cube.fits
   verbose: false
-  workdir: /home/schulz/Projects/APERTIF/Analysis/NGC315/beam00/
+  workdir: /home/<path>/beam00/
   plot_format: pdf
   merge_plots: true
 hanning:
@@ -22,6 +22,15 @@ polynomial_subtraction:
   __helpstr: Subtract polynomial from spectrum to improve continuum subtraction
   degree_pol: 6
   enable: false
+sdss_match:
+  __helpstr: Gets the SDSS sources for a give cube
+  enable: true
+  freq_min: 1130.0
+  freq_max: 1430.0
+  plot_image: true
+  match_cat: true
+  max_sep: 30
+  min_radio_flux: 0
 simulate_continuum:
   __helpstr: Simulate continuum from source catalog output
   enable: false
