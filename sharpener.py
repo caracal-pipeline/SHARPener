@@ -21,6 +21,7 @@ from sharp_modules import convert_units as conv_units
 from sharp_modules import spec_ex as spec_ex
 from sharp_modules import absorption_plot as absorption_plot
 from sharp_modules import hi
+from sharp_modules import sdss_match
 
 
 __author__ = "Filippo Maccagni"
