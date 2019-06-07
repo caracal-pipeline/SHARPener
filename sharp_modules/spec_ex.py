@@ -154,7 +154,7 @@ def abs_ex(cfg_par):
 					# extract a region were to determine the noise: A BOX around the l.o.s.
 					if (pix_x+10 < hdr['NAXIS1'] and  pix_x-10 > 0 and
 					   pix_y+10 < hdr['NAXIS2'] and pix_y - 10 > 0):
-							rms = np.nanmedian(sci[j, pix_x +10:pix_x + 10, pix_y - 5:pix_y + 5])
+							rms = np.nanmedian(sci[j, pix_y -10:pix_y + 10, pix_x - 10:pix_x + 10])
 							if rms != 0.0:
 								med2 = np.abs(sci[j, pix_y, pix_x] - rms)
 								madfm[j] = np.nanmedian(med2) / 0.6744888
