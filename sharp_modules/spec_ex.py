@@ -291,7 +291,7 @@ def abs_ex(cfg_par):
         print '# Total number of spectra: \t'+str(pixels.shape[0]-count_thresh-count_fov-count_blanks)
         print '# Average noise in spectra: \t'+str(round(np.nanmean(average_noise)*1e3,1))+' mJy/beam'
 
-        return 0 
+        return 0
 
 def hanning_spec(flux):
         '''
