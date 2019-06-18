@@ -7,6 +7,7 @@ import numpy as np
 from astropy import units
 from astropy.io import fits
 from astropy import wcs
+import logging
 
 
 #define constants
@@ -26,11 +27,15 @@ SIGMAT=6.66524E-25  #cm2
 def ra2deg(ra_hms):
 	'''
 	Converts right ascension in hms coordinates to degrees and radians
+
 	INPUT
-		rahms: ra in HH:MM:SS format (str)
+	
+	rahms: ra in HH:MM:SS format (str)
+	
 	OUTPUT
-		conv_units.radeg: ra in degrees
-		conv_units.rarad: ra in radians
+	
+	conv_units.radeg: ra in degrees
+	conv_units.rarad: ra in radians
 	'''
 
 	ra = string.split(ra_hms, ':')
@@ -57,11 +62,15 @@ def dec2deg(dec_dms):
 
 	'''
 	Converts right ascension in hms coordinates to degrees and radians
+	
 	INPUT
-		rahms: ra in HH:MM:SS format (str)
+	
+	rahms: ra in HH:MM:SS format (str)
+	
 	OUTPUT
-		conv_units.radeg: ra in degrees
-		conv_units.rarad: ra in radians
+	
+	conv_units.radeg: ra in degrees
+	conv_units.rarad: ra in radians
 	'''
 
 	dec = string.split(dec_dms, ':')
@@ -142,20 +151,30 @@ def coord_to_pix(imagename,ra,dec,verbose=False):
 
 	# read data and header
 	#what follows works for wcs, but can be written better
+	# RS added some additional if clauses
 	prihdr = hdulist[0].header
 	if prihdr['NAXIS'] == 4:
-		del prihdr['CTYPE4']
-		del prihdr['CDELT4']    
-		del prihdr['CRVAL4']
-		del prihdr['CRPIX4']
-		del prihdr['CUNIT4']
+		if 'CTYPE4' in prihdr:
+			del prihdr['CTYPE4']
+		if 'CDELT4' in prihdr:
+			del prihdr['CDELT4']
+		if 'CRVAL4' in prihdr:
+			del prihdr['CRVAL4']
+		if 'CRPIX4' in prihdr:
+			del prihdr['CRPIX4']
+		if 'CUNIT4' in prihdr:
+			del prihdr['CUNIT4']
 	
-
-	del prihdr['CTYPE3']
-	del prihdr['CDELT3']
-	del prihdr['CRVAL3']
-	del prihdr['CRPIX3'] 
-	del prihdr['NAXIS3']
+	if 'CTYPE3' in prihdr:
+		del prihdr['CTYPE3']
+	if 'CDELT3' in prihdr:
+		del prihdr['CDELT3']
+	if 'CRVAL3' in prihdr:
+		del prihdr['CRVAL3']
+	if 'CRPIX3' in prihdr:
+		del prihdr['CRPIX3'] 
+	if 'NAXIS3' in prihdr:
+		del prihdr['NAXIS3']
 	if 'CUNIT3' in prihdr:
 		del prihdr['CUNIT3']
 

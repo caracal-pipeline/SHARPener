@@ -1,0 +1,7 @@
+*.pyc
+.ipynb_checkpoints
+.venv*/
+.virtualenv*/
+*.egg-info/
+.eggs/
+.vscode/

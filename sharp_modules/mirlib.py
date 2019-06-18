@@ -1,4 +1,4 @@
-#Monday, 28 September 2015
+# Monday, 28 September 2015
 import logging
 from ConfigParser import SafeConfigParser
 import subprocess
@@ -7,9 +7,10 @@ import sys
 from astropy import units as u
 from astropy.io import fits, ascii
 import numpy as np
+import imp
 deg2rad = np.pi/180.
 # Its rather messy to reload the logging library, but is necessary if the logger is going to work.
-reload(logging)
+imp.reload(logging)
 
 print 'Setup logger with lib.setup_logger()'
 
@@ -20,8 +21,9 @@ def exceptioner(O, E):
     A simple and stupid way to do exception handling.
     '''
     for e in E:
-        if "FATAL" in e.upper()>0:
+        if "FATAL" in e.upper() > 0:
             raise FatalMiriadError(E)
+
 
 def masher(task=None, **kwargs):
     '''
@@ -31,15 +33,15 @@ def masher(task=None, **kwargs):
     Each argument is passed to the task through the use of the keywords.
     '''
     logger = logging.getLogger('masher')
-    if task!=None:
+    if task != None:
         argstr = " "
         for k in kwargs.keys():
-            if str(kwargs[k]).upper()!='NONE':
+            if str(kwargs[k]).upper() != 'NONE':
                 if k == 'in_':
                     argstr += 'in=' + str(kwargs[k]) + ' '
                 else:
                     k = k
-                    argstr+= k + '=' + str(kwargs[k])+ ' '
+                    argstr += k + '=' + str(kwargs[k]) + ' '
         cmd = task + argstr
         logger.debug(cmd)
         if ("-k" in cmd) is True:
@@ -48,8 +50,10 @@ def masher(task=None, **kwargs):
             out = basher(cmd, showasinfo=False)
         return out
     else:
-        logger.critical("Usage = masher(task='sometask', arg1=val1, arg2=val2...)")
+        logger.critical(
+            "Usage = masher(task='sometask', arg1=val1, arg2=val2...)")
         sys.exit(0)
+
 
 def basher(cmd, showasinfo=False):
     '''
@@ -74,23 +78,24 @@ def basher(cmd, showasinfo=False):
         cmd = cmd.replace("(", "\(")
         cmd = cmd.replace(")", "\)")
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-            stderr = subprocess.PIPE, shell=True)
+                            stderr=subprocess.PIPE, shell=True)
     out, err = proc.communicate()
 
-    if len(out)>0:
+    if len(out) > 0:
         if showasinfo:
             logger.debug("Command = "+cmd)
             logger.debug("\n"+out)
         else:
             logger.debug("Command = "+cmd)
             logger.debug("\n"+out)
-    if len(err)>0:
+    if len(err) > 0:
         logger.debug(err)
     # NOTE: Returns the STD output.
     exceptioner(out, err)
     logger.debug("Returning output.")
     # Standard output error are returned in a more convenient way
     return out.split('\n')[0:-1]
+
 
 class miriad:
     def __init__(self, task, **kwargs):
@@ -99,44 +104,49 @@ class miriad:
         '''
         self.__dict__.update(kwargs)
         self.task = task
+
     def __getitem__(self, key):
         return getattr(self, key)
+
     def keywords(self):
         masher(task=self.task+" -kw")
         masher(task=self.task + " -w")
+
     def help(self):
         masher(task=self.task+" -k")
+
     def rmfiles(self):
         logger = logging.getLogger('miriad '+self.task)
         logger.debug("Cleanup - files will be DELETED.")
-        if self.task=='invert':
+        if self.task == 'invert':
             if os.path.exists(self.map):
                 basher("rm -r "+self.map)
             if os.path.exists(self.beam):
                 basher("rm -r "+self.beam)
-        elif self.task=='clean':
+        elif self.task == 'clean':
             if os.path.exists(self.out):
                 basher('rm -r '+self.out)
-        elif self.task=='restor':
+        elif self.task == 'restor':
             if os.path.exists(self.out):
                 basher('rm -r '+self.out)
-        elif self.task=='maths':
+        elif self.task == 'maths':
             if os.path.exists(self.out):
                 basher('rm -r '+self.out)
-        elif self.task=='uvlin':
+        elif self.task == 'uvlin':
             if os.path.exists(self.out):
                 basher('rm -r '+self.out)
-        elif self.task=='uvcat':
+        elif self.task == 'uvcat':
             if os.path.exists(self.out):
                 basher('rm -r '+self.out)
         else:
             if os.path.exists(self.out):
                 basher('rm -r '+self.out)
-            
+
     def inp(self):
         logger = logging.getLogger('miriad '+self.task)
         attrs = vars(self)
-        logger.info(', '.join("%s=%s" % item for item in attrs.items() if item[0] is not 'logger'))
+        logger.info(', '.join("%s=%s" %
+                              item for item in attrs.items() if item[0] is not 'logger'))
 
     def go(self, rmfiles=False):
         logger = logging.getLogger('miriad '+self.task)
@@ -144,4 +154,4 @@ class miriad:
             self.rmfiles()
         output = masher(**self.__dict__)
 #        logger.info('Completed.')
-       	return output
+        return output

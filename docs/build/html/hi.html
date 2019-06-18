@@ -1,0 +1,270 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>hi &#8212; SHARPener 1.5 documentation</title>
+    <link rel="stylesheet" href="_static/sphinxdoc.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="cubez" href="cubez.html" />
+    <link rel="prev" title="cont_src" href="cont_src.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cubez.html" title="cubez"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="cont_src.html" title="cont_src"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SHARPener 1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" accesskey="U">List of modules</a> &#187;</li> 
+      </ul>
+    </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="cont_src.html"
+                        title="previous chapter">cont_src</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cubez.html"
+                        title="next chapter">cubez</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/hi.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-sharp_modules.hi">
+<span id="hi"></span><h1>hi<a class="headerlink" href="#module-sharp_modules.hi" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="sharp_modules.hi.hi">
+<em class="property">class </em><code class="descclassname">sharp_modules.hi.</code><code class="descname">hi</code><a class="reference internal" href="_modules/sharp_modules/hi.html#hi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sharp_modules.hi.hi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tools to analyze the HI spectral line</p>
+<ul class="simple">
+<li><dl class="first docutils">
+<dt>hiline </dt>
+<dd>frequency of the HI given a redshift</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>tau_abs</dt>
+<dd>converts absorbed flux in optical depth</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>nhi_abs</dt>
+<dd>determines the column density from optical depth
+assuming temperature TSPIN = 100</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>beam_area</dt>
+<dd>determines the area of the beam of the observations</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>mhi_abs</dt>
+<dd>mass of the absorbed HI</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>nhi_em</dt>
+<dd>column density from emission line (and beam of observation)</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>mhi_em</dt>
+<dd>mass of HI from emission line</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>mhi_flux</dt>
+<dd>mass of HI from integrated flux and redshift of source</dd>
+</dl>
+</li>
+</ul>
+<dl class="method">
+<dt id="sharp_modules.hi.hi.beam_area">
+<code class="descname">beam_area</code><span class="sig-paren">(</span><em>by</em>, <em>z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sharp_modules/hi.html#hi.beam_area"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sharp_modules.hi.hi.beam_area" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the area of the beam of the observations</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd>bx: x axis of the beam in arcsec (float)
+by: y axis of the beam in arcsec (float)</dd>
+<dt>Returns:</dt>
+<dd>hi.beamarea: area of the beam in cm2</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sharp_modules.hi.hi.hiline">
+<code class="descname">hiline</code><span class="sig-paren">(</span><em>z</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sharp_modules/hi.html#hi.hiline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sharp_modules.hi.hi.hiline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the expected velocity of the HI line given the redshift
+of the source</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd>z: redshift (float)</dd>
+<dt>Returns:</dt>
+<dd>hi.velhi: velocity in km/s
+hi.freq: frequency of the HI line in MHz</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sharp_modules.hi.hi.mhi_abs">
+<code class="descname">mhi_abs</code><span class="sig-paren">(</span><em>area</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sharp_modules/hi.html#hi.mhi_abs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sharp_modules.hi.hi.mhi_abs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the mass of the absorbed HI</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd>nhi_abs: column density of the absorption line in cm-2
+area: area over which the column density is integrated in cm (output of hi.beam_area)</dd>
+<dt>Returns:</dt>
+<dd>hi.mhi_abs: hi mass inferred by the absorption line in Msun</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sharp_modules.hi.hi.mhi_em">
+<code class="descname">mhi_em</code><span class="sig-paren">(</span><em>nhi</em>, <em>area</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sharp_modules/hi.html#hi.mhi_em"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sharp_modules.hi.hi.mhi_em" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the column density of the absorption line</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd>nhi: column density of the emission line
+area:area over which the column density is integrated in cm (output of hi.beam_area)</dd>
+<dt>Returns:</dt>
+<dd>hi.mhiem: mass inferred from the HI absoprtion line in Msun</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sharp_modules.hi.hi.mhi_flux">
+<code class="descname">mhi_flux</code><span class="sig-paren">(</span><em>z</em>, <em>s</em>, <em>bx</em>, <em>by</em>, <em>pix</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sharp_modules/hi.html#hi.mhi_flux"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sharp_modules.hi.hi.mhi_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the HI mass from the observed flux, the distance of the
+source, and the resolution of the observations
+(beam and pixel size in arcsec)</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd>z: redshift of the source (float)
+bx: x axis of the beam in arcsec (float)
+by: y axis of the beam in arcsec (float)
+pix: pixel size in arcsec (float)</dd>
+<dt>Returns:</dt>
+<dd>hi.mhflux: mass inferred from the flux of the HI emission line</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sharp_modules.hi.hi.nhi_abs">
+<code class="descname">nhi_abs</code><span class="sig-paren">(</span><em>dv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sharp_modules/hi.html#hi.nhi_abs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sharp_modules.hi.hi.nhi_abs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the column density of the absorption line</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd>tau: optical depth of the line (float)
+dv: width of the line in km/s</dd>
+<dt>Returns:</dt>
+<dd>hi.nhi_abs: column density of the absorption line in cm-2</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sharp_modules.hi.hi.nhi_em">
+<code class="descname">nhi_em</code><span class="sig-paren">(</span><em>s</em>, <em>bx</em>, <em>by</em>, <em>dv</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sharp_modules/hi.html#hi.nhi_em"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sharp_modules.hi.hi.nhi_em" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the column density of the absorption line</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd>s: flux of the emission line in mJy
+bx: x axis of the beam in arcsec (float)
+by: y axis of the beam in arcsec (float)
+dv: width of the line in km/s</dd>
+<dt>Returns:</dt>
+<dd>hi.nhi_abs: column density of the absorption line in cm-2</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="sharp_modules.hi.hi.optical_depth">
+<code class="descname">optical_depth</code><span class="sig-paren">(</span><em>scont</em>, <em>sabs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/sharp_modules/hi.html#hi.optical_depth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#sharp_modules.hi.hi.optical_depth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Estimates the optical depth of an absorption line</p>
+<dl class="docutils">
+<dt>Parameters:</dt>
+<dd>scont: continuum flux (float)
+sabs: flux of the absorbed component (negative float)</dd>
+<dt>Returns:</dt>
+<dd>hi.tau: optical depth of the line</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="cubez.html" title="cubez"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="cont_src.html" title="cont_src"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">SHARPener 1.5 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="modules.html" >List of modules</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Filippo Maccagni, Robert Schulz.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.4.
+    </div>
+  </body>
+</html>
