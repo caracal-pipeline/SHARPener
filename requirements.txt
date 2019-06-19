@@ -2,6 +2,8 @@ astropy
 astroquery
 matplotlib
 mpdaf
-multiproccesing
+multiprocessing
+prettytable
 PyPDF2
+pyaml
 tabulate

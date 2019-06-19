@@ -15,6 +15,8 @@ from astropy.table import Table, Column, MaskedColumn
 
 import warnings
 
+import sys
+sys.path.append('sharp_models')
 from sharp_modules import cont_src as cont_src
 from sharp_modules import convert_units as conv_units
 from sharp_modules import spec_ex as spec_ex
