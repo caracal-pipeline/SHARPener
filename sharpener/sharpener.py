@@ -15,7 +15,6 @@ from astropy.table import Table, Column, MaskedColumn
 
 import warnings
 
-# sys.path.append('/Users/maccagni/notebooks/sharpener/sharp_modules/')
 from sharp_modules import cont_src as cont_src
 from sharp_modules import convert_units as conv_units
 from sharp_modules import spec_ex as spec_ex
@@ -26,7 +25,6 @@ from sharp_modules import sdss_match
 
 __author__ = "Filippo Maccagni"
 __copyright__ = "RadioLife"
-__version__ = "1.0.0"
 __email__ = "filippo.maccagni@gmail.com"
 __status__ = "Development"
 
