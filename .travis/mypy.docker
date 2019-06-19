@@ -1,0 +1,6 @@
+FROM kernsuite/base:4
+RUN docker-apt-install python-pip
+RUN pip install mypy
+ADD . /code
+WORKDIR /code
+RUN mypy --py2 --ignore-missing-import rfinder
