@@ -53,8 +53,11 @@ class sharpener:
         If not specified by user load sharpener_default.yml
 
         '''
-
-        file_default = '/Users/maccagni/notebooks/sharpener/sharpener_default.yml'
+        # get sharpener install directory
+        SHARPENER_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        SHARPENER_DIR = RFINDER_PATH+'/sharpener/'
+        sys.path.append(os.path.join(SHARPENER_PATH, 'sharpener'))
+        file_default = SHARPENER_DIR + 'sharpener_default.yml'
 
         if file != None:
             cfg = open(file)
