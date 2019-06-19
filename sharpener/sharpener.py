@@ -57,7 +57,7 @@ class sharpener:
         '''
         # get sharpener install directory
         SHARPENER_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        SHARPENER_DIR = RFINDER_PATH+'/sharpener/'
+        SHARPENER_DIR = SHARPENER_PATH+'/sharpener/'
         sys.path.append(os.path.join(SHARPENER_PATH, 'sharpener'))
         file_default = SHARPENER_DIR + 'sharpener_default.yml'
 
