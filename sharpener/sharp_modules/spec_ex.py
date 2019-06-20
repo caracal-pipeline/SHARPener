@@ -86,17 +86,26 @@ def abs_ex(cfg_par):
 
 			if cfg_par[key].get('catalog', 'PYBDSF') == 'PYBDSF':
 				
-				J2000, ra, dec, flux_cont = [], [], [], []
+				J2000_name, ra, dec, flux_cont = [], [], [], []
 				import Tigger
+				from astropy import units as u
+				from astropy.coordinates import Angle
 				catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),
 												  cfg_par['general'].get('catalog_file'))
 				model = Tigger.load(catalog_table)
 				sources = model.sources
 				for source in sources:
-					J2000_name.append(source.name)
-					ra.append(source.ra)
-					dec.append(source.dec)
+					ra_deg_angle  = Angle(np.rad2deg(source.pos.ra) * u.deg)
+					dec_deg_angle = Angle(np.rad2deg(source.pos.dec) * u.deg)
+					ra_hms = ra_deg_angle.to_string(unit=u.hourangle, sep=':')
+					dec_dms = dec_deg_angle.to_string(unit=u.degree, sep=':')
+					J2000_name.append('J{:s}{:s}{:s}'.format(ra_hms.replace(':', ''),
+															'+' if source.pos.dec > 0.0 else '-',
+									  						dec_dms.replace(':', '')))
+					ra.append(ra_hms)
+					dec.append(dec_dms)
 					flux_cont.append(source.flux.I)
+			src_id = np.arange(0,len(ra)+1,1)
 
         elif cfg_par['source_finder'].get('enable',False) == True:
 
@@ -107,16 +116,13 @@ def abs_ex(cfg_par):
             ra = np.array(src_list_vec['ra'],dtype=str)
             dec = np.array(src_list_vec['dec'],dtype=str)
             flux_cont = np.array(src_list_vec['peak'],dtype=float)
+            src_id = src_list_vec['ID']
 
 
         pixels = conv_units.coord_to_pix(cubename,ra,dec, verbose=False)
 
         key = 'spec_ex'
-
-        #src_id = np.arange(0,ra.size+1,1)
-        src_id = src_list_vec['ID']
         freq = cubef.zaxis(cubename)
-
         abs_mean_rms = np.zeros(pixels.shape[0])
         abs_los_rms = np.zeros(pixels.shape[0])
         tau_los_rms = np.zeros(pixels.shape[0])
