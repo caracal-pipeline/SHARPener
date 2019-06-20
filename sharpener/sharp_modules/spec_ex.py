@@ -75,17 +75,28 @@ def abs_ex(cfg_par):
 
         key = 'source_catalog'
         if cfg_par['source_catalog'].get('enable',False) == True:
-
-            catalog_table = str(cfg_par['general'].get('absdir')) + 'cat_src_sharpener.txt'
-           
-            tab = ascii.read(catalog_table)
         
-            if cfg_par[key].get('catalog', 'NVSS') == 'NVSS':
+			if cfg_par[key].get('catalog', 'NVSS') == 'NVSS':
+				catalog_table = str(cfg_par['general'].get('absdir')) + 'cat_src_sharpener.txt'
+				tab = ascii.read(catalog_table)
+				J2000_name = tab['NVSS']
+				ra = tab['RAJ2000']
+				dec = tab['DEJ2000']
+				flux_cont = tab['S1.4']
 
-                J2000_name = tab['NVSS']
-                ra = tab['RAJ2000']
-                dec = tab['DEJ2000']
-                flux_cont = tab['S1.4']*1e-3
+			if cfg_par[key].get('catalog', 'PYBDSF') == 'PYBDSF':
+				
+				J2000, ra, dec, flux_cont = [], [], [], []
+				import Tigger
+				catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),
+												  cfg_par['general'].get('catalog_file'))
+				model = Tigger.load(catalog_table)
+				sources = model.sources
+				for source in sources:
+					J2000_name.append(source.name)
+					ra.append(source.ra)
+					dec.append(source.dec)
+					flux_cont.append(source.flux.I)
 
         elif cfg_par['source_finder'].get('enable',False) == True:
 
@@ -96,7 +107,6 @@ def abs_ex(cfg_par):
             ra = np.array(src_list_vec['ra'],dtype=str)
             dec = np.array(src_list_vec['dec'],dtype=str)
             flux_cont = np.array(src_list_vec['peak'],dtype=float)
-        
 
 
         pixels = conv_units.coord_to_pix(cubename,ra,dec, verbose=False)
