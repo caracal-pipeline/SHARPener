@@ -1,0 +1,23 @@
+language: python
+matrix:
+  include:
+  - env: TARGET=py2
+  - env: TARGET=py3
+  - env: TARGET=mypy
+  allow_failures:
+  - env: TARGET=mypy
+sudo: required
+services:
+  - docker
+install:
+    - true
+script:
+- docker build . -f .travis/${TARGET}.docker
+deploy:
+  provider: pypi
+  user: Fil8
+  password:
+    secure: KsDiJeohjjS7kf8iRGdn+aC4mjTwcqeCZoKCrNeWLWpVvVvHbUFc+D9ZxCqO+3tGleHR2bEj27saJpiMV18Lp+YC8ID0nAtRzDrnGALwdtzcDNgaPCoZK6El+cAnHS/Kx/7JIqqDph3QzqS0nMfrDpO78OkzN6ZSWT10UqAzY1VpwvOutm3l7UVyuR4tA0Y/qxtl4QXb4xTQ1GT6M6PYOhfUzPQ/zumoRou6KOQEi+vYTYneY6zBpkjp+m4aroMnse9gnbA5OrlSdmIJpBPH1prD9BE7L6rHGy+o/hMMHrl9ckRV7xT47q4GE8LvsozbiyP/u5nbHolHXMyzt+xH7qh8STyIDcQLz3/182DAoeQHc7uwJomaSBd7/aKsABaNxtYgDh3aRVryMBgMn9enQZqDRxUmZIxwCa06T7j2YL/fLxcnyFtmQJypxNIKKTsJfBJ3dhYhPX7jSRfamvsv7AN9Nufl7hz37NSLhUVVvtws9bGV+vE7azD8rupqszQeZ+uXMgXBcq3eyI01cnKgHnpxX3MjYOF5Z3SGYi6hAdjkEWVoxtNr0wyKTskJm++4+cHOy15RCupPOunpdYKyX4IBEVzBvdYkzkUkuZ/n48EJqBUWv1IQbjpq7Gz09dE4eJMBZjpTYaXQbecM+OKJOJPHJ2RQIoN7kDHhWLJpP14=
+  on:
+    tags: true
+    repo: Fil8/SHARPener

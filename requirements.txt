@@ -1,0 +1,12 @@
+astro-tigger
+#git+https://github.com/ska-sa/tigger.git
+astropy
+astroquery
+matplotlib
+mpdaf
+multiprocessing
+numpy
+prettytable
+PyPDF2
+pyaml
+tabulate

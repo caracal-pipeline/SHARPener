@@ -1,0 +1,8 @@
+FROM kernsuite/base:4
+RUN docker-apt-install python-pip
+ADD . /code
+WORKDIR /code
+RUN pip install .
+RUN python -c "from sharpener import sharpener"
+RUN python -c "from sharpener import sharp_modules"
+RUN python -c "from sharpener import sharpener; print help(harpener)"

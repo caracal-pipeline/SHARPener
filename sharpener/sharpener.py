@@ -15,7 +15,8 @@ from astropy.table import Table, Column, MaskedColumn
 
 import warnings
 
-# sys.path.append('/Users/maccagni/notebooks/sharpener/sharp_modules/')
+import sys
+sys.path.append('sharp_models')
 from sharp_modules import cont_src as cont_src
 from sharp_modules import convert_units as conv_units
 from sharp_modules import spec_ex as spec_ex
@@ -26,7 +27,6 @@ from sharp_modules import sdss_match
 
 __author__ = "Filippo Maccagni"
 __copyright__ = "RadioLife"
-__version__ = "1.0.0"
 __email__ = "filippo.maccagni@gmail.com"
 __status__ = "Development"
 
@@ -55,8 +55,11 @@ class sharpener:
         If not specified by user load sharpener_default.yml
 
         '''
-
-        file_default = '/Users/maccagni/notebooks/sharpener/sharpener_default.yml'
+        # get sharpener install directory
+        SHARPENER_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        SHARPENER_DIR = SHARPENER_PATH+'/sharpener/'
+        sys.path.append(os.path.join(SHARPENER_PATH, 'sharpener'))
+        file_default = SHARPENER_DIR + 'sharpener_default.yml'
 
         if file != None:
             cfg = open(file)

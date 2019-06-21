@@ -221,7 +221,7 @@ def abs_plot(spec_name, cfg_par):
             # print(n_channels)
 
             # number of channels at which to split
-            n_channel_per_plot = 500
+            n_channel_per_plot = 50
 
             # get the number of plots
             n_plots = int(np.ceil(float(n_channels)/float(n_channel_per_plot)))
@@ -231,7 +231,7 @@ def abs_plot(spec_name, cfg_par):
             n_rows = n_plots
 
             # add one row for the plot with full channel width
-            fig, ax = plt.subplots(
+            fig, ax = plt.subplots(squeeze=False,
                 ncols=1, nrows=n_rows, figsize=(10, 2*n_rows))
             fig.subplots_adjust(hspace=0.2)
 
@@ -242,7 +242,7 @@ def abs_plot(spec_name, cfg_par):
             #     0.05, 0.95), xycoords='axes fraction', ha='left')
 
             if cfg_par[key]['title'] == True:
-                ax[0].set_title("{0:s} (\#{1:d}): {2:s}".format(cfg_par['general']['workdir'].split("/")[-2], int(os.path.basename(spec_name).split('_')[0]), os.path.basename(spec_name).replace(
+                ax[0][0].set_title("{0:s} (\#{1:d}): {2:s}".format(cfg_par['general']['workdir'].split("/")[-2], int(os.path.basename(spec_name).split('_')[0]), os.path.basename(spec_name).replace(
                     '.txt', '').split('_')[-1]), fontsize=font_size+2)
 
             # go through the rest of the plots and create them
@@ -258,18 +258,17 @@ def abs_plot(spec_name, cfg_par):
                 y_sigma_plot = y_data[data_indices_min:data_indices_max]
 
                 # set the plot limits (only the x-axis needs to be adjusted)
-                ax[plot_count].set_ylim(y1_min, y1_max)
-                ax[plot_count].xaxis.labelpad = 6
-                ax[plot_count].yaxis.labelpad = 10
-                ax[plot_count].minorticks_on()
-                ax[plot_count].tick_params(axis='both', bottom='on', top='on',
+                ax[plot_count][0].set_ylim(y1_min, y1_max)
+                ax[plot_count][0].xaxis.labelpad = 6
+                ax[plot_count][0].yaxis.labelpad = 10
+                ax[plot_count][0].minorticks_on()
+                ax[plot_count][0].tick_params(axis='both', bottom='on', top='on',
                                            left='on', right='on', which='major', direction='in')
-                ax[plot_count].tick_params(axis='both', bottom='on', top='on',
+                ax[plot_count][0].tick_params(axis='both', bottom='on', top='on',
                                            left='on', right='on', which='minor', direction='in')
-                ylabh = ax[plot_count].set_ylabel(
+                ylabh = ax[plot_count][0].set_ylabel(
                     r'S\,$[\mathrm{mJy}\,\mathrm{beam}^{-1}]$', fontsize=font_size)
                 ylabh.set_verticalalignment('center')
-
                 # adjust the plot range of the last plot to match the others if the number
                 # of channels cannot be divided by the number of channels per plot without rest
                 if plot_count == n_plots-1 and float(n_channels) % float(n_channel_per_plot) != 0:
@@ -293,24 +292,24 @@ def abs_plot(spec_name, cfg_par):
                 x_data_plot_max = np.max(x_data_plot)
                 #print(x_data_plot_max - x_data_plot_min)
 
-                ax[plot_count].plot(x_data_plot, y_data_plot)
+                ax[plot_count][0].plot(x_data_plot, y_data_plot)
 
-                ax[plot_count].set_xlim(x_data_plot_min, x_data_plot_max)
+                ax[plot_count][0].set_xlim(x_data_plot_min, x_data_plot_max)
 
                 # ax[plot_count].fill_between(x_data_plot, -y_sigma_plot, y_sigma_plot,
                 #                             facecolor='grey', alpha=0.5)
-                ax[plot_count].axhline(color='k', linestyle=':', zorder=0)
+                ax[plot_count][0].axhline(color='k', linestyle=':', zorder=0)
 
                 # for the last plot add the x-axis label
                 if plot_count == n_plots-1:
 
                     if cfg_par['spec_ex'].get('zunit') == 'm/s':
                         x_data /= 1e3
-                        ax[plot_count].set_xlabel(
+                        ax[plot_count][0].set_xlabel(
                             r'$cz\,(\mathrm{km}\,\mathrm{s}^{-1})$', fontsize=font_size)
                     elif cfg_par['spec_ex'].get('zunit') == 'MHz':
                         x_data /= 1e6
-                        ax[plot_count].set_xlabel(
+                        ax[plot_count][0].set_xlabel(
                             r'Frequency [MHz]', fontsize=font_size)
 
                     # in case the last plot contains less channels than the others
