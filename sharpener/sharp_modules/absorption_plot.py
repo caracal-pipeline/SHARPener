@@ -231,7 +231,7 @@ def abs_plot(spec_name, cfg_par):
             n_rows = n_plots
 
             # add one row for the plot with full channel width
-            fig, ax = plt.subplots(
+            fig, ax = plt.subplots(squeeze=False,
                 ncols=1, nrows=n_rows, figsize=(10, 2*n_rows))
             fig.subplots_adjust(hspace=0.2)
 
