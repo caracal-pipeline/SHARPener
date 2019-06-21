@@ -1,4 +1,5 @@
-astro-tigger
+#astro-tigger
+git+https://github.com/ska-sa/tigger.git
 astropy
 astroquery
 matplotlib
