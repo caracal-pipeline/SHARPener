@@ -85,7 +85,6 @@ def abs_ex(cfg_par):
 				flux_cont = tab['S1.4']
 
 			if cfg_par[key].get('catalog', 'PYBDSF') == 'PYBDSF':
-				
 				J2000_name, ra, dec, flux_cont = [], [], [], []
 				import Tigger
 				from astropy import units as u
