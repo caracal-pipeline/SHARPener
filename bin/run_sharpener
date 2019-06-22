@@ -31,11 +31,23 @@ time_start = time.time()
 
 # Create and parse argument list
 # ++++++++++++++++++++++++++++++
+
+def is_valid_file(parser, arg):
+    """Validation config file"""
+    if not os.path.exists(arg):
+        parser.error("The file '%s' does not exist!" % arg)
+    return arg
+
 parser = argparse.ArgumentParser(
     description='Run sharpener script')
 
 # 1st argument: File name
-parser.add_argument("yml_name", help='The setting file')
+
+
+parser.add_argument("-c", "--config",
+                    type=lambda a: is_valid_file(parser, a),
+                    default=False,
+                    help='SHARPener configuration file (YAML format)')
 
 # 2nd-4th argument are optional: Enable or Disable certain steps
 parser.add_argument("--do_cont", action="store_true", default=False,
@@ -63,7 +75,7 @@ time_start_load = time.time()
 print("## Load parameter file")
 
 spar = sharpy.sharpener(
-    args.yml_name)
+    args.config)
 
 print(spar.cfg_par)
 
