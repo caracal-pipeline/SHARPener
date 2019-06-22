@@ -30,15 +30,18 @@ The following [tutorials](https://github.com/Fil8/SHARPener/tree/master/tutorial
 git clone https://github.com/Fil8/SHARPener.git
 ```
 
-- add `sharpener` directory to `PYTHONPATH` (for permanent use save it in your `.cshrc_profile`, or `.bash_profile`, respectively)
+- Then change directory into SHaRPener and install:
 
 ```
-setenv PYTHONPATH path_to_sharpener:${PYTHONPATH}
+cd SHARPener && pip install .
 
-export PYTHONPATH=$PYTHONPATH:path_to_sharpener
 ```
 
-- change path at `line16` of `sharpener.py` as follows: `sys.path.append('/path-to-sharpener/sharp_modules/')` 
+- This package is also available on **pypi**, allowing:
+
+```
+pip install sharpener
+```
  
  ***
  <p>&copy <sub> Filippo M. Maccagni 2018-2019 </sub></p>

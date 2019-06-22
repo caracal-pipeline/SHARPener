@@ -5,5 +5,4 @@ WORKDIR /code
 RUN pip3 install .
 RUN python -c "from sharpener import sharpener"
 RUN python -c "from sharpener import sharp_modules"
-RUN python -c "from sharpener import sharpener; print help(harpener)"
-
+RUN python -c "from sharpener import sharpener; print help(sharpener)"
