@@ -5,7 +5,7 @@ abs_plot:
   - 800 2200
   title: true
   detailed_plot: true
-  channels_per_plot: 500
+  channels_per_plot: 50
   fixed_scale: false
 general:
   __helpstr: General INPUT directories and filenames
