@@ -39,6 +39,7 @@ simulate_continuum:
 source_catalog:
   __helpstr: Find sources in a f.o.v. from source_catalog
   catalog: NVSS
+  catalogfile: test.lsm.html
   enable: false
   thresh: 30
   width: 5.2d
