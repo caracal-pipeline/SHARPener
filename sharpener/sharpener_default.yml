@@ -5,6 +5,7 @@ abs_plot:
   - 800 2200
   title: true
   detailed_plot: true
+  channels_per_plot: 50
   fixed_scale: false
 general:
   __helpstr: General INPUT directories and filenames
@@ -38,6 +39,7 @@ simulate_continuum:
 source_catalog:
   __helpstr: Find sources in a f.o.v. from source_catalog
   catalog: NVSS
+  catalogfile: test.lsm.html
   enable: false
   thresh: 30
   width: 5.2d

@@ -221,7 +221,7 @@ def abs_plot(spec_name, cfg_par):
             # print(n_channels)
 
             # number of channels at which to split
-            n_channel_per_plot = 50
+            n_channel_per_plot = int(cfg_par[key]['channels_per_plot'])
 
             # get the number of plots
             n_plots = int(np.ceil(float(n_channels)/float(n_channel_per_plot)))
