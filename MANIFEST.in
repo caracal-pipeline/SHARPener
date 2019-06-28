@@ -1,0 +1,6 @@
+include README.md
+include LICENSE.md
+include requirements.txt
+include sharpener/sharpener_default.yml
+recursive-include examples *.fits
+recursive-include tutorials *.ipynb
