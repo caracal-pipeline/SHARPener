@@ -9,7 +9,7 @@ a spectrum from each line of sight of these sources.
 
 The spectra are then plotted. 
 
-`sharpener` can be run automatically using a `.yml` [parameter file](https://github.com/Fil8/SHARPener/wiki/Parameter-file) as  `run_sharpener -c <path_to_parameter_file.yml>`, or through a `IPython`
+`sharpener` can be run automatically using a `.yml` [parameter file](https://github.com/Fil8/SHARPener/wiki/Parameter-file) as  `run_sharpener -c <parameter_file.yml>`, or through a `IPython`
 [notebook](https://github.com/Fil8/SHARPener/blob/master/tutorials/T2_automated_run.ipynb).
 
 To generate config with `run_sharpener` and for help `run_sharpener -h`.
