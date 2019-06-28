@@ -41,6 +41,12 @@ def is_valid_file(parser, arg):
 parser = argparse.ArgumentParser(
     description='Run sharpener script')
 
+# 0th argument: Generate default config
+
+parser.add_argument("-gd", "--generate_default",
+                    default=False,
+                    help='Generate a default configuration file (YAML format)')
+
 # 1st argument: File name
 
 
@@ -60,6 +66,10 @@ parser.add_argument("--do_plots", action="store_true", default=False,
                     help='Enable plotting')
 
 args = parser.parse_args()
+
+# Make default file
+# +++++++++++++++++
+configfile = args.generate_default
 
 
 # Set script parameters
