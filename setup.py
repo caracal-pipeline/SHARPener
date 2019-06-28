@@ -18,7 +18,7 @@ def requirements():
     with open(os.path.join(build_root, 'requirements.txt')) as f:
         return [pname.strip() for pname in f.readlines()]
 
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 
 setup(name=pkg,
       version=__version__,
