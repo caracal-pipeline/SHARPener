@@ -69,7 +69,16 @@ args = parser.parse_args()
 
 # Make default file
 # +++++++++++++++++
-configfile = args.generate_default
+if args.generate_default:
+    time_start_load = time.time()
+    from shutil import copyfile
+    import sharpener
+    print("## Getting parameter file: {}".format(args.generate_default))
+    configfile = args.generate_default 
+    SHARPENER_PATH = os.path.dirname(os.path.dirname(os.path.abspath(sharpener.__file__)))
+    copyfile('{}/{}/{}'.format(SHARPENER_PATH, 'sharpener', 'sharpener_default.yml'),
+             configfile)
+    print("## Done ({0:.2f}s)".format(time.time() - time_start_load))
 
 
 # Set script parameters
@@ -80,17 +89,14 @@ do_plots = args.do_plots
 
 # Load parameter file
 # +++++++++++++++++++
-time_start_load = time.time()
 
-print("## Load parameter file")
-
-spar = sharpy.sharpener(
-    args.config)
-
-print(spar.cfg_par)
-
-print("## Load parameter file ... Done ({0:.2f}s)".format(
-    time.time() - time_start_load))
+if args.config:
+    time_start_load = time.time()
+    print("## Load parameter file")
+    spar = sharpy.sharpener(args.config)
+    print(spar.cfg_par)
+    print("## Load parameter file ... Done ({0:.2f}s)".format(
+          time.time() - time_start_load))
 
 # print(spar.cfg_par)
 
@@ -136,84 +142,84 @@ if do_plots:
     print("## Plotting spectra ... Done ({0:.2f}s)".format(
         time.time() - time_start_plot))
 
-# Merge plots:
-# ++++++++++++
-if spar.cfg_par['general']['merge_plots'] and spar.cfg_par['general']['plot_format'] == "pdf":
+    # Merge plots:
+    # ++++++++++++
+    if spar.cfg_par['general']['merge_plots'] and spar.cfg_par['general']['plot_format'] == "pdf":
 
-    time_start_merge = time.time()
+        time_start_merge = time.time()
 
-    print("## Merging plots")
+        print("## Merging plots")
 
-    # Merge the detailed plots
-    # ++++++++++++++++++++++++
-    plot_list = glob.glob(
-        "{0:s}/*J*_detailed.pdf".format(spar.cfg_par['general']['plotdir']))
+        # Merge the detailed plots
+        # ++++++++++++++++++++++++
+        plot_list = glob.glob(
+            "{0:s}/*J*_detailed.pdf".format(spar.cfg_par['general']['plotdir']))
 
-    if len(plot_list) != 0:
+        if len(plot_list) != 0:
 
-        plot_list.sort()
+            plot_list.sort()
 
-        plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
-            spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2]))
+            plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
+                spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2]))
 
-        pdf_merger = PdfFileMerger()
+            pdf_merger = PdfFileMerger()
 
-        for files in plot_list:
-            pdf_merger.append(files)
+            for files in plot_list:
+                pdf_merger.append(files)
 
-        plot_name = "{0:s}{1:s}_all_plots_detailed.pdf".format(
-            spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])
+            plot_name = "{0:s}{1:s}_all_plots_detailed.pdf".format(
+                spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])
 
-        pdf_merger.write(plot_name)
-    else:
-        print("No detailed plots found. Continue")
+            pdf_merger.write(plot_name)
+        else:
+            print("No detailed plots found. Continue")
 
-    # Merge compact plots
-    # +++++++++++++++++++
-    plot_list = glob.glob(
-        "{0:s}/*J*_compact.pdf".format(spar.cfg_par['general']['plotdir']))
+        # Merge compact plots
+        # +++++++++++++++++++
+        plot_list = glob.glob(
+            "{0:s}/*J*_compact.pdf".format(spar.cfg_par['general']['plotdir']))
 
-    if len(plot_list) != 0:
+        if len(plot_list) != 0:
 
-        plot_list.sort()
+            plot_list.sort()
 
-        plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
-            spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2]))
+            plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
+                spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2]))
 
-        pdf_merger = PdfFileMerger()
+            pdf_merger = PdfFileMerger()
 
-        for files in plot_list:
-            pdf_merger.append(files)
+            for files in plot_list:
+                pdf_merger.append(files)
 
-        plot_name = "{0:s}{1:s}_all_plots_compact.pdf".format(
-            spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])
+            plot_name = "{0:s}{1:s}_all_plots_compact.pdf".format(
+                spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])
 
-        pdf_merger.write(plot_name)
-    else:
-        print("No plots found. Continue")
+            pdf_merger.write(plot_name)
+        else:
+            print("No plots found. Continue")
 
-    print("## Merging plots ... Done ({0:.2f}s)".format(
-        time.time() - time_start_merge))
+        print("## Merging plots ... Done ({0:.2f}s)".format(
+            time.time() - time_start_merge))
 
-    # Create a zip file with all the plots
-    # ++++++++++++++++++++++++++++++++++++
-    time_start_zip = time.time()
-    print("## Create zip files")
+        # Create a zip file with all the plots
+        # ++++++++++++++++++++++++++++++++++++
+        time_start_zip = time.time()
+        print("## Create zip files")
 
-    plot_list = glob.glob(
-        "{0:s}/*all_plots*.pdf".format(spar.cfg_par['general']['plotdir']))
+        plot_list = glob.glob(
+            "{0:s}/*all_plots*.pdf".format(spar.cfg_par['general']['plotdir']))
 
-    if len(plot_list) != 0:
+        if len(plot_list) != 0:
 
-        with zipfile.ZipFile('NGC315_plots.zip', 'w') as myzip:
+            with zipfile.ZipFile('NGC315_plots.zip', 'w') as myzip:
 
-            for plot in plot_list:
-                myzip.write(plot, os.path.basename(plot))
-    else:
-        print("No files to zip.")
+                for plot in plot_list:
+                    myzip.write(plot, os.path.basename(plot))
+        else:
+            print("No files to zip.")
 
-    print("## Create zip files ... Done ({0:.2f}s)".format(
-        time.time() - time_start_zip))
+        print("## Create zip files ... Done ({0:.2f}s)".format(
+            time.time() - time_start_zip))
 # Script finished
 print("Script finished ({0:.2f}s)".format(
     time.time() - time_start))
