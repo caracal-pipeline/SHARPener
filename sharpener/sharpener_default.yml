@@ -1,48 +1,11 @@
-abs_plot:
-  __helpstr: plot spectra from a given folder
-  enable: true
-  redshift_sources:
-  - 800 2200
-  title: true
-  detailed_plot: true
-  channels_per_plot: 50
-  fixed_scale: false
 general:
   __helpstr: General INPUT directories and filenames
-  contname: NGC315.Continuum.fits
-  cubename: NGC315.Cube.fits
+  workdir: /home/maccagni/data/Obj5/# outputs will be stored here
+  contname: cln.s1.fits # name of continuum image (assumed stored in workdir)
+  cubename: cube.fits # name of datacube (assumed stored in workdir)
   verbose: false
-  workdir: /home/<path>/beam00/
-  plot_format: pdf
+  plot_format: pdf 
   merge_plots: true
-hanning:
-  __helpstr: Hanning smoothing spectrum
-  enable: false
-  window: 3
-polynomial_subtraction:
-  __helpstr: Subtract polynomial from spectrum to improve continuum subtraction
-  degree_pol: 6
-  enable: false
-sdss_match:
-  __helpstr: Gets the SDSS sources for a give cube
-  enable: true
-  freq_min: 1130.0
-  freq_max: 1430.0
-  plot_image: true
-  match_cat: true
-  max_sep: 30
-  min_radio_flux: 0
-  sdss_query_timeout: 300
-simulate_continuum:
-  __helpstr: Simulate continuum from source catalog output
-  enable: false
-source_catalog:
-  __helpstr: Find sources in a f.o.v. from source_catalog
-  catalog: NVSS
-  catalogfile: test.lsm.html
-  enable: false
-  thresh: 30
-  width: 5.2d
 source_finder:
   __helpstr: Find sources in continuum image using miriad imsad
   clip: 5e-3
@@ -50,9 +13,46 @@ source_finder:
   options: null
   region: null
   plot_image: true
+source_catalog:
+  __helpstr: Find sources in a f.o.v. from source_catalog NVSS or load PYBDSF output
+  catalog: NVSS #NVSS or PYBDSF
+  catalog_file: catalog.lsm.html # catalog name for PYBDSF output
+  enable: false 
+  thresh: 30
+  width: 5.2d
+simulate_continuum:
+  __helpstr: Simulate continuum from source catalog output
+  enable: false
 spec_ex:
   __helpstr: Extract spectra from datacube
   chrom_aberration: true
   enable: true
   flag_chans: null
   zunit: m/s
+abs_plot:
+  __helpstr: plot spectra from folder plot in workdir/sharpOut/plot/
+  enable: true
+  redshift_sources:
+  - 800 2200 
+  title: true
+  detailed_plot: true
+  channels_per_plot: 50
+  fixed_scale: false
+polynomial_subtraction:
+  __helpstr: Subtract polynomial from spectrum to improve continuum subtraction
+  degree_pol: 3
+  enable: false
+hanning:
+  __helpstr: Hanning smoothing spectrum
+  enable: false
+  window: 3
+sdss_match:
+  __helpstr: Gets the SDSS sources for a given cube
+  enable: false
+  freq_min: 1130.0
+  freq_max: 1430.0
+  plot_image: true
+  match_cat: true
+  max_sep: 30
+  min_radio_flux: 0
+  sdss_query_timeout: 300

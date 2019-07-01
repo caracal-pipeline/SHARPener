@@ -62,6 +62,9 @@ def abs_ex(cfg_par):
 
         cubename = cfg_par['general'].get('cubename',None)
         cubefile = fits.open(cubename)  # read input
+
+        src_list_csv = cfg_par['general']['absdir']+'mir_src_sharpener.csv'
+
         hdr = cubefile[0].header
         sci = cubefile[0].data 
         sci = sci.squeeze()
@@ -76,39 +79,39 @@ def abs_ex(cfg_par):
         key = 'source_catalog'
         if cfg_par['source_catalog'].get('enable',False) == True:
         
-			if cfg_par[key].get('catalog', 'NVSS') == 'NVSS':
-				catalog_table = str(cfg_par['general'].get('absdir')) + 'cat_src_sharpener.txt'
-				tab = ascii.read(catalog_table)
-				J2000_name = tab['NVSS']
-				ra = tab['RAJ2000']
-				dec = tab['DEJ2000']
-				flux_cont = tab['S1.4']
+            catalogName = cfg_par[key].get('catalog', 'NVSS')
+            if catalogName == 'NVSS':
+                catalog_table = str(cfg_par['general'].get('absdir')) + 'cat_src_sharpener.txt'
+                tab = ascii.read(catalog_table)
+                J2000_name = tab['NVSS']
+                ra = tab['RAJ2000']
+                dec = tab['DEJ2000']
+                flux_cont = tab['S1.4']
 
-			if cfg_par[key].get('catalog', 'PYBDSF') == 'PYBDSF':
-				J2000_name, ra, dec, flux_cont = [], [], [], []
-				import Tigger
-				from astropy import units as u
-				from astropy.coordinates import Angle
-				catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),
-												  cfg_par['general'].get('catalog_file'))
-				model = Tigger.load(catalog_table)
-				sources = model.sources
-				for source in sources:
-					ra_deg_angle  = Angle(np.rad2deg(source.pos.ra) * u.deg)
-					dec_deg_angle = Angle(np.rad2deg(source.pos.dec) * u.deg)
-					ra_hms = ra_deg_angle.to_string(unit=u.hourangle, sep=':')
-					dec_dms = dec_deg_angle.to_string(unit=u.degree, sep=':')
-					J2000_name.append('J{:s}{:s}{:s}'.format(ra_hms.replace(':', ''),
-															'+' if source.pos.dec > 0.0 else '-',
-									  						dec_dms.replace(':', '')))
-					ra.append(ra_hms)
-					dec.append(dec_dms)
-					flux_cont.append(source.flux.I)
-			src_id = np.arange(0,len(ra)+1,1)
+            elif catalogName == 'PYBDSF':
+                J2000_name, ra, dec, flux_cont = [], [], [], []
+                import Tigger
+                from astropy import units as u
+                from astropy.coordinates import Angle
+                catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),
+                                                  cfg_par['source_catalog'].get('catalog_file'))
+                model = Tigger.load(catalog_table)
+                sources = model.sources
+                for source in sources:
+                    ra_deg_angle  = Angle(np.rad2deg(source.pos.ra) * u.deg)
+                    dec_deg_angle = Angle(np.rad2deg(source.pos.dec) * u.deg)
+                    ra_hms = ra_deg_angle.to_string(unit=u.hourangle, sep=':')
+                    dec_dms = dec_deg_angle.to_string(unit=u.degree, sep=':')
+                    J2000_name.append('J{:s}{:s}{:s}'.format(ra_hms.replace(':', ''),
+                                                            '+' if source.pos.dec > 0.0 else '-',
+                                                            dec_dms.replace(':', '')))
+                    ra.append(ra_hms)
+                    dec.append(dec_dms)
+                    flux_cont.append(source.flux.I)
+            src_id = np.arange(0,len(ra)+1,1)
 
-        elif cfg_par['source_finder'].get('enable',False) == True:
+        elif os.path.exists(src_list_csv):
 
-            src_list_csv = cfg_par['general']['absdir']+'mir_src_sharpener.csv'
             # open file
             src_list_vec = ascii.read(src_list_csv)
             J2000_name = np.array(src_list_vec['J2000'],dtype=str)
@@ -116,7 +119,10 @@ def abs_ex(cfg_par):
             dec = np.array(src_list_vec['dec'],dtype=str)
             flux_cont = np.array(src_list_vec['peak'],dtype=float)
             src_id = src_list_vec['ID']
-
+        
+        else:
+            print '!!!! catalog of sources does not exist. Enable source_catalog or source_finder first'
+            sys.exit(0)
 
         pixels = conv_units.coord_to_pix(cubename,ra,dec, verbose=False)
 
@@ -183,9 +189,11 @@ def abs_ex(cfg_par):
                     # extract a region were to determine the noise: A BOX around the l.o.s.
                     if (pix_x+10 < hdr['NAXIS1'] and  pix_x-10 > 0 and
                        pix_y+10 < hdr['NAXIS2'] and pix_y - 10 > 0):
+                            valueTmp = sci[j,pix_y,pix_x]
+                            sci[j,pix_y,pix_x] = np.nan
                             rms = np.nanmedian(sci[j, pix_y -10:pix_y + 10, pix_x - 10:pix_x + 10])
                             if rms != 0.0:
-                                med2 = np.abs(sci[j, pix_y, pix_x] - rms)
+                                med2 = np.abs(valueTmp - rms)
                                 madfm[j] = np.nanmedian(med2) / 0.6744888
                             else:
                                 madfm[j] = 0.0
@@ -330,15 +338,15 @@ def hanning_spec(flux):
 
 def poly_sub(cfg_par,x, y,deg):
         '''
-        Continuum subtraction on spectrum through polynomial fitting	
+        Continuum subtraction on spectrum through polynomial fitting    
         
         INPUT:
             parameter file
-            x-axis of the spectrum	
+            x-axis of the spectrum  
             y-axis of the spectrum
             degre of polynomial to fit
         OUTPUT:
-            continuum subtracted y-axis of spectrum	
+            continuum subtracted y-axis of spectrum 
         '''
             
         

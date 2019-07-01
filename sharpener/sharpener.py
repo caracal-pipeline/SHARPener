@@ -51,11 +51,12 @@ class sharpener:
         '''
 
         Set logger for spectrum extraction
-        Find config file
-        If not specified by user load sharpener_default.yml
-
+        Load config file
+        If not specified by user look for sharpener_default.yml in current directory
+        If sharpener_default.yml does not exist: copy sharpener_default.yml from install directory and exit with message
         '''
-        # get sharpener install directory
+
+        # get directories
         SHARPENER_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         SHARPENER_DIR = SHARPENER_PATH+'/sharpener/'
         sys.path.append(os.path.join(SHARPENER_PATH, 'sharpener'))
@@ -66,7 +67,10 @@ class sharpener:
         else:
             cfg = open(file_default)
 
+        
         self.cfg_par = yaml.load(cfg)
+
+        print yaml.dump(self.cfg_par)
 
         self.set_dirs()
 
@@ -86,7 +90,7 @@ class sharpener:
         '''
 
         Sets directory strucure and filenames
-        Creates directory abs/ in basedir+beam and subdirectories spec/ and plot/
+        Creates within sharpOut directory abs/ and subdirectories spec/ and plot/
 
         OUTPUT:
                 tab : table of catalog
@@ -103,14 +107,18 @@ class sharpener:
         self.cfg_par[key]['contname'] = self.contname
         mircont = os.path.basename(self.contname)
         mircont = string.split(mircont, '.')[0]
-        self.cfg_par[key]['mircontname'] = mircont+'.mir'
-        self.absdir = self.workdir+'abs/'
+        self.sharpdir = self.workdir+'sharpOut/'
+        self.cfg_par[key]['sharpdir'] =self.sharpdir
+        self.cfg_par[key]['mircontname'] = self.sharpdir+mircont+'.mir'
+        self.absdir = self.sharpdir+'abs/'
         self.cfg_par[key]['absdir'] = self.absdir
-        self.specdir = self.workdir+'spec/'
+        self.specdir = self.sharpdir+'spec/'
         self.cfg_par[key]['specdir'] = self.specdir
-        self.plotdir = self.workdir+'plot/'
+        self.plotdir = self.sharpdir+'plot/'
         self.cfg_par[key]['plotdir'] = self.plotdir
 
+        if os.path.exists(self.sharpdir) == False:
+            os.makedirs(self.sharpdir)
         if os.path.exists(self.absdir) == False:
             os.makedirs(self.absdir)
         if os.path.exists(self.specdir) == False:
