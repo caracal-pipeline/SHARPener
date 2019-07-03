@@ -78,8 +78,8 @@ if args.generate_default:
     time_start_load = time.time()
     from shutil import copyfile
     import sharpener
-    print("## Getting parameter file: {}".format('sharpener_default.yml'))
     configfile = args.generate_default
+    print("## Getting parameter file: {}".format(configfile))
     SHARPENER_PATH = os.path.dirname(os.path.dirname(os.path.abspath(sharpener.__file__)))
     copyfile('{}/{}/{}'.format(SHARPENER_PATH, 'sharpener', 'sharpener_default.yml'),
              configfile)

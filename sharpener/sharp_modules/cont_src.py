@@ -172,7 +172,7 @@ def write_src_csv(tot,cfg_par):
     np.savetxt(f, tot, delimiter=",", fmt="%s")
     f.close()
     
-    print '# List of continuum sources saved on file. #' 
+    print('# List of continuum sources saved on file. #')
 
     return 0
 
@@ -272,7 +272,7 @@ def mosaic_continuum(cfg_par):
         
         os.chdir(cfg_par['general']['workdir'])
 
-        print '# Convert continuum images to miriad format'   
+        print('# Convert continuum images to miriad format')
     
         key = 'mosaic_continuum'
         mosaicdir = cfg_par[key]['mosaic_directory']
@@ -409,7 +409,7 @@ def find_src_imsad(cfg_par):
         csv table of continuum sources (output of MIRIAD imsad)
     """
 
-    print '# Find continuum sources '   
+    print('# Find continuum sources ')
 
     # Getting directories and convert files if necessary
     # ++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -633,7 +633,7 @@ def find_src_imsad(cfg_par):
     
     hdulist.close()
 
-    print '# Continuum sources found #'    
+    print('# Continuum sources found #')  
 
     
     return src_list  

@@ -225,7 +225,7 @@ def abs_ex(cfg_par):
                 if np.nansum(flux) == 0.:
                     count_blanks +=1
                     if verbose == True:
-                        print '# Blank spectrum:\t'+str(src_id[i])+' '+J2000_name[i]+' #'
+                        print('# Blank spectrum:\t'+str(src_id[i])+' '+J2000_name[i]+' #')
                     continue
 
                 # measure noise in the spectrum outside of the line
@@ -272,7 +272,7 @@ def abs_ex(cfg_par):
                     meta={'name': 'Spectrum'})
                 ascii.write(t,out_spec,overwrite=True)
                 if verb==True:
-                    print '# Extracted spectrum: \t' +str(src_id[i])+' '+J2000_name[i]+' #'
+                    print('# Extracted spectrum: \t' +str(src_id[i])+' '+J2000_name[i]+' #')
 
                 polysub = cfg_par['polynomial_subtraction'].get('enable', False) 
                 if polysub == True:
@@ -327,11 +327,11 @@ def abs_ex(cfg_par):
         # close fits file
         cubefile.close()
         
-        print '\n# Total number of sources: \t'+str(pixels.shape[0])
-        print '# Sources flagged: \t\t'+str(count_thresh)
-        print '# Blank spectra:\t\t'+str(count_blanks)
-        print '# Total number of spectra: \t'+str(pixels.shape[0]-count_thresh-count_fov-count_blanks)
-        print '# Average noise in spectra: \t'+str(round(np.nanmean(average_noise)*1e3,1))+' mJy/beam'
+        print('\n\t# Total number of sources: \t'+str(pixels.shape[0]))
+        print('\t# Sources flagged: \t\t'+str(count_thresh))
+        print('\t# Blank spectra:\t\t'+str(count_blanks))
+        print('\t# Total number of spectra: \t'+str(pixels.shape[0]-count_thresh-count_fov-count_blanks))
+        print('\t# Average noise in spectra: \t'+str(round(np.nanmean(average_noise)*1e3,1))+' mJy/beam')
 
         return 0
 

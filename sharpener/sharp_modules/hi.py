@@ -59,8 +59,8 @@ class hi:
         freq = self.hi/(1+z)/1e06  # MHz
         velocity = self.C*((self.hi-freq)/freq)/1e5  # km/s
 
-        print 'HI expected frequency = '+str(round(freq, 3))+' MHz'
-        print 'HI systemic velocity = '+str(round(velocity, 3))+' km/s'
+        print('HI expected frequency = '+str(round(freq, 3))+' MHz')
+        print('HI systemic velocity = '+str(round(velocity, 3))+' km/s')
 
         return freq, velocity
 
@@ -79,7 +79,7 @@ class hi:
         tau = np.log(1.-(-sabs/scont))
 
         if tau.size == 1:
-            print 'Optical depth = '+str(round(tau, 3))
+            print('Optical depth = '+str(round(tau, 3)))
 
         return tau
 
@@ -96,7 +96,7 @@ class hi:
 
         nhiabs = kk.knhi*kk.T*tau*dv
 
-        print 'N(HI) = '+str(round(nhiabs, 3))+' cm-2'
+        print('N(HI) = '+str(round(nhiabs, 3))+' cm-2')
 
         return nhiabs
 
@@ -116,7 +116,7 @@ class hi:
         bycm = c.ang2lin(by, z)*1e6
         beamarea = (bxcm*bycm)*(PC**2)
 
-        print 'Beam Area = '+str(round(beamarea, 3))+' cm2'
+        print('Beam Area = '+str(round(beamarea, 3))+' cm2')
 
         return beamarea
 
@@ -133,7 +133,7 @@ class hi:
 
         mhiabs = area*self.mp*nhi_abs/self.msun
 
-        print 'M(HI) = '+str(round(mhiabs, 3))+' cm-2'
+        print('M(HI) = '+str(round(mhiabs, 3))+' Msun')
 
         return mhiabs
 
@@ -154,7 +154,7 @@ class hi:
         bya = by/60  # convert beam in arcmin
         nhiem = self.nhiem*dv*s/(bxa*bya)
 
-        print 'N(HI) = '+str(round(nhi_em, 3))+' cm-2'
+        print('N(HI) = '+str(round(nhi_em, 3))+' cm-2')
 
         return nhi_em
 
@@ -172,7 +172,7 @@ class hi:
 
         mhiem = nhi*self.mhi*area/MSUN
 
-        print 'M(HI) = '+str(round(mhiem, 3))+' cm-2'
+        print('M(HI) = '+str(round(mhiem, 3))+' Msun')
 
         return mhiem
 

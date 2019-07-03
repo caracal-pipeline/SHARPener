@@ -57,6 +57,8 @@ def create_all_abs_plots(cfg_par):
 
 
 def plot_continuum(cfg_par):
+    '''Function to plot the continuum image from where spectra are extracted
+    '''
 
     cont_im = os.path.basename(cfg_par['general']['contname'])
         #load wcs system
@@ -427,6 +429,6 @@ def abs_plot(spec_name, cfg_par):
 
             plt.close("all")
         if verb == True:
-            print '# Plotted spectrum of source ' + os.path.basename(spec_name)+'. #'
+            print('# Plotted spectrum of source ' + os.path.basename(spec_name)+'. #')
     else:
-        print '# Missing spectrum of source ' + os.path.basename(spec_name)+'. #'
+        print('# Missing spectrum of source ' + os.path.basename(spec_name)+'. #')
