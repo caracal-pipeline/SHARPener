@@ -101,6 +101,9 @@ class sharpener:
         key = 'general'
 
         self.workdir = self.cfg_par[key].get('workdir', None)
+        if os.path.exists(self.workdir) == False:
+            print("\n!!! specified work directory does not exist, check your .yml config file\n")
+            sys.exit(0)
         self.cubename = self.workdir + self.cfg_par[key].get('cubename', None)
         self.cfg_par[key]['cubename'] = self.cubename
         self.contname = self.workdir + self.cfg_par[key].get('contname', None)

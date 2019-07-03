@@ -121,7 +121,7 @@ def abs_ex(cfg_par):
             src_id = src_list_vec['ID']
         
         else:
-            print '!!!! catalog of sources does not exist. Enable source_catalog or source_finder first'
+            print("\n\t!!!! catalog of sources does not exist. Enable source_catalog or source_finder first\n")
             sys.exit(0)
 
         pixels = conv_units.coord_to_pix(cubename,ra,dec, verbose=False)
