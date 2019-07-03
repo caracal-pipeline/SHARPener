@@ -48,8 +48,6 @@ parser.add_argument("-gd", "--generate_default",
                     help='Generate a default configuration file (YAML format)')
 
 # 1st argument: File name
-
-
 parser.add_argument("-c", "--config",
                     type=lambda a: is_valid_file(parser, a),
                     default=False,
@@ -67,19 +65,28 @@ parser.add_argument("--do_plots", action="store_true", default=False,
 
 args = parser.parse_args()
 
+# Exit if only 
+# +++++++++++++++++
+if len(sys.argv) < 2:
+
+    print("\n\t!!! no arguments were parsed from user. Try:\n\n\trun_sharpener -h\n")
+    sys.exit(0)
+
 # Make default file
 # +++++++++++++++++
 if args.generate_default:
     time_start_load = time.time()
     from shutil import copyfile
     import sharpener
-    print("## Getting parameter file: {}".format(args.generate_default))
-    configfile = args.generate_default 
+    configfile = args.generate_default
+    print("## Getting parameter file: {}".format(configfile))
     SHARPENER_PATH = os.path.dirname(os.path.dirname(os.path.abspath(sharpener.__file__)))
     copyfile('{}/{}/{}'.format(SHARPENER_PATH, 'sharpener', 'sharpener_default.yml'),
              configfile)
+    print("## !!! edit parameter in your current directory before use !!!".format(time.time() - time_start_load))
     print("## Done ({0:.2f}s)".format(time.time() - time_start_load))
 
+    sys.exit(0)
 
 # Set script parameters
 # +++++++++++++++++++++
@@ -89,21 +96,22 @@ do_plots = args.do_plots
 
 # Load parameter file
 # +++++++++++++++++++
-
 if args.config:
     time_start_load = time.time()
     print("## Load parameter file")
     spar = sharpy.sharpener(args.config)
-    print(spar.cfg_par)
+
     print("## Load parameter file ... Done ({0:.2f}s)".format(
           time.time() - time_start_load))
 
-# print(spar.cfg_par)
+
 
 # Find continuum sources
 # ++++++++++++++++++++++
-if do_continuum_extraction:
+if do_continuum_extraction or spar.cfg_par['source_finder'].get('enable',False) == True:
+    
     time_start_find = time.time()
+    spar.cfg_par['source_finder']['enable'] = True
 
     print("## Find continuum sources")
 
@@ -120,8 +128,9 @@ if do_continuum_extraction:
 
 # Extract spectra
 # +++++++++++++++
-if do_spectra_extraction:
+if do_spectra_extraction or spar.cfg_par['spec_ex'].get('enable',False) == True:
     time_start_extract = time.time()
+    spar.cfg_par['spec_ex']['enable'] = True
 
     print("## Extract HI spectra from cube")
 
@@ -132,8 +141,9 @@ if do_spectra_extraction:
 
 # Plot spectra
 # ++++++++++++
-if do_plots:
+if do_plots  or spar.cfg_par['abs_plot'].get('enable',False) == True:
     time_start_plot = time.time()
+    spar.cfg_par['abs_plot']['enable'] = True
 
     print("## Plotting spectra")
 
@@ -158,8 +168,9 @@ if do_plots:
         if len(plot_list) != 0:
 
             plot_list.sort()
-
-            plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
+            if os.path.exists("{0:s}{1:s}_continuum.pdf".format(
+                spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])):
+                plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
                 spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2]))
 
             pdf_merger = PdfFileMerger()
@@ -182,9 +193,10 @@ if do_plots:
         if len(plot_list) != 0:
 
             plot_list.sort()
-
-            plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
-                spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2]))
+            if os.path.exists("{0:s}{1:s}_continuum.pdf".format(
+                spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])):
+                plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
+                    spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2]))
 
             pdf_merger = PdfFileMerger()
 
@@ -220,6 +232,7 @@ if do_plots:
 
         print("## Create zip files ... Done ({0:.2f}s)".format(
             time.time() - time_start_zip))
+
 # Script finished
 print("Script finished ({0:.2f}s)".format(
     time.time() - time_start))

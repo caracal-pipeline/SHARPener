@@ -78,6 +78,6 @@ class kk:
 		datatmp = ascii.read(htmltable, format='html')
 		ascii.write(datatmp,tablename,format='csv',names = datatmp.dtype.names)
 		os.remove(htmltable)
-		print x
+		print(x)
 
 		return x
