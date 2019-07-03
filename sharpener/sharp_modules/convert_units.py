@@ -192,7 +192,7 @@ def coord_to_pix(imagename,ra,dec,verbose=False):
 			pixels[i, 1]= np.nan
 			count_flag +=1
 			if verbose == True:
-				print '# Source # '+str([i])+ ' is flagged #'
+				print('# Source # '+str([i])+ ' is flagged #')
 		else:
 			ra_deg = ra2deg(ra[i])
 			dec_deg = dec2deg(dec[i])

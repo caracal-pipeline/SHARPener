@@ -14,11 +14,13 @@ from astropy.io import fits, ascii
 from astropy import units as u
 from astropy.table import Table, Column, MaskedColumn
 from astroquery.vizier import Vizier
-import astropy.coordinates as coord
+from astropy.coordinates import SkyCoord
 from mpdaf.obj import Spectrum, WaveCoord
 from matplotlib import gridspec
 from matplotlib import pyplot as plt
 from matplotlib import rc
+import matplotlib.colors as mc
+
 import logging
 
 
@@ -45,9 +47,102 @@ def create_all_abs_plots(cfg_par):
         sys.exit(1)
 
     # go through all spectra
+    catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
+    if os.path.exists(catalog_table) and (cfg_par['source_catalog']['enable']==True):
+        plot_continuum(cfg_par)
+
     for i in range(len(spectra)):
         spectra[i] = os.path.basename(spectra[i])
         abs_plot(spectra[i], cfg_par)
+
+
+def plot_continuum(cfg_par):
+    '''Function to plot the continuum image from where spectra are extracted
+    '''
+
+    cont_im = os.path.basename(cfg_par['general']['contname'])
+        #load wcs system
+    hdulist = fits.open(cont_im)  # read input
+    # read data and header
+    #what follows works for wcs, but can be written better
+    prihdr = hdulist[0].header  
+    w=wcs.WCS(prihdr)  
+
+    # RS: the rest of the function requires only 2 axis images
+    if w.naxis == 4:
+        w = w.dropaxis(3)
+        w = w.dropaxis(2)
+        img = hdulist[0].data[0][0]
+    elif w.naxis == 3:
+        w = w.dropaxis(2)
+        img = hdulist[0].data[0]
+
+
+
+    ax = plt.subplot(projection=w)
+    # ax.imshow(img, vmin=cfg_par[key]['clip'],
+    #           vmax=np.max(img), norm=mc.LogNorm(cfg_par[key]['clip']), origin='lower')
+    #ax.imshow(img, vmin=float(cfg_par[key]['clip'])/10000., vmax=np.min([np.max(img), float(cfg_par[key]['clip'])*1]), origin='lower')
+    #fig = ax.imshow(img, vmin=0, vmax=float(cfg_par[key]['clip'])/5, origin = 'lower')
+
+    fig = ax.imshow(img, norm=mc.SymLogNorm(float(cfg_par['source_finder']['clip'])/5.,
+                                            vmin=float(cfg_par['source_finder']['clip'])/5.), origin='lower')
+
+    # fig = ax.imshow(img, norm=mc.SymLogNorm(
+    #   float(cfg_par[key]['clip'])*10), origin='lower')
+    cbar = plt.colorbar(fig)
+    cbar.set_label('Flux Density [Jy/beam]')
+    #ax.imshow(img, vmin=, origin='lower')
+    #ax.coords.grid(color='white', ls='solid')
+    ax.coords[0].set_axislabel('Right Ascension')
+    ax.coords[1].set_axislabel('Declination')
+    ax.coords[0].set_major_formatter('hh:mm')
+    ax.set_title("{0:s}".format(cfg_par['general']['workdir'].split('/')[-2]))
+    #ax.coords[0].set_ticks(direction='in')
+    #ax.coords[1].set_ticks(direction='in')
+    # ax.tick_params(axis='both', bottom='on', top='on', left='on', right='on',
+    #          which='major', direction='in')
+
+    # add sources
+    mirCatalogFile = cfg_par['general']['absdir']+'mir_src_sharpener.csv'
+    catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
+
+    if os.path.exists(mirCatalogFile):
+        src_list = ascii.read(mirCatalogFile)
+        coord_list = SkyCoord(src_list['ra'], src_list['dec'], unit=(u.hourangle, u.deg), frame='fk5')
+
+    
+    elif os.path.exists(catalog_table) and (cfg_par['source_catalog']['enable']==True):
+        import Tigger
+        from astropy.coordinates import Angle
+
+        model = Tigger.load(catalog_table)
+        sources = model.sources
+        ra=[]
+        dec=[]
+        for source in sources:
+            ra_deg_angle  = Angle(np.rad2deg(source.pos.ra) * u.deg)
+            dec_deg_angle = Angle(np.rad2deg(source.pos.dec) * u.deg)
+            ra.append(ra_deg_angle)
+            dec.append(dec_deg_angle)
+
+        coord_list = SkyCoord(ra,dec, unit=(u.deg, u.deg), frame='fk5')
+
+
+    for k in range(len(coord_list.ra)):
+        ax.scatter(coord_list[k].ra.value, coord_list[k].dec.value, transform=ax.get_transform('fk5'),
+                        edgecolor='red', facecolor='none')
+        ax.annotate("{0:d}".format(k+1), xy=(coord_list[k].ra.value, coord_list[k].dec.value), xycoords=ax.get_transform('fk5'),
+                                   xytext=(1, 1), textcoords='offset points', ha='left', color="white")
+
+    output = "{0:s}{1:s}_continuum.png".format(cfg_par['general'].get(
+        'plotdir'), cfg_par['general']['workdir'].split('/')[-2])
+
+    if cfg_par['general']['plot_format'] == "pdf":
+        plt.savefig(output.replace(".png", ".pdf"), overwrite=True, bbox_inches='tight')
+    else:
+        plt.savefig(output, overwrite=True, bbox_inches='tight', dpi=300)
+    
 
 
 def abs_plot(spec_name, cfg_par):
@@ -123,7 +218,7 @@ def abs_plot(spec_name, cfg_par):
             ax1.set_xlabel(
                 r'$cz\,(\mathrm{km}\,\mathrm{s}^{-1})$', fontsize=font_size)
         y_data = np.array(spec_vec[spec_vec.colnames[1]], dtype=float)*1e3
-        y_sigma = np.array(spec_vec[spec_vec.colnames[2]])
+        y_sigma = np.array(spec_vec[spec_vec.colnames[2]])*1e3
 
         if cfg_par['spec_ex'].get('zunit') == 'MHz':
             x_data /= 1e6
@@ -177,7 +272,7 @@ def abs_plot(spec_name, cfg_par):
 
         # Plot noise
         ax1.fill_between(x_data, -y_sigma, y_sigma,
-                         facecolor='grey', alpha=0.5)
+                         facecolor='grey', alpha=0.5,step='mid')
 
         # Plot stuff
         ax1.axhline(color='k', linestyle=':', zorder=0)
@@ -255,7 +350,7 @@ def abs_plot(spec_name, cfg_par):
                 # print(data_indices_max)
                 x_data_plot = x_data[data_indices_min:data_indices_max]
                 y_data_plot = y_data[data_indices_min:data_indices_max]
-                y_sigma_plot = y_data[data_indices_min:data_indices_max]
+                y_sigma_plot = y_sigma[data_indices_min:data_indices_max]
 
                 # set the plot limits (only the x-axis needs to be adjusted)
                 ax[plot_count][0].set_ylim(y1_min, y1_max)
@@ -292,8 +387,10 @@ def abs_plot(spec_name, cfg_par):
                 x_data_plot_max = np.max(x_data_plot)
                 #print(x_data_plot_max - x_data_plot_min)
 
-                ax[plot_count][0].plot(x_data_plot, y_data_plot)
-
+                ax[plot_count][0].step(x_data_plot, y_data_plot, where='mid', color='black', linestyle='-')
+                # Plot noise
+                ax[plot_count][0].fill_between(x_data_plot, -y_sigma_plot, y_sigma_plot,
+                         facecolor='grey', alpha=0.5,step='mid')
                 ax[plot_count][0].set_xlim(x_data_plot_min, x_data_plot_max)
 
                 # ax[plot_count].fill_between(x_data_plot, -y_sigma_plot, y_sigma_plot,
@@ -332,6 +429,6 @@ def abs_plot(spec_name, cfg_par):
 
             plt.close("all")
         if verb == True:
-            print '# Plotted spectrum of source ' + os.path.basename(spec_name)+'. #'
+            print('# Plotted spectrum of source ' + os.path.basename(spec_name)+'. #')
     else:
-        print '# Missing spectrum of source ' + os.path.basename(spec_name)+'. #'
+        print('# Missing spectrum of source ' + os.path.basename(spec_name)+'. #')
