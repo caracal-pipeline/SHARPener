@@ -186,14 +186,33 @@ def abs_ex(cfg_par):
 
                     # determine the noise of the spectrum [Whiting 2012 et al.] in each channel
                     # MADMF: median absolute deviation from the median
-                    # extract a region were to determine the noise: A BOX around the l.o.s.
-                    if (pix_x+10 < hdr['NAXIS1'] and  pix_x-10 > 0 and
-                       pix_y+10 < hdr['NAXIS2'] and pix_y - 10 > 0):
+                    # extract a region were to determine the noise: rectangular ring around the l.o.s.
+                    rInt = cfg_par['spec_ex']['noise_delta_skip']
+                    rExt = cfg_par['spec_ex']['noise_delta_pix']
+
+                    yExtDown = pix_y - rInt - rExt
+                    yIntDown = pix_y - rInt
+                    yIntUp   = pix_y + rInt
+                    yExtUp   = pix_y + rInt + rExt
+
+                    xExtLeft  = pix_x - rInt - rExt
+                    xIntLeft  = pix_x - rInt
+                    xIntRight = pix_x + rInt
+                    xExtRight = pix_x + rInt + rExt 
+
+                    if (xExtRight < hdr['NAXIS1'] and  xExtLeft > 0 and
+                       yExtUp < hdr['NAXIS2'] and yExtDown > 0):
                             valueTmp = sci[j,pix_y,pix_x]
-                            sci[j,pix_y,pix_x] = np.nan
-                            rms = np.nanmedian(sci[j, pix_y -10:pix_y + 10, pix_x - 10:pix_x + 10])
+
+                            corona_1 = sci[j, yIntDown : yExtUp, xExtLeft : xIntLeft]
+                            corona_2 = sci[j, yIntUp : yExtUp, xIntLeft : xExtRight]
+                            corona_3 = sci[j, yIntDown : yIntUp, xIntRight : xExtRight]
+                            corona_4 =sci[j, yExtDown : yIntDown, xExtLeft : xExtRight]
+                            corona = np.concatenate((corona_1.flat,corona_2.flat,corona_3.flat,corona_4.flat))
+
+                            rms = np.nanmedian(corona)
                             if rms != 0.0:
-                                med2 = np.abs(valueTmp - rms)
+                                med2 = np.abs(corona - rms)
                                 madfm[j] = np.nanmedian(med2) / 0.6744888
                             else:
                                 madfm[j] = 0.0

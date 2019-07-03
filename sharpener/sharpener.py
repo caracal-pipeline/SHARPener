@@ -69,8 +69,8 @@ class sharpener:
 
         
         self.cfg_par = yaml.load(cfg)
-
-        print yaml.dump(self.cfg_par)
+        if self.cfg_par['general']['verbose'] == True:
+            print yaml.dump(self.cfg_par)
 
         self.set_dirs()
 

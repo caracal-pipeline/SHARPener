@@ -65,6 +65,13 @@ parser.add_argument("--do_plots", action="store_true", default=False,
 
 args = parser.parse_args()
 
+# Exit if only 
+# +++++++++++++++++
+if len(sys.argv) < 2:
+
+    print("\n\t!!! no arguments were parsed from user. Try:\n\n\trun_sharpener -h\n")
+    sys.exit(0)
+
 # Make default file
 # +++++++++++++++++
 if args.generate_default:
@@ -96,6 +103,8 @@ if args.config:
 
     print("## Load parameter file ... Done ({0:.2f}s)".format(
           time.time() - time_start_load))
+
+
 
 # Find continuum sources
 # ++++++++++++++++++++++
@@ -223,7 +232,7 @@ if do_plots  or spar.cfg_par['abs_plot'].get('enable',False) == True:
 
         print("## Create zip files ... Done ({0:.2f}s)".format(
             time.time() - time_start_zip))
-        
+
 # Script finished
 print("Script finished ({0:.2f}s)".format(
     time.time() - time_start))

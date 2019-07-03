@@ -348,7 +348,7 @@ def abs_plot(spec_name, cfg_par):
                 # print(data_indices_max)
                 x_data_plot = x_data[data_indices_min:data_indices_max]
                 y_data_plot = y_data[data_indices_min:data_indices_max]
-                y_sigma_plot = y_data[data_indices_min:data_indices_max]
+                y_sigma_plot = y_sigma[data_indices_min:data_indices_max]
 
                 # set the plot limits (only the x-axis needs to be adjusted)
                 ax[plot_count][0].set_ylim(y1_min, y1_max)
@@ -385,8 +385,10 @@ def abs_plot(spec_name, cfg_par):
                 x_data_plot_max = np.max(x_data_plot)
                 #print(x_data_plot_max - x_data_plot_min)
 
-                ax[plot_count][0].plot(x_data_plot, y_data_plot,color='black',linestyle='-')
-
+                ax[plot_count][0].step(x_data_plot, y_data_plot, where='mid', color='black', linestyle='-')
+                # Plot noise
+                ax[plot_count][0].fill_between(x_data_plot, -y_sigma_plot, y_sigma_plot,
+                         facecolor='grey', alpha=0.5,step='mid')
                 ax[plot_count][0].set_xlim(x_data_plot_min, x_data_plot_max)
 
                 # ax[plot_count].fill_between(x_data_plot, -y_sigma_plot, y_sigma_plot,
