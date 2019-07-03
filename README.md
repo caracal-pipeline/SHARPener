@@ -24,7 +24,7 @@ The following [tutorials](https://github.com/Fil8/SHARPener/tree/master/tutorial
 
 **Insallation instructions**
 
-- This package is available on [pypi]https://pypi.org/project/sharpener/, allowing:
+- This package is available on [pypi](https://pypi.org/project/sharpener/), allowing:
 
 ```
 pip install sharpener
