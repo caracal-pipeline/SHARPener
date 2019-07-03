@@ -36,7 +36,7 @@ pip install sharpener
 git clone https://github.com/Fil8/SHARPener.git
 ```
 
-- Then change directory into SHaRPener and install:
+- Then change directory into SHARPener and install:
 
 ```
 cd SHARPener && pip install .
