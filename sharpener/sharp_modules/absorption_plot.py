@@ -48,7 +48,7 @@ def create_all_abs_plots(cfg_par):
 
     # go through all spectra
     catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
-    if os.path.exists(catalog_table) and (cfg_par['source_catalog']['enable']==True):
+    if os.path.exists(catalog_table) and os.path.exists(cfg_par['general']['contname']):
         plot_continuum(cfg_par)
 
     for i in range(len(spectra)):
