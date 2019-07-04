@@ -30,7 +30,7 @@ spec_ex:
   flag_chans: null
   zunit: m/s
   noise_delta_pix: 6
-  noise_skip: 6
+  noise_delta_skip: 6
 abs_plot:
   __helpstr: plot spectra from folder plot in workdir/sharpOut/plot/
   enable: true
