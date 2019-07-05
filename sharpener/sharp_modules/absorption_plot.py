@@ -284,7 +284,7 @@ def abs_plot(spec_name, cfg_par):
 
         # Add title
         if cfg_par[key]['title'] == True:
-            ax1.set_title("{0:s} (\#{1:d}): {2:s}".format(cfg_par['general']['workdir'].split("/")[-2], int(os.path.basename(spec_name).split('_')[0]), os.path.basename(spec_name).replace(
+            ax1.set_title("{0:s} (\#{1:d}): {2:s}".format(cfg_par['general']['label'], int(os.path.basename(spec_name).split('_')[0]), os.path.basename(spec_name).replace(
                 '.txt', '').split('_')[-1]), fontsize=font_size+2)
             # if self.abs_ex_plot_title == True:
         #	ax1.set_title('%s' % (self.J2000_name[i]), fontsize=font_size+2)
