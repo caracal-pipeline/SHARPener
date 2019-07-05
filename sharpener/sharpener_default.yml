@@ -6,6 +6,7 @@ general:
   verbose: false
   plot_format: pdf 
   merge_plots: true
+  label: SHARP        # This will appear in plot titles
 source_finder:
   __helpstr: Find sources in continuum image using miriad imsad
   clip: 5e-3
