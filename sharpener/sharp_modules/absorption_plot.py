@@ -301,7 +301,7 @@ def abs_plot(spec_name, cfg_par):
         # outplot = cfg_par['general']['plotdir']+outplot+'.png'
 
         outplot = "{0:s}{1:s}_{2:s}".format(
-            cfg_par['general']['plotdir'], cfg_par['general']['workdir'].split("/")[-2], outplot.replace('.txt', '_compact.png'))
+            cfg_par['general']['plotdir'], cfg_par['general']['label'], outplot.replace('.txt', '_compact.png'))
         if cfg_par['general']['plot_format'] == "pdf":
             plt.savefig(outplot.replace('.png', ".pdf"),
                         overwrite=True, bbox_inches='tight')
@@ -337,7 +337,7 @@ def abs_plot(spec_name, cfg_par):
             #     0.05, 0.95), xycoords='axes fraction', ha='left')
 
             if cfg_par[key]['title'] == True:
-                ax[0][0].set_title("{0:s} (\#{1:d}): {2:s}".format(cfg_par['general']['workdir'].split("/")[-2], int(os.path.basename(spec_name).split('_')[0]), os.path.basename(spec_name).replace(
+                ax[0][0].set_title("{0:s} (\#{1:d}): {2:s}".format(cfg_par['general']['label'], int(os.path.basename(spec_name).split('_')[0]), os.path.basename(spec_name).replace(
                     '.txt', '').split('_')[-1]), fontsize=font_size+2)
 
             # go through the rest of the plots and create them
@@ -419,7 +419,7 @@ def abs_plot(spec_name, cfg_par):
             # name of plot
             outplot = os.path.basename(spec_name)
             outplot = "{0:s}{1:s}_{2:s}".format(
-                cfg_par['general']['plotdir'], cfg_par['general']['workdir'].split("/")[-2], outplot.replace('.txt', '_detailed.png'))
+                cfg_par['general']['plotdir'], cfg_par['general']['label'], outplot.replace('.txt', '_detailed.png'))
             if cfg_par['general']['plot_format'] == "pdf":
                 plt.savefig(outplot.replace('.png', ".pdf"),
                             overwrite=True, bbox_inches='tight')
