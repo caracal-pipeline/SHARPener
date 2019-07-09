@@ -153,8 +153,8 @@ class sharpener:
             'absdir')) + 'cat_src_sharpener.txt'
 
         # cont_sources
-        task = 'source_catalog'
 
+        task = 'source_catalog'
         if self.enable_task(self.cfg_par, task) == True:
             cont_src.source_catalog(self.cfg_par, catalog_table)
 

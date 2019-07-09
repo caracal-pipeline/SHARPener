@@ -1,8 +1,8 @@
 general:
   __helpstr: General INPUT directories and filenames
-  workdir: /home/maccagni/data/Obj5/# outputs will be stored here
-  contname: cln.s1.fits # name of continuum image (assumed stored in workdir)
-  cubename: cube.fits # name of datacube (assumed stored in workdir)
+  workdir:  <path-to-working-directory> # outputs will be stored here
+  contname: <continuumImage>.fits # name of continuum image (assumed stored in workdir)
+  cubename: <cube>.fits # name of datacube (assumed stored in workdir)
   verbose: false
   plot_format: pdf 
   merge_plots: true
@@ -18,9 +18,9 @@ source_catalog:
   __helpstr: Find sources in a f.o.v. from source_catalog NVSS or load PYBDSF output
   catalog: NVSS #NVSS or PYBDSF
   catalog_file: catalog.lsm.html # catalog name for PYBDSF output
-  enable: false 
+  enable: true 
   thresh: 30
-  width: 5.2d
+  width: 1.2d
 simulate_continuum:
   __helpstr: Simulate continuum from source catalog output
   enable: false

@@ -35,15 +35,21 @@ def source_catalog(cfg_par,tablename):
 
     '''
     key = 'source_catalog'
-    width = cfg_par[key].get('width', '2')
+    width = cfg_par[key].get('width', '1')
     catalog = cfg_par[key].get('catalog', 'NVSS')
     thresh = cfg_par[key].get('thresh', 10e-3)
     centre = cfg_par[key].get('centre_coord',None)
-    catalog_table = cfg_par['general']['workdir']+tablename
     Vizier.ROW_LIMIT = -1
 
-    
-    p = Vizier.query_region(coord.SkyCoord(centre[0],centre[1], unit=(u.hourangle, u.deg), 
+
+    contfile = pyfits.open(cfg_par['general']['contname'])
+    conthead = contfile[0].header
+
+    if centre is None:
+        centre = [conthead['CRVAL1'],conthead['CRVAL2']]
+
+    print centre
+    p = Vizier.query_region(coord.SkyCoord(centre[0],centre[1], unit=(u.deg, u.deg), 
         frame = 'icrs'), width = width, catalog = catalog)
     tab = p[0]
     ra_deg = []
@@ -62,7 +68,7 @@ def source_catalog(cfg_par,tablename):
         tab[tab.colnames[i]][above_thresh] = np.nan
 
     tab =  Table(tab, masked=True)
-    ascii.write(tab, catalog_table, overwrite=True)
+    ascii.write(tab, tablename, overwrite=True)
 
     return tab
 
