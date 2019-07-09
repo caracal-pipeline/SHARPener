@@ -224,7 +224,7 @@ def abs_ex(cfg_par):
 
                 if np.nansum(flux) == 0.:
                     count_blanks +=1
-                    if verbose == True:
+                    if verb == True:
                         print('# Blank spectrum:\t'+str(src_id[i])+' '+J2000_name[i]+' #')
                     continue
 
