@@ -35,20 +35,24 @@ def source_catalog(cfg_par,tablename):
 
     '''
     key = 'source_catalog'
-    width = cfg_par[key].get('width', '1')
+    width = cfg_par[key].get('width', None)
     catalog = cfg_par[key].get('catalog', 'NVSS')
     thresh = cfg_par[key].get('thresh', 10e-3)
     centre = cfg_par[key].get('centre_coord',None)
     Vizier.ROW_LIMIT = -1
 
 
-    contfile = pyfits.open(cfg_par['general']['contname'])
-    conthead = contfile[0].header
+    cubefile = pyfits.open(cfg_par['general']['cubename'])
+    cubehead = cubefile[0].header
 
     if centre is None:
-        centre = [conthead['CRVAL1'],conthead['CRVAL2']]
+        centre = [cubehead['CRVAL1'],cubehead['CRVAL2']]
 
-    print centre
+    if width is None:
+        width = -cubehead['CDELT1']*cubehead['NAXIS1']*np.sqrt(2)*u.deg
+
+    print width
+
     p = Vizier.query_region(coord.SkyCoord(centre[0],centre[1], unit=(u.deg, u.deg), 
         frame = 'icrs'), width = width, catalog = catalog)
     tab = p[0]
