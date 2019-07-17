@@ -47,7 +47,12 @@ def create_all_abs_plots(cfg_par):
         sys.exit(1)
 
     # go through all spectra
+    #catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
+    # add sources
+    mirCatalogFile = cfg_par['general']['absdir']+'mir_src_sharpener.csv'
     catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
+    nameSource = catalog_table
+
 
     if os.path.exists(catalog_table) and os.path.exists(cfg_par['general']['contname']):
         plot_continuum(cfg_par)
@@ -105,9 +110,7 @@ def plot_continuum(cfg_par):
     # ax.tick_params(axis='both', bottom='on', top='on', left='on', right='on',
     #          which='major', direction='in')
 
-    # add sources
-    mirCatalogFile = cfg_par['general']['absdir']+'mir_src_sharpener.csv'
-    catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
+
 
     if os.path.exists(mirCatalogFile):
         src_list = ascii.read(mirCatalogFile)

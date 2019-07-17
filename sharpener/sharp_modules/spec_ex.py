@@ -80,8 +80,6 @@ def abs_ex(cfg_par):
         if cfg_par['source_catalog'].get('enable',False) == True:
         
             catalogName = cfg_par[key].get('catalog', 'NVSS')
-            print catalogName
-            print 'AAAAAAAAA'
             if catalogName == 'NVSS':
                 catalog_table = str(cfg_par['general'].get('absdir')) + 'cat_src_sharpener.txt'
                 tab = ascii.read(catalog_table)
