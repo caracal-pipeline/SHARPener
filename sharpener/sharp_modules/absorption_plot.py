@@ -95,8 +95,8 @@ def create_all_abs_plots(cfg_par):
 
         specName = cfg_par['general']['specdir']+src_list[i]
         
-        #if os.path.exists(specName):
-        #    abs_plot(specName, cfg_par)
+        if os.path.exists(specName):
+            abs_plot(specName, cfg_par)
 
     
     if cfg_par['abs_plot']['plot_contImage'] == True:
