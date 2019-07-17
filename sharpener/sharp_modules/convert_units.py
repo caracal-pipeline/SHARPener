@@ -187,7 +187,7 @@ def coord_to_pix(imagename,ra,dec,verbose=False):
 	count_out = 0
 	count_flag = 0 
 	for i in xrange(0,len(ra)):
-		
+
 		ra_deg = ra2deg(ra[i])
 		dec_deg = dec2deg(dec[i])
 		px,py=w.wcs_world2pix(ra_deg,dec_deg,0)
@@ -202,9 +202,9 @@ def coord_to_pix(imagename,ra,dec,verbose=False):
 			if verbose == True:
 				print '# Source # '+str([i])+ ' lies outside the fov of the data cube #'
 
-	print '# Total number of sources: \t'+str(len(ra))
-	print '# Sources outside f.o.v.:\t'+str(count_out)
-	print '# Sources to analyze: \t\t'+str(len(ra)-count_flag-count_out)
+	print('# Total number of sources: \t'+str(len(ra)))
+	print('# Sources outside f.o.v.:\t'+str(count_out))
+	print('# Sources to analyze: \t\t'+str(len(ra)-count_flag-count_out))
 
 	return pixels
 
