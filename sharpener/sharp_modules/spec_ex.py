@@ -75,7 +75,6 @@ def abs_ex(cfg_par):
         cen_imy = hdr['CRPIX2']
         freq0 = hdr['CRVAL3']
         freq_del = hdr['CDELT3']
-
         key = 'source_catalog'
         if cfg_par['source_catalog'].get('enable',False) == True:
         
@@ -87,6 +86,8 @@ def abs_ex(cfg_par):
                 ra = tab['RAJ2000']
                 dec = tab['DEJ2000']
                 flux_cont = tab['S1.4']
+
+                src_id = np.arange(0,len(ra)+1,dtype=int)
 
             elif catalogName == 'PYBDSF':
                 J2000_name, ra, dec, flux_cont = [], [], [], []
@@ -108,10 +109,10 @@ def abs_ex(cfg_par):
                     ra.append(ra_hms)
                     dec.append(dec_dms)
                     flux_cont.append(source.flux.I)
-            src_id = np.arange(0,len(ra)+1,1,dtype=int)
+                
+                src_id = np.arange(0,len(ra)+1,1,dtype=int)
 
         elif os.path.exists(src_list_csv):
-
             # open file
             src_list_vec = ascii.read(src_list_csv)
             J2000_name = np.array(src_list_vec['J2000'],dtype=str)
@@ -142,15 +143,12 @@ def abs_ex(cfg_par):
             flux = np.zeros(freq.shape[0])
             madfm = np.zeros(freq.shape[0])
 
-            # better to use the numpy function
-            #if str(pixels[i,0]) == 'nan' or str(pixels[i,1]) == 'nan':
             if np.isnan(pixels[i, 0]) or np.isnan(pixels[i, 1]):
                 count_thresh +=1
                 pass
 
             elif (0 < int(pixels[i,0]) < x and
                     0 < int(pixels[i,1]) < y): 
-                    
                 pix_x_or = int(pixels[i,0])
                 pix_y_or = int(pixels[i,1])
                 for j in xrange(0, z):
@@ -323,6 +321,8 @@ def abs_ex(cfg_par):
                         names=(xcol,'Flux [Jy]','Noise [Jy]', 'Optical depth','Noise optical depth', 'Mean noise [Jy]'),
                         meta={'name': 'Spectrum'})
                     ascii.write(t,out_spec_han,overwrite=True)
+
+
 
         # close fits file
         cubefile.close()

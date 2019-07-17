@@ -21,6 +21,9 @@ from matplotlib import pyplot as plt
 from matplotlib import rc
 import matplotlib.colors as mc
 
+
+import convert_units as conv_units
+
 import logging
 
 
@@ -51,13 +54,15 @@ def create_all_abs_plots(cfg_par):
     # add sources
     mirCatalogFile = cfg_par['general']['absdir']+'mir_src_sharp.csv'
     catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('absdir'),cfg_par['source_catalog'].get('catalog_file'))
+
+    catalog_pybdsf = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
     
     #load the correct table accoridng to what has been used for catalog/sourcefinder
-    if os.path.exists(catalog_table) and (cfg_par['source_catalog']['catalog']=='PYBDSF'):
+    if os.path.exists(catalog_pybdsf) and (cfg_par['source_catalog']['catalog']=='PYBDSF'):
         import Tigger
         from astropy.coordinates import Angle
 
-        model = Tigger.load(catalog_table)
+        model = Tigger.load(catalog_pybdsf)
         sources = model.sources
         ra=[]
         dec=[]
@@ -78,18 +83,20 @@ def create_all_abs_plots(cfg_par):
         src_list = []
         for i in range(len(sources)):
             src_list.append('{:s}_J{:s}.txt'.format(str(i),sources['J2000'][i]))
+
     elif os.path.exists(catalog_table) and (cfg_par['source_catalog']['catalog']=='NVSS'):
         sources = ascii.read(catalog_table)
         src_list = []
         for i in range(len(sources)):
-            src_list.append('{:s}_J{:s}.txt'.format(str(i+1),sources['NVSS'][i]))
+            src_list.append('{:s}_J{:s}.txt'.format(str(i),sources['NVSS'][i]))
+    
+    
+    for i in xrange (0, len(src_list)):
 
-    #for i in xrange (0, len(src_list)):
-
-    #    specName = cfg_par['general']['specdir']+src_list[i]
+        specName = cfg_par['general']['specdir']+src_list[i]
         
-    #    if os.path.exists(specName):
-    #        abs_plot(specName, cfg_par)
+        #if os.path.exists(specName):
+        #    abs_plot(specName, cfg_par)
 
     
     if cfg_par['abs_plot']['plot_contImage'] == True:
@@ -169,17 +176,24 @@ def plot_continuum(cfg_par):
     #          which='major', direction='in')
 
     mirCatalogFile = cfg_par['general']['absdir']+'mir_src_sharp.csv'
-    catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
+    catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('absdir'),cfg_par['source_catalog'].get('catalog_file'))
+    catalog_pybdsf = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
 
     if os.path.exists(mirCatalogFile):
         src_list = ascii.read(mirCatalogFile)
         coord_list = SkyCoord(src_list['ra'], src_list['dec'], unit=(u.hourangle, u.deg), frame='fk5')
+
+        for k in range(len(coord_list.ra)):
+            ax.scatter(coord_list[k].ra.value, coord_list[k].dec.value, transform=ax.get_transform('fk5'),
+                            edgecolor='red', facecolor='none')
+            ax.annotate("{0:d}".format(k+1), xy=(coord_list[k].ra.value, coord_list[k].dec.value), xycoords=ax.get_transform('fk5'),
+                                       xytext=(1, 1), textcoords='offset points', ha='left', color="white") 
   
-    elif os.path.exists(catalog_table) and (cfg_par['source_catalog']['catalog']=='PYBDSF'):
+    elif os.path.exists(catalog_pybdsf) and (cfg_par['source_catalog']['catalog']=='PYBDSF'):
         import Tigger
         from astropy.coordinates import Angle
 
-        model = Tigger.load(catalog_table)
+        model = Tigger.load(catalog_pybdsf)
         sources = model.sources
         ra=[]
         dec=[]
@@ -190,18 +204,64 @@ def plot_continuum(cfg_par):
             dec.append(dec_deg_angle)
 
         coord_list = SkyCoord(ra,dec, unit=(u.deg, u.deg), frame='fk5')
+ 
+        for k in range(len(coord_list.ra)):
+            ax.scatter(coord_list[k].ra.value, coord_list[k].dec.value, transform=ax.get_transform('fk5'),
+                            edgecolor='red', facecolor='none')
+            ax.annotate("{0:d}".format(k+1), xy=(coord_list[k].ra.value, coord_list[k].dec.value), xycoords=ax.get_transform('fk5'),
+                                       xytext=(1, 1), textcoords='offset points', ha='left', color="white")   
+
+    elif os.path.exists(catalog_table) and (cfg_par['source_catalog']['catalog']=='NVSS'):
+
+        src_list = ascii.read(catalog_table)
+        ra = np.array(src_list['RAJ2000'],dtype=str)
+        dec = np.array(src_list['DEJ2000'],dtype=str)
+        pixels=np.zeros([len(ra),2])
+        kk=[]
+        
+        cube_im = os.path.basename(cfg_par['general']['cubename'])
+        #load wcs system
+        hdulist = fits.open(cube_im)  # read input
+        # read data and header
+        #what follows works for wcs, but can be written better
+        prihdr = hdulist[0].header  
+        w=wcs.WCS(prihdr)  
+        if w.naxis == 4:
+            w = w.dropaxis(3)
+            w = w.dropaxis(2)
+        if w.naxis == 3:
+            w = w.dropaxis(2)
+        ra_vec=[]
+        dec_vec=[]
+        for i in xrange(0,len(ra)):
+            if ra[i] == 'nan':
+                pixels[i, 0]= np.nan
+                pixels[i, 1]= np.nan
+            else:
+                ra_deg = conv_units.ra2deg(ra[i])
+                dec_deg = conv_units.dec2deg(dec[i])
+                px,py=w.wcs_world2pix(ra_deg,dec_deg,0)
+                if (0 < round(px,0) < prihdr['NAXIS1'] and
+                        0 < round(py,0) < prihdr['NAXIS2']):
+                    kk.append(i)
+                    ra_vec.append(ra[i])
+                    dec_vec.append(dec[i])
+                else:
+                    pass
+
+        coord_list = SkyCoord(ra_vec, dec_vec , unit=(u.hourangle, u.deg), frame='fk5')
 
 
-    for k in range(len(coord_list.ra)):
-        ax.scatter(coord_list[k].ra.value, coord_list[k].dec.value, transform=ax.get_transform('fk5'),
-                        edgecolor='red', facecolor='none')
-        ax.annotate("{0:d}".format(k+1), xy=(coord_list[k].ra.value, coord_list[k].dec.value), xycoords=ax.get_transform('fk5'),
-                                   xytext=(1, 1), textcoords='offset points', ha='left', color="white")
+        for k in range(len(coord_list.ra)):
+            ax.scatter(coord_list[k].ra.value, coord_list[k].dec.value, transform=ax.get_transform('fk5'),
+                            edgecolor='red', facecolor='none')
+            ax.annotate("{0:s}".format(str(kk[k])), xy=(coord_list[k].ra.value, coord_list[k].dec.value), xycoords=ax.get_transform('fk5'),
+                                       xytext=(1, 1), textcoords='offset points', ha='left', color="white") 
 
     output = "{0:s}{1:s}_continuum.png".format(cfg_par['general'].get(
         'plotdir'), cfg_par['general']['workdir'].split('/')[-2])
 
-    if cfg_par['general']['plot_format'] == "pdf":
+    if cfg_par['abs_plot']['plot_format'] == "pdf":
         plt.savefig(output.replace(".png", ".pdf"), overwrite=True, bbox_inches='tight')
     else:
         plt.savefig(output, overwrite=True, bbox_inches='tight', dpi=300)

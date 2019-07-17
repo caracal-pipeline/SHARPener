@@ -49,7 +49,7 @@ def source_catalog(cfg_par,tablename):
         centre = [cubehead['CRVAL1'],cubehead['CRVAL2']]
 
     if width is None:
-        width = -cubehead['CDELT1']*cubehead['NAXIS1']*np.sqrt(2)*u.deg
+        width = -cubehead['CDELT1']*cubehead['NAXIS1']*np.sqrt(2.)*u.deg
 
     p = Vizier.query_region(coord.SkyCoord(centre[0],centre[1], unit=(u.deg, u.deg), 
         frame = 'icrs'), width = width, catalog = catalog)
@@ -66,13 +66,20 @@ def source_catalog(cfg_par,tablename):
 
         above_thresh = tab['S1.4']<thresh
     
+
+
     for i in xrange(1,len(tab.colnames)):
         tab[tab.colnames[i]][above_thresh] = np.nan
+    
+    
+    tabMask = tab[~np.isnan(tab['S1.4'])]
+    
+    tab =  Table(tabMask, masked=True)
+    ascii.write(tabMask, tablename, overwrite=True)
 
-    tab =  Table(tab, masked=True)
-    ascii.write(tab, tablename, overwrite=True)
 
-    return tab
+
+    return tabMask
 
 def sim_cont_from_cube(tablename,catalog,infile,outfile):
 
