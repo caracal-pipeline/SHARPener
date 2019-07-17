@@ -4,8 +4,6 @@ general:
   contname: <continuumImage>.fits # name of continuum image (assumed stored in workdir)
   cubename: <cube>.fits # name of datacube (assumed stored in workdir)
   verbose: false
-  plot_format: pdf 
-  merge_plots: true
   label: SHARP        # This will appear in plot titles
 source_finder:
   __helpstr: Find sources in continuum image using miriad imsad
@@ -13,11 +11,10 @@ source_finder:
   enable: true
   options: null
   region: null
-  plot_image: true
 source_catalog:
   __helpstr: Find sources in a f.o.v. from source_catalog NVSS or load PYBDSF output
   catalog: NVSS #NVSS or PYBDSF
-  catalog_file: catalog.lsm.html # catalog name for PYBDSF output
+  catalog_file: cat_src_sharpener.txt # catalog name for PYBDSF output
   enable: true 
   thresh: 30
   width: 1.2d
@@ -38,9 +35,12 @@ abs_plot:
   redshift_sources:
   - 800 2200 
   title: true
-  detailed_plot: true
   channels_per_plot: 50
   fixed_scale: false
+  detailed_plot: true
+  plot_format: pdf 
+  plot_contImage: true #set to true to enable plot of continuum image (even if the continuum image is not provided)
+  merge_plots: true
 polynomial_subtraction:
   __helpstr: Subtract polynomial from spectrum to improve continuum subtraction
   degree_pol: 3

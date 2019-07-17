@@ -187,31 +187,24 @@ def coord_to_pix(imagename,ra,dec,verbose=False):
 	count_out = 0
 	count_flag = 0 
 	for i in xrange(0,len(ra)):
-		if ra[i] == 'nan':
+
+		ra_deg = ra2deg(ra[i])
+		dec_deg = dec2deg(dec[i])
+		px,py=w.wcs_world2pix(ra_deg,dec_deg,0)
+		if (0 < round(px,0) < prihdr['NAXIS1'] and
+				0 < round(py,0) < prihdr['NAXIS2']): 
+			pixels[i, 0]= round(px,0)
+			pixels[i, 1]= round(py,0)
+		else :
 			pixels[i, 0]= np.nan
 			pixels[i, 1]= np.nan
-			count_flag +=1
+			count_out +=1
 			if verbose == True:
-				print('# Source # '+str([i])+ ' is flagged #')
-		else:
-			ra_deg = ra2deg(ra[i])
-			dec_deg = dec2deg(dec[i])
-			px,py=w.wcs_world2pix(ra_deg,dec_deg,0)
-			if (0 < round(px,0) < prihdr['NAXIS1'] and
-					0 < round(py,0) < prihdr['NAXIS2']): 
-				pixels[i, 0]= round(px,0)
-				pixels[i, 1]= round(py,0)
-			else :
-				pixels[i, 0]= np.nan
-				pixels[i, 1]= np.nan
-				count_out +=1
-				if verbose == True:
-					print '# Source # '+str([i])+ ' lies outside the fov of the data cube #'
+				print '# Source # '+str([i])+ ' lies outside the fov of the data cube #'
 
-	print '# Total number of sources: \t'+str(len(ra))
-	print '# Sources below threshold: \t'+str(count_flag)
-	print '# Sources outside f.o.v.:\t'+str(count_out)
-	print '# Sources to analyze: \t\t'+str(len(ra)-count_flag-count_out)+'\n'
+	print('# Total number of sources: \t'+str(len(ra)))
+	print('# Sources outside f.o.v.:\t'+str(count_out))
+	print('# Sources to analyze: \t\t'+str(len(ra)-count_flag-count_out))
 
 	return pixels
 
