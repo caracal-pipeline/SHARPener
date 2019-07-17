@@ -43,47 +43,105 @@ def create_all_abs_plots(cfg_par):
 
     # check whether the previous step was successful
     if len(spectra) == 0:
-        print("ERROR: No spectra found. Abort")
+        print("ERROR: No spectra found. Run spectrum extraction first")
         sys.exit(1)
 
     # go through all spectra
     #catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
     # add sources
-    mirCatalogFile = cfg_par['general']['absdir']+'mir_src_sharpener.csv'
-    catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
-    nameSource = catalog_table
+    mirCatalogFile = cfg_par['general']['absdir']+'mir_src_sharp.csv'
+    catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('absdir'),cfg_par['source_catalog'].get('catalog_file'))
+    
+    #load the correct table accoridng to what has been used for catalog/sourcefinder
+    if os.path.exists(catalog_table) and (cfg_par['source_catalog']['catalog']=='PYBDSF'):
+        import Tigger
+        from astropy.coordinates import Angle
 
+        model = Tigger.load(catalog_table)
+        sources = model.sources
+        ra=[]
+        dec=[]
+        src_list=[]
+        i=0
+        for source in sources:
+            ra_deg_angle  = Angle(np.rad2deg(source.pos.ra) * u.deg)
+            dec_deg_angle = Angle(np.rad2deg(source.pos.dec) * u.deg)
+            ra_hms = ra_deg_angle.to_string(unit=u.hourangle, sep=':')
+            dec_dms = dec_deg_angle.to_string(unit=u.degree, sep=':')
+            src_list.append('{:s}_J{:s}{:s}{:s}.txt'.format(str(i),ra_hms.replace(':', ''),
+                                                    '+' if source.pos.dec > 0.0 else '-',
+                                                    dec_dms.replace(':', '')))
+            i+=1
 
-    if os.path.exists(catalog_table) and os.path.exists(cfg_par['general']['contname']):
+    elif os.path.exists(mirCatalogFile):
+        sources = ascii.read(mirCatalogFile)
+        src_list = []
+        for i in range(len(sources)):
+            src_list.append('{:s}_J{:s}.txt'.format(str(i),sources['J2000'][i]))
+    elif os.path.exists(catalog_table) and (cfg_par['source_catalog']['catalog']=='NVSS'):
+        sources = ascii.read(catalog_table)
+        src_list = []
+        for i in range(len(sources)):
+            src_list.append('{:s}_J{:s}.txt'.format(str(i+1),sources['NVSS'][i]))
+
+    #for i in xrange (0, len(src_list)):
+
+    #    specName = cfg_par['general']['specdir']+src_list[i]
+        
+    #    if os.path.exists(specName):
+    #        abs_plot(specName, cfg_par)
+
+    
+    if cfg_par['abs_plot']['plot_contImage'] == True:
         plot_continuum(cfg_par)
 
-    for i in range(len(spectra)):
-        spectra[i] = os.path.basename(spectra[i])
-        #if os.path.exists(spectra[i])
-        abs_plot(spectra[i], cfg_par)
 
 
 def plot_continuum(cfg_par):
     '''Function to plot the continuum image from where spectra are extracted
     '''
 
-    cont_im = os.path.basename(cfg_par['general']['contname'])
+    cont_im = cfg_par['general']['contname']
+    if os.path.exists(cont_im):
         #load wcs system
-    hdulist = fits.open(cont_im)  # read input
-    # read data and header
-    #what follows works for wcs, but can be written better
-    prihdr = hdulist[0].header  
-    w=wcs.WCS(prihdr)  
+        hdulist = fits.open(cont_im)  # read input
+        # read data and header
+        #what follows works for wcs, but can be written better
+        prihdr = hdulist[0].header  
+        w=wcs.WCS(prihdr)  
 
-    # RS: the rest of the function requires only 2 axis images
-    if w.naxis == 4:
-        w = w.dropaxis(3)
-        w = w.dropaxis(2)
-        img = hdulist[0].data[0][0]
-    elif w.naxis == 3:
-        w = w.dropaxis(2)
-        img = hdulist[0].data[0]
+        # RS: the rest of the function requires only 2 axis images
+        if w.naxis == 4:
+            w = w.dropaxis(3)
+            w = w.dropaxis(2)
+            img = hdulist[0].data[0][0]
+        elif w.naxis == 3:
+            w = w.dropaxis(2)
+            img = hdulist[0].data[0]    
+    
+    elif os.path.exists(os.path.basename(cfg_par['general']['cubename'])):
+        cube_im = os.path.basename(cfg_par['general']['cubename'])
+        #load wcs system
+        hdulist = fits.open(cube_im)  # read input
+        # read data and header
+        #what follows works for wcs, but can be written better
+        prihdr = hdulist[0].header  
+        w=wcs.WCS(prihdr)  
 
+        # RS: the rest of the function requires only 2 axis images
+        if w.naxis == 4:
+            w = w.dropaxis(3)
+            w = w.dropaxis(2)
+            img = hdulist[0].data[0][0]
+            img = np.zeros(img.shape)
+
+        elif w.naxis == 3:
+            w = w.dropaxis(2)
+            img = hdulist[0].data[0]
+            img = np.zeros(img.shape)
+    else:
+        print("ERROR: No datacube found. Check configuration file")
+        sys.exit(1)
 
 
     ax = plt.subplot(projection=w)
@@ -110,14 +168,14 @@ def plot_continuum(cfg_par):
     # ax.tick_params(axis='both', bottom='on', top='on', left='on', right='on',
     #          which='major', direction='in')
 
-
+    mirCatalogFile = cfg_par['general']['absdir']+'mir_src_sharp.csv'
+    catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
 
     if os.path.exists(mirCatalogFile):
         src_list = ascii.read(mirCatalogFile)
         coord_list = SkyCoord(src_list['ra'], src_list['dec'], unit=(u.hourangle, u.deg), frame='fk5')
-
-    
-    elif os.path.exists(catalog_table) and (cfg_par['source_catalog']['enable']==True):
+  
+    elif os.path.exists(catalog_table) and (cfg_par['source_catalog']['catalog']=='PYBDSF'):
         import Tigger
         from astropy.coordinates import Angle
 
@@ -307,7 +365,7 @@ def abs_plot(spec_name, cfg_par):
 
         outplot = "{0:s}{1:s}_{2:s}".format(
             cfg_par['general']['plotdir'], cfg_par['general']['label'], outplot.replace('.txt', '_compact.png'))
-        if cfg_par['general']['plot_format'] == "pdf":
+        if cfg_par[key]['plot_format'] == "pdf":
             plt.savefig(outplot.replace('.png', ".pdf"),
                         overwrite=True, bbox_inches='tight')
         else:
@@ -425,7 +483,7 @@ def abs_plot(spec_name, cfg_par):
             outplot = os.path.basename(spec_name)
             outplot = "{0:s}{1:s}_{2:s}".format(
                 cfg_par['general']['plotdir'], cfg_par['general']['label'], outplot.replace('.txt', '_detailed.png'))
-            if cfg_par['general']['plot_format'] == "pdf":
+            if cfg_par[key]['plot_format'] == "pdf":
                 plt.savefig(outplot.replace('.png', ".pdf"),
                             overwrite=True, bbox_inches='tight')
             else:

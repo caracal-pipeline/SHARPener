@@ -51,8 +51,6 @@ def source_catalog(cfg_par,tablename):
     if width is None:
         width = -cubehead['CDELT1']*cubehead['NAXIS1']*np.sqrt(2)*u.deg
 
-    print width
-
     p = Vizier.query_region(coord.SkyCoord(centre[0],centre[1], unit=(u.deg, u.deg), 
         frame = 'icrs'), width = width, catalog = catalog)
     tab = p[0]
@@ -428,7 +426,7 @@ def find_src_imsad(cfg_par):
     cont_im = os.path.basename(cfg_par['general']['contname'])
 
     # cannot use cfg_par, probably because file name would be too long for miriad
-    src_imsad_out = cfg_par['general']['absdir']+'mir_src_sharpener.txt'
+    src_imsad_out = cfg_par['general']['absdir']+'mir_src_sharp.txt'
     # src_imsad_out = '{0:s}mir_src_sharpener.txt'.format(
     #   cfg_par['general'].get('absdir'))
     key = 'source_finder'
@@ -613,12 +611,13 @@ def find_src_imsad(cfg_par):
 
     # print(src_list)
     # print(cfg_par['general'].get('absdir'))
-    src_list.write('{0:s}mir_src_sharpener.csv'.format(cfg_par['general'].get('absdir')), format='csv', overwrite=True)
+    src_list.write('{0:s}mir_src_sharp.csv'.format(cfg_par['general'].get('absdir')), 
+        format='csv', overwrite=True)
 
     # create a karma annotation file
     create_karma_annotation_file(coord_list,cfg_par)
 
-    if cfg_par[key]['plot_image']:
+    if cfg_par['abs_plot']['plot_contImage']:
 
         abs_plot.plot_continuum(cfg_par)
 

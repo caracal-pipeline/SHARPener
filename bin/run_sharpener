@@ -121,7 +121,7 @@ if do_continuum_extraction or spar.cfg_par['source_finder'].get('enable',False) 
 
     # print results
     src_list = ascii.read(spar.cfg_par['general']
-                          ['absdir']+'mir_src_sharpener.csv')
+                          ['absdir']+'mir_src_sharp.csv')
     print(src_list)
 
 # Find continuum sources
@@ -132,7 +132,7 @@ if spar.cfg_par['source_catalog'].get('enable',False) == True and spar.cfg_par['
     spar.cfg_par['source_catalog']['enable'] = True
 
     print("## Find continuum sources")
-    catalog_table = str(spar.cfg_par['general'].get('absdir')) + 'cat_src_sharpener.txt'
+    catalog_table = str(spar.cfg_par['general'].get('absdir')) + spar.cfg_par['source_catalog'].get('catalog_file')
     # get sources in continuum image
     sources = cont_src.source_catalog(spar.cfg_par,catalog_table)
 
@@ -171,7 +171,7 @@ if do_plots  or spar.cfg_par['abs_plot'].get('enable',False) == True:
 
     # Merge plots:
     # ++++++++++++
-    if spar.cfg_par['general']['merge_plots'] and spar.cfg_par['general']['plot_format'] == "pdf":
+    if spar.cfg_par['abs_plot']['merge_plots'] and spar.cfg_par['abs_plot']['plot_format'] == "pdf":
 
         time_start_merge = time.time()
 
