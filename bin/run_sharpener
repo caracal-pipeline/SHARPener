@@ -100,10 +100,8 @@ if args.config:
     time_start_load = time.time()
     print("## Load parameter file")
     spar = sharpy.sharpener(args.config)
-
     print("## Load parameter file ... Done ({0:.2f}s)".format(
           time.time() - time_start_load))
-
 
 
 # Find continuum sources
@@ -128,14 +126,13 @@ if do_continuum_extraction or spar.cfg_par['source_finder'].get('enable',False) 
 
 # Find continuum sources
 # ++++++++++++++++++++++
-if spar.cfg_par['source_catalog'].get('enable',False) == True:
-    
+if spar.cfg_par['source_catalog'].get('enable',False) == True and spar.cfg_par['source_catalog'].get('catalog')!='PYBDSF':
+
     time_start_find = time.time()
     spar.cfg_par['source_catalog']['enable'] = True
 
     print("## Find continuum sources")
     catalog_table = str(spar.cfg_par['general'].get('absdir')) + 'cat_src_sharpener.txt'
-    print catalog_table
     # get sources in continuum image
     sources = cont_src.source_catalog(spar.cfg_par,catalog_table)
 
