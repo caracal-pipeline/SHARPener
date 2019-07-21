@@ -220,7 +220,7 @@ def plot_continuum(cfg_par):
         pixels=np.zeros([len(ra),2])
         kk=[]
         
-        cube_im = os.path.basename(cfg_par['general']['cubename'])
+        cube_im = cfg_par['general']['cubename']
         #load wcs system
         hdulist = fits.open(cube_im)  # read input
         # read data and header
