@@ -34,6 +34,8 @@ def source_catalog(cfg_par,tablename):
 
 
     '''
+
+
     key = 'source_catalog'
     width = cfg_par[key].get('width', None)
     catalog = cfg_par[key].get('catalog', 'NVSS')
@@ -41,32 +43,59 @@ def source_catalog(cfg_par,tablename):
     centre = cfg_par[key].get('centre_coord',None)
     Vizier.ROW_LIMIT = -1
 
-
     cubefile = pyfits.open(cfg_par['general']['cubename'])
     cubehead = cubefile[0].header
 
     if centre is None:
         centre = [cubehead['CRVAL1'],cubehead['CRVAL2']]
-
+        readFromCube=True
+    else:
+        readFromCube=False
     if width is None:
         width = -cubehead['CDELT1']*cubehead['NAXIS1']*np.sqrt(2.)*u.deg
 
-    p = Vizier.query_region(coord.SkyCoord(centre[0],centre[1], unit=(u.deg, u.deg), 
-        frame = 'icrs'), width = width, catalog = catalog)
+    if readFromCube == True: 
+        p = Vizier.query_region(coord.SkyCoord(centre[0],centre[1], unit=(u.deg, u.deg), 
+            frame = 'icrs'), width = width, catalog =catalog)
+    else:
+        p = Vizier.query_region(coord.SkyCoord(centre[0],centre[1], unit=(u.hourangle, u.deg), 
+            frame = 'icrs'), width = width, catalog=['VIII/65/nvss'])        
+
     tab = p[0]
     ra_deg = []
     dec_deg = []
     
     if catalog == 'NVSS':
+
+        ra_deg= np.empty([len(tab['RAJ2000'])])
+        dec_deg = np.empty([len(tab['RAJ2000'])])
+        #flux_corr = np.empty([len(tab['RAJ2000'])])
+        pix_x = np.empty([len(tab['RAJ2000'])])
+        pix_y = np.empty([len(tab['RAJ2000'])])
+
         for i in xrange (0, len(tab['RAJ2000'])):
-           tab['RAJ2000'][i] = string.join(string.split(tab['RAJ2000'][i],' '),':')
-           ra_deg.append(conv_units.ra2deg(tab['RAJ2000'][i]))
-           tab['DEJ2000'][i] = string.join(string.split(tab['DEJ2000'][i],' '),':')
-           dec_deg.append(conv_units.dec2deg(tab['DEJ2000'][i]))
+            tab['RAJ2000'][i] = string.join(string.split(tab['RAJ2000'][i],' '),':')
+            ra_deg[i] = conv_units.ra2deg(tab['RAJ2000'][i])
+            tab['DEJ2000'][i] = string.join(string.split(tab['DEJ2000'][i],' '),':')
+            dec_deg[i] = conv_units.dec2deg(tab['DEJ2000'][i])
+            #flux_corr[i],pix_x[i],pix_y[i] = nvss_pbcorr(ra_deg[i],dec_deg[i],centre,cell,imsize,obs_freq,tab['S1.4'][i])
+
+        ra_deg=Column(ra_deg)
+        dec_deg=Column(dec_deg)
+        pix_x=Column(pix_x)
+        pix_y=Column(pix_y)
+        #flux_corr=Column(flux_corr)
+
+        tab.add_column(pix_x, name='PixX')
+        tab.add_column(pix_y, name='PixY')
+        #tab.add_column(flux_corr,name='Flux_pbcorr')
+        tab.add_column(ra_deg, name= 'RADEG')
+        tab.add_column(dec_deg, name= 'DECDEG')
+
 
         above_thresh = tab['S1.4']<thresh
     
-
+ 
 
     for i in xrange(1,len(tab.colnames)):
         tab[tab.colnames[i]][above_thresh] = np.nan
@@ -81,89 +110,76 @@ def source_catalog(cfg_par,tablename):
 
     return tabMask
 
-def sim_cont_from_cube(tablename,catalog,infile,outfile):
+def simulate_continuum(cfg_par,tablename):
+
+    
+    infile = cfg_par['general']['contname']
+    outfile ='{:s}{:s}'.format(cfg_par['general'].get('absdir'),
+                'contSimNVSS.fits')
+    centre = cfg_par['source_catalog']['centre_coord']
+    cell = cfg_par['simulate_continuum']['cell']
+    imsize = cfg_par['simulate_continuum']['npix']
 
     tab = ascii.read(tablename)
 
-    if catalog == 'NVSS':
+    w = wcs.WCS(naxis=2)
 
-            ra = tab['RAJ2000']
-            dec = tab['DEJ2000']
-    
-            major = tab['MajAxis']
-            minor = tab['MinAxis']      
+    centre = coord.SkyCoord(centre[0], centre[1], unit=(u.hourangle, u.deg), frame='icrs')
+    cell /= 3600.
 
-            angle1=np.radians(0.0)
-            cosangle1=np.cos(angle1)
-            sinangle1=np.sin(angle1)
+    w.wcs.crpix = [imsize/2, imsize/2]
+    w.wcs.cdelt = np.array([-cell, cell])
+    w.wcs.crval = [centre.ra.deg, centre.dec.deg]
+    w.wcs.ctype = ["RA---SIN", "DEC--SIN"]
+    w.wcs.equinox = 2000
+    w.wcs.specsys = 'TOPOCENT'
 
-    pixels = conv_units.coord_to_pix(infile,ra,dec,verbose=False)
+    hdr = w.to_header()
+    hdr['SIMPLE']  = 'T'
+    hdr['BITPIX']  = -32
+    hdr['NAXIS']   = 2
+    hdr.set('NAXIS1',  imsize, after='NAXIS')
+    hdr.set('NAXIS2',  imsize, after='NAXIS1')
 
+    if 'CUNIT1' in hdr:
+        del hdr['CUNIT1']
+    if 'CUNIT2' in hdr:
+        del hdr['CUNIT2']
 
-    cubefile = pyfits.open(infile)
-    contdata = cubefile[0].data
-    cubehead = cubefile[0].header
+    data=np.zeros([hdr['NAXIS2'],hdr['NAXIS1']])
 
-    if cubehead['NAXIS'] > 3:
+    major = tab['MajAxis']
+    minor = tab['MinAxis']
+    ra = tab['RADEG']
+    dec = tab['DECDEG']
 
-        contdata = np.zeros([contdata.shape[2],contdata.shape[3]])
-        if 'CTYPE4' in cubehead:
-            del cubehead['CTYPE4']
-        if 'CDELT4' in cubehead:
-            del cubehead['CDELT4']    
-        if 'CRVAL4' in cubehead:
-            del cubehead['CRVAL4']
-        if 'CRPIX4' in cubehead:
-            del cubehead['CRPIX4']
-        if 'NAXIS4' in cubehead:
-            del cubehead['NAXIS4']
+    pix_x = tab['PixX']
+    pix_y = tab['PixY']
 
-    elif cubehead['NAXIS'] == 3:
+    angle1=np.radians(0.0)
+    cosangle1=np.cos(angle1)
+    sinangle1=np.sin(angle1)
 
-        contdata = np.zeros([contdata.shape[1],contdata.shape[2]])
-        if 'CRPIX3' in cubehead:
-            del cubehead['CRPIX3'] 
-        if 'CRVAL3' in cubehead:
-            del cubehead['CRVAL3']
-        if 'CDELT3' in cubehead:
-            del cubehead['CDELT3']
-        if 'CTYPE3' in cubehead:
-            del cubehead['CTYPE3']
-        if 'NAXIS3' in cubehead:
-            del cubehead['NAXIS3']
-
-    else: 
-        contdata = np.zeros([contdata.shape[0],contdata.shape[1]])
-
-
-
-    del cubehead['NAXIS']
-
-    w=wcs.WCS(cubehead) 
-
-    xnum = np.linspace(0,cubehead['NAXIS1'],cubehead['NAXIS1'])
-    ynum = np.linspace(0,cubehead['NAXIS2'],cubehead['NAXIS2']) 
+    xnum = np.linspace(0,hdr['NAXIS1'],hdr['NAXIS1'])
+    ynum = np.linspace(0,hdr['NAXIS2'],hdr['NAXIS2'])
     x, y =  np.meshgrid(xnum, ynum)
 
-    for i in xrange(0,pixels.shape[0]):
+    for i in xrange(0,len(pix_x)):
 
-        xc=float(pixels[i][0])
-        yc=float(pixels[i][1])
+        xc = pix_x[i]
+        yc = pix_y[i]
 
-        if str(xc) == 'nan' or str(yc) == 'nan':
-            pass
+        if minor[i]/3600. >= float(hdr['CDELT2']) and major[i]/3600. >= float(hdr['CDELT2']):
+            a = major[i]/3600./float(hdr['CDELT2'])/2.
+            b = minor[i]/3600./float(hdr['CDELT2'])/2.
+
+            ell = np.power(x-xc, 2)/np.power(a,2) + np.power(y-yc, 2)/np.power(b,2)
+            index_ell = np.where(np.less_equal(ell,1))
+            data[index_ell] = 1
         else:
-            if minor[i]/3600. >= float(cubehead['CDELT2']) and major[i]/3600. >= float(cubehead['CDELT2']):
-                a = major[i]/3600./float(cubehead['CDELT2'])/2.
-                b = minor[i]/3600./float(cubehead['CDELT2'])/2.
+            data[int(yc),int(xc)] = 1
 
-                ell = np.power(x-xc, 2)/np.power(a,2) + np.power(y-yc, 2)/np.power(b,2)
-                index_ell = np.where(np.less_equal(ell,1))
-                contdata[index_ell] = 1
-            else:
-                contdata[int(yc),int(xc)] = 1
-
-    pyfits.writeto(outfile,contdata,cubehead,overwrite=True)
+    pyfits.writeto(outfile,data,hdr,overwrite=True)
 
     return 0
 

@@ -15,12 +15,14 @@ source_catalog:
   __helpstr: Find sources in a f.o.v. from source_catalog NVSS or load PYBDSF output
   catalog: NVSS #NVSS or PYBDSF
   catalog_file: cat_src_sharpener.txt # catalog name for PYBDSF output
-  enable: true 
+  enable: false 
   thresh: 30
   width: 1.2d
 simulate_continuum:
   __helpstr: Simulate continuum from source catalog output
-  enable: false
+  enable: true
+  npix: 900
+  cell: 2
 spec_ex:
   __helpstr: Extract spectra from datacube
   chrom_aberration: true

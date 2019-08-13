@@ -55,7 +55,7 @@ parser.add_argument("-c", "--config",
 
 # 2nd-4th argument are optional: Enable or Disable certain steps
 parser.add_argument("--do_cont", action="store_true", default=False,
-                    help='Enable continuum extraction')
+                    help='Enable continuum source finder')
 
 parser.add_argument("--do_spectra", action="store_true", default=False,
                     help='Enable spectra extraction')
@@ -143,6 +143,31 @@ if spar.cfg_par['source_catalog'].get('enable',False) == True and spar.cfg_par['
     src_list = ascii.read(catalog_table)
     print(src_list)
 
+# Simulate continuum sources
+# ++++++++++++++++++++++
+if spar.cfg_par['simulate_continuum'].get('enable',False) == True and spar.cfg_par['source_catalog'].get('catalog')=='NVSS':
+
+    time_start_find = time.time()
+    spar.cfg_par['source_catalog']['enable'] = True
+
+    print("## Find continuum sources")
+    catalog_table = str(spar.cfg_par['general'].get('absdir')) + spar.cfg_par['source_catalog'].get('catalog_file')
+    # get sources in continuum image
+    sources = cont_src.source_catalog(spar.cfg_par,catalog_table)
+
+    print("## Find continuum sources ... Done ({0:.2f}s)".format(
+        time.time() - time_start_find))
+
+    print("## Make simulated continuum sources")
+    # get sources in continuum image
+    sources = cont_src.simulate_continuum(spar.cfg_par,catalog_table)
+
+    print("## Make simulated continuum sources ... Done ({0:.2f}s)".format(
+        time.time() - time_start_find))
+
+    # print results
+    src_list = ascii.read(catalog_table)
+    
 # Extract spectra
 # +++++++++++++++
 if do_spectra_extraction or spar.cfg_par['spec_ex'].get('enable',False) == True:
