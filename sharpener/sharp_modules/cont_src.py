@@ -449,10 +449,10 @@ def find_src_imsad(cfg_par):
     cont_im_mir = sharpDir+os.path.basename(cfg_par['general']['mircontname'])
     cont_im = cfg_par['general']['shortContname']
     # cannot use cfg_par, probably because file name would be too long for miriad
-    #src_imsad_out = cfg_par['general']['absdir']+'mir_src_sharp.txt'
+    src_imsad_out = cfg_par['general']['absdir']+'mir_src_sharp.txt'
 
-    src_imsad_out = '{0:s}mir_src_sharp.txt'.format(
-       'sharpOut/abs/')
+    #src_imsad_out = '{0:s}mir_src_sharp.txt'.format(
+    #   'sharpOut/abs/')
 
     key = 'source_finder'
 
