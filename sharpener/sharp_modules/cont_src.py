@@ -445,21 +445,18 @@ def find_src_imsad(cfg_par):
     # Getting directories and convert files if necessary
     # ++++++++++++++++++++++++++++++++++++++++++++++++++
     os.chdir(cfg_par['general']['workdir'])
-    cont_im_mir = cfg_par['general']['mircontname']
-    print cont_im_mir
-    cont_im = os.path.basename(cfg_par['general']['contname'])
-    print cont_im
+    sharpDir = 'sharpOut/'
+    cont_im_mir = sharpDir+os.path.basename(cfg_par['general']['mircontname'])
+    cont_im = cfg_par['general']['contname']
     # cannot use cfg_par, probably because file name would be too long for miriad
     #src_imsad_out = cfg_par['general']['absdir']+'mir_src_sharp.txt'
 
     src_imsad_out = '{0:s}mir_src_sharp.txt'.format(
        'sharpOut/abs/')
-    print src_imsad_out
 
     key = 'source_finder'
 
     if os.path.exists(cont_im_mir) == False and os.path.exists(cont_im) == True: 
-        print 'culo'
         fits = lib.miriad('fits')
         fits.op = 'xyin'
         fits.in_ = cont_im
