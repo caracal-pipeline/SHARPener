@@ -66,6 +66,22 @@ def abs_ex(cfg_par):
         src_list_csv = cfg_par['general']['absdir']+'mir_src_sharp.csv'
 
         hdr = cubefile[0].header
+        
+        if 'NAXIS4' in hdr:
+            del hdr['NAXIS4']     
+        if 'CRVAL4' in hdr:        
+            del hdr['CRVAL4']
+        if 'CDELT4' in hdr:    
+            del hdr['CDELT4']
+        if 'CRPIX4' in hdr:    
+            del hdr['CRPIX4']
+        if 'CTYPE4' in hdr:    
+            del hdr['CTYPE4'] 
+        if 'CROTA4' in hdr:
+            del hdr['CROTA4']  
+        if 'CUNIT4' in hdr:
+            del hdr['CUNIT4']
+
         sci = cubefile[0].data 
         sci = sci.squeeze()
         x = hdr['NAXIS1']
@@ -163,6 +179,9 @@ def abs_ex(cfg_par):
                             freq_del = (freq_real0 - freq_real[-1] )/ len(freq_real)
                         #depending if the cube is in velocity or frequency ?
                             scale = (freq_real0 - j*freq_del) / freq_real0
+                        elif (cfg_par[key].get('zunit','Hz') == 'Hz'):
+                            freq_del = (hdr['CRVAL3'] - freq[-1] )/ len(freq)
+                            scale = (hdr['CRVAL3'] - j*freq_del) / hdr['CRVAL3']
 
                         pix_x = (pix_x_or - hdr['CRPIX1']) * scale + hdr['CRPIX1']
                         pix_y = (pix_y_or - hdr['CRPIX2']) * scale + hdr['CRPIX2']

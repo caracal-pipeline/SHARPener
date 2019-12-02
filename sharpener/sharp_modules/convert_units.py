@@ -89,7 +89,7 @@ def dec2deg(dec_dms):
 def dec2dms(ra='', dec='', round=False):
 	
 	DEC, ds = '', ''
-  	if str(dec)[0] == '-':
+	if str(dec)[0] == '-':
 	  ds, dec = '-', abs(dec)
 	deg = int(dec)
 	decM = abs(int((dec-deg)*60))
@@ -153,18 +153,19 @@ def coord_to_pix(imagename,ra,dec,verbose=False):
 	#what follows works for wcs, but can be written better
 	# RS added some additional if clauses
 	prihdr = hdulist[0].header
-	if prihdr['NAXIS'] == 4:
-		if 'CTYPE4' in prihdr:
-			del prihdr['CTYPE4']
-		if 'CDELT4' in prihdr:
-			del prihdr['CDELT4']
-		if 'CRVAL4' in prihdr:
-			del prihdr['CRVAL4']
-		if 'CRPIX4' in prihdr:
-			del prihdr['CRPIX4']
-		if 'CUNIT4' in prihdr:
-			del prihdr['CUNIT4']
-	
+	#if prihdr['NAXIS'] == 4:
+	if 'CTYPE4' in prihdr:
+		del prihdr['CTYPE4']
+	if 'CDELT4' in prihdr:
+		del prihdr['CDELT4']
+	if 'CRVAL4' in prihdr:
+		del prihdr['CRVAL4']
+	if 'CRPIX4' in prihdr:
+		del prihdr['CRPIX4']
+	if 'CUNIT4' in prihdr:
+		del prihdr['CUNIT4']   
+	if 'NAXIS4' in prihdr:
+		del prihdr['NAXIS4']
 	if 'CTYPE3' in prihdr:
 		del prihdr['CTYPE3']
 	if 'CDELT3' in prihdr:

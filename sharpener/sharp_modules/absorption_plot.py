@@ -337,14 +337,14 @@ def abs_plot(spec_name, cfg_par):
         flag_chans = cfg_par['spec_ex'].get('flag_chans', None)
         flag_chans1 = cfg_par['spec_ex'].get('flag_chans', None)
 
-        if cfg_par['spec_ex'].get('zunit') == 'm/s':
+        if cfg_par['abs_plot'].get('zunit') == 'm/s':
             x_data /= 1e3
             ax1.set_xlabel(
                 r'$cz\,(\mathrm{km}\,\mathrm{s}^{-1})$', fontsize=font_size)
         y_data = np.array(spec_vec[spec_vec.colnames[1]], dtype=float)*1e3
         y_sigma = np.array(spec_vec[spec_vec.colnames[2]])*1e3
 
-        if cfg_par['spec_ex'].get('zunit') == 'MHz':
+        if cfg_par['abs_plot'].get('zunit') == 'MHz':
             x_data /= 1e6
             ax1.set_xlabel(r'Frequency [MHz]', fontsize=font_size)
 
@@ -358,7 +358,7 @@ def abs_plot(spec_name, cfg_par):
 
         if flag_chans != None:
             flag_chans = np.array(flag_chans)
-            if cfg_par['spec_ex'].get('zunit') == 'm/s':
+            if cfg_par['abs_plot'].get('zunit') == 'm/s':
                 flag_chans = np.divide(flag_chans, 1e3)
             index_flags_l = (np.abs(x_data - flag_chans[0])).argmin()
             for k in xrange(1, len(flag_chans)):
@@ -386,7 +386,7 @@ def abs_plot(spec_name, cfg_par):
 
         if flag_chans1 != None:
             flag_chans = np.array(flag_chans1)
-            if cfg_par['spec_ex'].get('zunit') == 'm/s':
+            if cfg_par['abs_plot'].get('zunit') == 'm/s':
                 flag_chans = np.divide(flag_chans, 1e3)
             index_flags_l = (np.abs(x_data - flag_chans[0])).argmin()
             for k in xrange(1, len(flag_chans)):
@@ -524,11 +524,11 @@ def abs_plot(spec_name, cfg_par):
                 # for the last plot add the x-axis label
                 if plot_count == n_plots-1:
 
-                    if cfg_par['spec_ex'].get('zunit') == 'm/s':
+                    if cfg_par['spec_ex'].get('abs_plot') == 'm/s':
                         x_data /= 1e3
                         ax[plot_count][0].set_xlabel(
                             r'$cz\,(\mathrm{km}\,\mathrm{s}^{-1})$', fontsize=font_size)
-                    elif cfg_par['spec_ex'].get('zunit') == 'MHz':
+                    elif cfg_par['spec_ex'].get('abs_plot') == 'MHz':
                         x_data /= 1e6
                         ax[plot_count][0].set_xlabel(
                             r'Frequency [MHz]', fontsize=font_size)

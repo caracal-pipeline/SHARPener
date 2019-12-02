@@ -28,7 +28,7 @@ spec_ex:
   chrom_aberration: true
   enable: true
   flag_chans: null
-  zunit: m/s
+  zunit: Hz
   noise_delta_pix: 6
   noise_delta_skip: 6
 abs_plot:
@@ -42,6 +42,7 @@ abs_plot:
   detailed_plot: true
   plot_format: pdf 
   plot_contImage: true #set to true to enable plot of continuum image (even if the continuum image is not provided)
+  zunit: MHz
   merge_plots: true
 polynomial_subtraction:
   __helpstr: Subtract polynomial from spectrum to improve continuum subtraction
