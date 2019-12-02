@@ -450,12 +450,15 @@ def find_src_imsad(cfg_par):
 
     # cannot use cfg_par, probably because file name would be too long for miriad
     #src_imsad_out = cfg_par['general']['absdir']+'mir_src_sharp.txt'
-    src_imsad_out = '{0:s}mir_src_sharpener.txt'.format(
+
+    src_imsad_out = '{0:s}mir_src_sharp.txt'.format(
        cfg_par['general'].get('absdir'))
+    print src_imsad_out
+
     key = 'source_finder'
 
     if os.path.exists(cont_im_mir) == False and os.path.exists(cont_im) == True: 
-    
+
         fits = lib.miriad('fits')
         fits.op = 'xyin'
         fits.in_ = cont_im
