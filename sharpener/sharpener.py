@@ -170,11 +170,24 @@ class sharpener:
         if self.enable_task(self.cfg_par, task) == True:
             spec_ex.abs_ex(self.cfg_par)
 
-        task = 'abs_plot'
+        task = 'abs_plot' 
         if self.enable_task(self.cfg_par, task) == True:
             spectra = glob.glob(self.cfg_par['general']['specdir']+'/*.txt')
             for i in xrange(0, len(spectra)):
                 spectra[i] = os.path.basename(spectra[i])
                 abs_plot.absorption_plot(spectra[i], self.cfg_par)
+
+        # Find continuum sources
+        # ++++++++++++++++++++++
+        task = 'sdss_match'
+        if self.enable_task(self.cfg_par, task) == True:
+            # time_start_find = time.time()
+
+            # print("(Pid {0:d}) ## Find continuum sources".format(proc))
+
+            # get sources in continuum image
+            sdss_match.get_sdss_sources(self.cfg_par)
+
+            # print("(Pid {0:d}) ## Find continuum sources ... Done".format(proc))
 
         return 0

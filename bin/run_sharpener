@@ -21,6 +21,8 @@ import tabulate
 from sharpener.sharp_modules import cont_src as cont_src
 from sharpener.sharp_modules import spec_ex as spec_ex
 from sharpener.sharp_modules import absorption_plot as abs_pl
+from sharpener.sharp_modules import sdss_match as sdss
+
 import time
 import glob
 from PyPDF2 import PdfFileMerger
@@ -63,6 +65,10 @@ parser.add_argument("--do_spectra", action="store_true", default=False,
 parser.add_argument("--do_plots", action="store_true", default=False,
                     help='Enable plotting')
 
+parser.add_argument("--do_sdss", action="store_true", default=False,
+                    help='Enable sdss_match')
+
+
 args = parser.parse_args()
 
 # Exit if only 
@@ -93,6 +99,7 @@ if args.generate_default:
 do_continuum_extraction = args.do_cont
 do_spectra_extraction = args.do_spectra
 do_plots = args.do_plots
+do_sdss = args.do_sdss
 
 # Load parameter file
 # +++++++++++++++++++
@@ -167,7 +174,21 @@ if spar.cfg_par['simulate_continuum'].get('enable',False) == True and spar.cfg_p
 
     # print results
     src_list = ascii.read(catalog_table)
-    
+
+# SDSS match spectra
+# +++++++++++++++
+if do_sdss or spar.cfg_par['sdss_match'].get('enable',False) == True:
+    time_start_extract = time.time()
+    spar.cfg_par['sdss_match']['enable'] = True
+
+    print("## Match sources with SDSS catalogue")
+
+    sdss.get_sdss_sources(spar.cfg_par)
+
+
+    print("## Match sources with SDSS catalogue ... Done ({0:.2f}s)".format(
+        time.time() - time_start_extract))
+
 # Extract spectra
 # +++++++++++++++
 if do_spectra_extraction or spar.cfg_par['spec_ex'].get('enable',False) == True:

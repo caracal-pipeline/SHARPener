@@ -65,17 +65,36 @@ def get_sdss_sources(cfg_par):
     # ++++++++++++++++++++++++++++++++++++++++++++++++++
     workdir = cfg_par['general']['workdir']
     os.chdir(workdir)
-    cont_im = os.path.basename(cfg_par['general']['contname'])
-    cube_im = os.path.basename(cfg_par['general']['cubename'])
+    sharpDir = workdir+'/sharpOut/'
+
+    cont_im = cfg_par['general']['contname']
+    cube_im = cfg_par['general']['cubename']
 
     # cannot use cfg_par, probably because file name would be too long for miriad
     output_file_name = "{0:s}abs/{1:s}_sdss_src.csv".format(
-        workdir, workdir.split('/')[-2])
+        sharpDir, workdir.split('/')[-2])
 
-    # Setting for redshift range from parameter file
-    # ++++++++++++++++++++++++++++++++++++++++++++++
-    freq_min = cfg_par[key]['freq_min'] * u.megaHertz
-    freq_max = cfg_par[key]['freq_max'] * u.megaHertz
+
+
+    # Process cube
+    # ++++++++++++
+    # better than continuum as it has all the relevant information and the right size
+
+    # open fits file
+    fits_hdulist = fits.open(cube_im)
+
+    # get WCS header
+    wcs = WCS(fits_hdulist[0].header)
+
+    if cfg_par['sdss_match']['zunitCube'] == 'Hz':
+        freq_min = fits_hdulist[0].header['CRVAL3'] * u.Hertz
+        freq_max = (fits_hdulist[0].header['CRVAL3']+(fits_hdulist[0].header['NAXIS3']*fits_hdulist[0].header['CDELT3']) )* u.Hertz
+    else:
+        # Setting for redshift range from parameter file
+        # ++++++++++++++++++++++++++++++++++++++++++++++
+        freq_min = cfg_par[key]['freq_min'] * u.megaHertz
+        freq_max = cfg_par[key]['freq_max'] * u.megaHertz
+
 
     # get corresponding redshift range
     z_max = freq_hi / freq_min - 1.
@@ -88,16 +107,6 @@ def get_sdss_sources(cfg_par):
     print(
         "Corresponding to redshift range: {0:.3f} - {1:.3f}".format(z_min, z_max))
 
-    # Process cube
-    # ++++++++++++
-    # better than continuum as it has all the relevant information and the right size
-
-    # open fits file
-    fits_hdulist = fits.open(cube_im)
-
-    # get WCS header
-    wcs = WCS(fits_hdulist[0].header)
-
     # if the number of axis are less than 4, the script will not work
     if wcs.naxis < 4:
         print("ERROR: The script requires a fits image with 4 axis. Abort")
@@ -107,7 +116,8 @@ def get_sdss_sources(cfg_par):
     image_shape = np.shape(fits_hdulist[0].data)
 
     # get image
-    image = fits_hdulist[0].data[0][0]
+    image = fits_hdulist[0].data[0]
+
 
     # get coordinates from image
     image_coordinates_1 = wcs.wcs_pix2world([[0, 0, 0, 0]], 1)
@@ -252,7 +262,7 @@ def get_sdss_sources(cfg_par):
 
         # get shape of first image in cube
         if wcs_cube.naxis == 4:
-            img_ch1_shape = fits_hdulist_cube[0].data[0][0].shape
+            img_ch1_shape = fits_hdulist_cube[0].data[0].shape
         else:
             img_ch1_shape = fits_hdulist_cube[0].data[0].shape
 
@@ -288,7 +298,7 @@ def get_sdss_sources(cfg_par):
             cfg_par['general']['workdir'].split('/')[-2]))
 
         # read the radio sources
-        radio_src = Table.read("abs/mir_src_sharpener.csv")
+        radio_src = Table.read("sharpOut/abs/mir_src_sharp.csv")
 
         # number of radio sources
         n_radio_src = np.size(radio_src['ra'])
@@ -311,7 +321,7 @@ def get_sdss_sources(cfg_par):
 
                 # add the source number
                 ax.annotate("{0:d}".format(k+1), xy=(coord_radio_src[k].ra.value, coord_radio_src[k].dec.value), xycoords=ax.get_transform('fk5'),
-                            xytext=(1, 1), textcoords='offset points', ha='left', color="white")
+                            xytext=(1, 1), textcoords='offset points', ha='left', color="white", fontsize = 'small')
 
         print("Plotting sdss sources")
         # add the SDSS sources
@@ -322,34 +332,49 @@ def get_sdss_sources(cfg_par):
 
         # plot the sdss sources
         for k in range(n_sdss_src):
-
+            if k==0:
+                labelName ='SDSS sources'
+            else:
+                labelName = None
             ax.plot(coord_sdss_src[k].ra.value, coord_sdss_src[k].dec.value, transform=ax.get_transform('fk5'), marker="s",
-                    markeredgecolor='lightgray', markerfacecolor='none', markersize=4, zorder=1)
+                    markeredgecolor='gray', markerfacecolor='none', markersize=5, zorder=1,label=labelName)
 
         # check if there was a match performed with SDSS and radio
         if cfg_par[key]['match_cat']:
             # file name
             radio_sdss_src_cat_file = "{0:s}abs/{1:s}_radio_sdss_src.csv".format(
-                workdir, workdir.split('/')[-2])
+                sharpDir, workdir.split('/')[-2])
 
             radio_sdss_src_cat = Table.read(
                 radio_sdss_src_cat_file, format="csv")
 
             # get indices for which there was a match
             match_indices = np.where(radio_sdss_src_cat['sdss_ra'] != 0.)[0]
-
+            if match_indices == 0:
+                print("# NO SDSS sources match with radio catalogue in frequency range")
+            counter=0 
             for index in match_indices:
                 # create a SkyCoord object to convert the coordinates from string to float
+
                 coord_sdss_src = SkyCoord(
                     radio_sdss_src_cat[index]['sdss_ra'], radio_sdss_src_cat[index]['sdss_dec'], unit=(u.deg, u.deg), frame='fk5')
+                
+                print("\t MATCH: Source #{0:d}".format(index+1))
+                if counter==0:
+                    labelName ='Matching sources'
+                else:
+                    labelName = None
 
-                ax.plot(coord_sdss_src.ra.value, coord_sdss_src.dec.value, transform=ax.get_transform('fk5'), marker="s",
-                        markeredgecolor='orange', markerfacecolor='none', markersize=4, zorder=2)
-
+                ax.plot(coord_sdss_src.ra.value, coord_sdss_src.dec.value, transform=ax.get_transform('fk5'), marker="x",
+                        markeredgecolor='orange', markerfacecolor='orange', markersize=10, zorder=2,label=labelName)
+                counter+=1
+        legend = ax.legend(loc='best',handlelength=0.0, handletextpad=0.6,frameon=False, fontsize = 'small')
+        legend.get_frame().set_facecolor('none')
+        
         output = "{0:s}{1:s}_continuum_and_sdss.png".format(cfg_par['general'].get(
             'plotdir'), cfg_par['general']['workdir'].split('/')[-2])
 
-        if cfg_par['general']['plot_format'] == "pdf":
+        if cfg_par['sdss_match']['plot_format'] == "pdf":
             plt.savefig(output.replace(".png", ".pdf"),
                         overwrite=True, bbox_inches='tight')
         else:
@@ -371,22 +396,23 @@ def match_sdss_to_radio(cfg_par):
     key = "sdss_match"
 
     workdir = cfg_par['general']['workdir']
+    sharpDir =workdir+'sharpOut/'
 
     # sdss source file
     sdss_src_cat_file = "{0:s}abs/{1:s}_sdss_src.csv".format(
-        workdir, workdir.split('/')[-2])
+        sharpDir, workdir.split('/')[-2])
 
     sdss_src_cat = Table.read(sdss_src_cat_file, format='csv')
 
     # radio source cat
-    radio_src_cat_file = "{0:s}abs/mir_src_sharpener.csv".format(
-        workdir, workdir.split('/')[-2])
+    radio_src_cat_file = "{0:s}abs/mir_src_sharp.csv".format(
+        sharpDir, workdir.split('/')[-2])
 
     radio_src_cat = Table.read(radio_src_cat_file, format='csv')
 
     # output file
     radio_sdss_src_cat_file = "{0:s}abs/{1:s}_radio_sdss_src.csv".format(
-        workdir, workdir.split('/')[-2])
+        sharpDir, workdir.split('/')[-2])
 
     # Match radio and SDSS by going through the radio sources
     # +++++++++++++++++++++++++++++++++++++++++++++++++++++++
