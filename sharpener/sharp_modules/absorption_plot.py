@@ -320,7 +320,7 @@ def abs_plot(spec_name, cfg_par):
         plt.rc('xtick', labelsize=font_size-2)
         plt.rc('ytick', labelsize=font_size-2)
 
-        fig, ax1 = plt.subplots(figsize=(10, 5))
+        fig, ax1 = plt.subplots(figsize=(12, 6))
         #fig = plt.figure(figsize=(9, 6))
         # fig.subplots_adjust(hspace=0.0)
         #gs = gridspec.GridSpec(1, 1)
@@ -365,7 +365,7 @@ def abs_plot(spec_name, cfg_par):
                 index_flags = (np.abs(x_data - flag_chans[k])).argmin()
                 # y_data[index_flags] = 0.0
             y_data[index_flags_l:index_flags] = 0.0
-        ax1.step(x_data, y_data, where='mid', color='black', linestyle='-')
+        ax1.step(x_data, y_data, where='mid', color='black', linestyle='-',ls=1)
 
         # Calculate axis limits and aspect ratio
         x_min = np.min(x_data)
