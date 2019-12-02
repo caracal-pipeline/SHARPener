@@ -107,7 +107,9 @@ class sharpener:
         self.cubename = self.workdir + self.cfg_par[key].get('cubename', None)
         self.cfg_par[key]['cubename'] = self.cubename
         self.contname = self.workdir + self.cfg_par[key].get('contname', None)
+        self.cfg_par[key]['shortContname'] = self.cfg_par[key].get('contname', None)
         self.cfg_par[key]['contname'] = self.contname
+
         mircont = os.path.basename(self.contname)
         mircont = string.split(mircont, '.')[0]
         self.sharpdir = self.workdir+'sharpOut/'
