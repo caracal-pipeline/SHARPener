@@ -458,7 +458,7 @@ def find_src_imsad(cfg_par):
     key = 'source_finder'
 
     if os.path.exists(cont_im_mir) == False and os.path.exists(cont_im) == True: 
-
+        print 'culo'
         fits = lib.miriad('fits')
         fits.op = 'xyin'
         fits.in_ = cont_im
