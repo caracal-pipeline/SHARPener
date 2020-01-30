@@ -110,7 +110,11 @@ def plot_continuum(cfg_par):
     '''
 
     cont_im = cfg_par['general']['contname']
+
+    print("Plotting continuum image of {}".format(os.path.basename(cont_im)))
+
     if os.path.exists(cont_im):
+
         #load wcs system
         hdulist = fits.open(cont_im)  # read input
         # read data and header
@@ -268,6 +272,7 @@ def plot_continuum(cfg_par):
     else:
         plt.savefig(output, overwrite=True, bbox_inches='tight', dpi=300)
     
+    print("Plotting continuum image of {} ... Done".format(os.path.basename(cont_im)))
 
 
 def abs_plot(spec_name, cfg_par):
