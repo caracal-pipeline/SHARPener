@@ -47,8 +47,9 @@ def create_all_abs_plots(cfg_par):
     # check whether the previous step was successful
     if len(spectra) == 0:
         print("ERROR: No spectra found. Run spectrum extraction first")
-        sys.exit(1)
-
+        raise RuntimeError(
+            "ERROR: No spectra found. Run spectrum extraction first")
+        
     # go through all spectra
     #catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),cfg_par['source_catalog'].get('catalog_file'))
     # add sources
@@ -149,8 +150,8 @@ def plot_continuum(cfg_par):
             img = np.zeros(img.shape)
     else:
         print("ERROR: No datacube found. Check configuration file")
-        sys.exit(1)
-
+        raise RuntimeError(
+            "ERROR: No datacube found. Check configuration file")
 
     ax = plt.subplot(projection=w)
     # ax.imshow(img, vmin=cfg_par[key]['clip'],
@@ -294,7 +295,7 @@ def abs_plot(spec_name, cfg_par):
     verb = cfg_par['general']['verbose']
     key = 'abs_plot'
 
-    os.chdir(cfg_par['general']['specdir'])
+    #os.chdir(cfg_par['general']['specdir'])
 
     params = {
         'text.usetex': True,
