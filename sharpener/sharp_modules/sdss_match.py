@@ -85,6 +85,8 @@ def get_sdss_sources(cfg_par):
 
     # get WCS header
     wcs = WCS(fits_hdulist[0].header)
+    if wcs.naxis == 4:
+        wcs = wcs.dropaxis(3)
 
     if cfg_par['sdss_match']['zunitCube'] == 'Hz':
         freq_min = fits_hdulist[0].header['CRVAL3'] * u.Hertz
@@ -109,7 +111,7 @@ def get_sdss_sources(cfg_par):
 
     # if the number of axis are less than 4, the script will not work
     if wcs.naxis < 3:
-        print("ERROR: The script requires a fits image with 4 axis. Abort")
+        print("ERROR: The script requires a fits cube with 3 or 4 axis. Abort")
         raise RuntimeError("ERROR: The script requires a fits cube with 3 or 4 axis. Abort")
 
     # size of image
