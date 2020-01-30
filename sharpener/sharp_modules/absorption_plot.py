@@ -163,8 +163,10 @@ def plot_continuum(cfg_par):
     #ax.imshow(img, vmin=float(cfg_par[key]['clip'])/10000., vmax=np.min([np.max(img), float(cfg_par[key]['clip'])*1]), origin='lower')
     #fig = ax.imshow(img, vmin=0, vmax=float(cfg_par[key]['clip'])/5, origin = 'lower')
 
-    fig = ax.imshow(img, norm=mc.SymLogNorm(float(cfg_par['source_finder']['clip'])/5.,
-                                            vmin=float(cfg_par['source_finder']['clip'])/5.), origin='lower')
+    # fig = ax.imshow(img, norm=mc.SymLogNorm(float(cfg_par['source_finder']['clip'])/5.,
+    #                                         vmin=float(cfg_par['source_finder']['clip'])/5.), origin='lower')
+    fig = ax.imshow(img, norm=mc.SymLogNorm(1e-9,
+                                            vmin=float(cfg_par['source_finder']['clip'])/100.), vmax=float(cfg_par['source_finder']['clip'])) origin = 'lower')
 
     # fig = ax.imshow(img, norm=mc.SymLogNorm(
     #   float(cfg_par[key]['clip'])*10), origin='lower')

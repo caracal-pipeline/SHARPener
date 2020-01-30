@@ -285,8 +285,8 @@ def get_sdss_sources(cfg_par):
 
         #fig = ax.imshow(img, vmin=0, vmax=float(cfg_par['source_finder']['clip'])/5, origin = 'lower')
 
-        fig = ax.imshow(img, norm=mc.SymLogNorm(float(cfg_par['source_finder']['clip'])/5.,
-                                                vmin=float(cfg_par['source_finder']['clip'])/5.), origin='lower')
+        fig = ax.imshow(img, norm=mc.SymLogNorm(1e-9,
+                                                vmin=float(cfg_par['source_finder']['clip'])/100.), vmax=float(cfg_par['source_finder']['clip']), origin='lower')
 
         cbar = plt.colorbar(fig)
         cbar.set_label('Flux Density [Jy/beam]')
