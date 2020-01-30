@@ -108,9 +108,9 @@ def get_sdss_sources(cfg_par):
         "Corresponding to redshift range: {0:.3f} - {1:.3f}".format(z_min, z_max))
 
     # if the number of axis are less than 4, the script will not work
-    if wcs.naxis < 4:
+    if wcs.naxis < 3:
         print("ERROR: The script requires a fits image with 4 axis. Abort")
-        return -1
+        raise RuntimeError("ERROR: The script requires a fits cube with 3 or 4 axis. Abort")
 
     # size of image
     image_shape = np.shape(fits_hdulist[0].data)
