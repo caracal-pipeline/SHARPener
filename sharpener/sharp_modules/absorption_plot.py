@@ -111,7 +111,7 @@ def plot_continuum(cfg_par):
 
     cont_im = cfg_par['general']['contname']
 
-    print("Plotting continuum image of {}".format(os.path.basename(cont_im)))
+    print("# Plotting continuum image of {} #".format(os.path.basename(cont_im)))
 
     if os.path.exists(cont_im):
 
@@ -265,14 +265,14 @@ def plot_continuum(cfg_par):
                                        xytext=(1, 1), textcoords='offset points', ha='left', color="white") 
 
     output = "{0:s}{1:s}_continuum.png".format(cfg_par['general'].get(
-        'plotdir'), cfg_par['general']['workdir'].split('/')[-2])
+        'plotdir'), cfg_par['general']['label'])
 
     if cfg_par['abs_plot']['plot_format'] == "pdf":
         plt.savefig(output.replace(".png", ".pdf"), overwrite=True, bbox_inches='tight')
     else:
         plt.savefig(output, overwrite=True, bbox_inches='tight', dpi=300)
     
-    print("Plotting continuum image of {} ... Done".format(os.path.basename(cont_im)))
+    print("# Plotting continuum image of {} ... Done #".format(os.path.basename(cont_im)))
 
 
 def abs_plot(spec_name, cfg_par):
