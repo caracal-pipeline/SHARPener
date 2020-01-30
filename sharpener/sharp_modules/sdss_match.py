@@ -294,8 +294,7 @@ def get_sdss_sources(cfg_par):
         ax.coords[0].set_axislabel('Right Ascension')
         ax.coords[1].set_axislabel('Declination')
         ax.coords[0].set_major_formatter('hh:mm')
-        ax.set_title("{0:s}".format(
-            cfg_par['general']['workdir'].split('/')[-2]))
+        ax.set_title("{0:s}".format("SHARP continuum radio and sdss sources"))
 
         # read the radio sources
         radio_src = Table.read("sharpOut/abs/mir_src_sharp.csv")
@@ -372,7 +371,7 @@ def get_sdss_sources(cfg_par):
         legend.get_frame().set_facecolor('none')
         
         output = "{0:s}{1:s}_continuum_and_sdss.png".format(cfg_par['general'].get(
-            'plotdir'), cfg_par['general']['workdir'].split('/')[-2])
+            'plotdir'), cfg_par['general']['label'])
 
         if cfg_par['sdss_match']['plot_format'] == "pdf":
             plt.savefig(output.replace(".png", ".pdf"),

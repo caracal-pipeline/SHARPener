@@ -175,7 +175,7 @@ def plot_continuum(cfg_par):
     ax.coords[0].set_axislabel('Right Ascension')
     ax.coords[1].set_axislabel('Declination')
     ax.coords[0].set_major_formatter('hh:mm')
-    ax.set_title("{0:s}".format(cfg_par['general']['workdir'].split('/')[-2]))
+    ax.set_title("{0:s}".format("SHARP continuum radio sources"))
     #ax.coords[0].set_ticks(direction='in')
     #ax.coords[1].set_ticks(direction='in')
     # ax.tick_params(axis='both', bottom='on', top='on', left='on', right='on',
