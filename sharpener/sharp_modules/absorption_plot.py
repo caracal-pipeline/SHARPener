@@ -309,7 +309,9 @@ def abs_plot(spec_name, cfg_par):
     # load data and labels
     #	spec_name = spec_src_name[i]
     #	print spec_name
-    if os.path.isfile(spec_name) == True:
+    if os.path.isfile(spec_name):
+
+        print("# Plotting spectrum of {}".format(os.path.basename(spec_name)))
 
         spec_vec = ascii.read(spec_name)
         x_data = np.array(spec_vec[spec_vec.colnames[0]], dtype=float)
@@ -553,7 +555,7 @@ def abs_plot(spec_name, cfg_par):
                             overwrite=True, bbox_inches='tight', dpi=100)
 
             plt.close("all")
-        if verb == True:
-            print('# Plotted spectrum of source ' + os.path.basename(spec_name)+'. #')
+        #if verb == True:
+        print('# Plotting spectrum of source ' + os.path.basename(spec_name)+'.... Done #')
     else:
         print('# Missing spectrum of source ' + os.path.basename(spec_name)+'. #')
