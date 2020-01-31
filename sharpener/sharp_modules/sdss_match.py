@@ -222,7 +222,7 @@ def get_sdss_sources(cfg_par):
 
     if n_sdss_src == 0:
         print('No SDSS source found.')
-        sys.exit(1)
+        raise RuntimeError("No SDSS sources found")
     else:
         print("There are {0:d} SDSS source in the given image field and redshift range".format(
             n_sdss_src))
@@ -370,6 +370,9 @@ def get_sdss_sources(cfg_par):
 
         # check if there was a match performed with SDSS and radio
         if cfg_par[key]['match_cat']:
+
+            print("Plotting matching sources")
+
             # file name
             radio_sdss_src_cat_file = os.path.join(
                 absdir, "radio_sdss_src_match.csv")
@@ -386,7 +389,7 @@ def get_sdss_sources(cfg_par):
                 # create a SkyCoord object to convert the coordinates from string to float
 
                 coord_sdss_src = SkyCoord(
-                    radio_sdss_src_cat[index]['sdss_ra'], radio_sdss_src_cat[index]['sdss_dec'], unit=(u.deg, u.deg), frame='fk5')
+                    radio_sdss_src_cat['sdss_ra'][index], radio_sdss_src_cat['sdss_dec'][index], unit=(u.deg, u.deg), frame='fk5')
 
                 print("\t MATCH: Source #{0:d}".format(index+1))
                 if counter == 0:
