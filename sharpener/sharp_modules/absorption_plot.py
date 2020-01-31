@@ -422,7 +422,7 @@ def abs_plot(spec_name, cfg_par):
 
         # Add title
         src_id = int(os.path.basename(spec_name).split('_')[0])
-        src_continuum_peak = radio_src_cat[np.where(radio_src_cat["ID"]==src_id)]['Peak'][0]
+        src_continuum_peak = radio_src_cat[np.where(radio_src_cat["ID"]==src_id)]['peak'][0]
         if cfg_par[key]['title'] == True:
             ax1.set_title("{0:s} (\#{1}): {2:s} (peak {3:.1f}mJy/beam)".format(cfg_par['general']['label'], src_id, os.path.basename(spec_name).replace(
                 '.txt', '').split('_')[-1], src_continuum_peak*1.e3), fontsize=font_size+2)
