@@ -394,7 +394,7 @@ def get_sdss_sources(cfg_par):
                 ax.plot(coord_sdss_src.ra.value, coord_sdss_src.dec.value, transform=ax.get_transform('fk5'), marker="x",
                         markeredgecolor='orange', markerfacecolor='orange', markersize=10, zorder=2,label=labelName)
                 counter+=1
-        legend = ax.legend(loc='best', handlelength=0.0, handletextpad=0.6, frameon=False, edgecolor="grey", fontsize='small', font)
+        legend = ax.legend(loc='best', handlelength=0.0, handletextpad=0.6, frameon=False, edgecolor="grey", fontsize='small')
         legend.get_frame().set_facecolor('none')
         
         output = "{0:s}{1:s}_continuum_and_sdss.png".format(cfg_par['general'].get(
