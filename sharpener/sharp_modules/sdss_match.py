@@ -432,7 +432,7 @@ def match_sdss_to_radio(cfg_par):
     sdss_src_cat = Table.read(sdss_src_cat_file, format='csv')
 
     # radio source cat
-    radio_src_cat_file = os.path.join(absdir, "/mir_src_sharp.csv")
+    radio_src_cat_file = os.path.join(absdir, "mir_src_sharp.csv")
 
     radio_src_cat = Table.read(radio_src_cat_file, format='csv')
 
