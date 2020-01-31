@@ -319,7 +319,7 @@ def get_sdss_sources(cfg_par):
 
         # read the radio sources
         radio_src = Table.read(os.path.join(
-            cfg_par['general']['absdir'], "/mir_src_sharp.csv"))
+            cfg_par['general']['absdir'], "mir_src_sharp.csv"))
 
         # number of radio sources
         n_radio_src = np.size(radio_src['ra'])
@@ -367,8 +367,8 @@ def get_sdss_sources(cfg_par):
         # check if there was a match performed with SDSS and radio
         if cfg_par[key]['match_cat']:
             # file name
-            radio_sdss_src_cat_file = "{0:s}abs/{1:s}_radio_sdss_src.csv".format(
-                sharpDir, cfg_par['general']['label'])
+            radio_sdss_src_cat_file = os.path.join(
+                absdir, "{0}_radio_sdss_src.csv".format(cfg_par['general']['label']))
 
             radio_sdss_src_cat = Table.read(
                 radio_sdss_src_cat_file, format="csv")
