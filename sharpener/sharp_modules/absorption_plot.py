@@ -423,9 +423,10 @@ def abs_plot(spec_name, cfg_par):
         # Add title
         src_id = int(os.path.basename(spec_name).split('_')[0]) + 1
         src_continuum_peak = radio_src_cat[np.where(radio_src_cat["ID"]==src_id)]['peak'][0]
+        plot_title = "{0:s} (\#{1}): {2:s} (peak {3:.1f}mJy/beam)".format(cfg_par['general']['label'], src_id, os.path.basename(spec_name).replace(
+            '.txt', '').split('_')[-1], src_continuum_peak*1.e3)
         if cfg_par[key]['title'] == True:
-            ax1.set_title("{0:s} (\#{1}): {2:s} (peak {3:.1f}mJy/beam)".format(cfg_par['general']['label'], src_id, os.path.basename(spec_name).replace(
-                '.txt', '').split('_')[-1], src_continuum_peak*1.e3), fontsize=font_size+2)
+            ax1.set_title(plot_title, fontsize=font_size+2)
             # if self.abs_ex_plot_title == True:
         #	ax1.set_title('%s' % (self.J2000_name[i]), fontsize=font_size+2)
         # ax1.axes.titlepad = 8
@@ -477,8 +478,7 @@ def abs_plot(spec_name, cfg_par):
             #     0.05, 0.95), xycoords='axes fraction', ha='left')
 
             if cfg_par[key]['title'] == True:
-                ax[0][0].set_title("{0:s} (\#{1:d}): {2:s}".format(cfg_par['general']['label'], int(os.path.basename(spec_name).split('_')[0]), os.path.basename(spec_name).replace(
-                    '.txt', '').split('_')[-1]), fontsize=font_size+2)
+                ax[0][0].set_title(plot_title), fontsize=font_size+2)
 
             # go through the rest of the plots and create them
             for plot_count in range(n_rows):
