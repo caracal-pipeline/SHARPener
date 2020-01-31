@@ -1,8 +1,5 @@
 #!/usr/bin/python2.7
 
-from astropy.nddata.utils import Cutout2D
-import matplotlib.colors as mc
-import matplotlib.pyplot as plt
 """ Module to get SDSS sources 
 
 This module will take an Apertif image and determine the SDSS
@@ -21,6 +18,9 @@ __email__ = "schulz@astron.nl"
 
 # import modules
 import numpy as np
+import matplotlib.colors as mc
+import matplotlib.pyplot as plt
+from astropy.nddata.utils import Cutout2D
 from astropy.io import fits
 from astropy.table import Table, vstack, hstack, Column
 from astropy.wcs import WCS
@@ -281,10 +281,20 @@ def get_sdss_sources(cfg_par):
 
         # cutout only if cube is smaller
         if img_ch1_shape[0] < img_shape[0] and img_ch1_shape[1] < img_shape[1]:
+            print("Cropping image to match cube")
 
             # center of continuum image which is assumed to be the same as center of cube
             position = SkyCoord(
                 wcs_cube.wcs.crval[0] * u.deg, wcs_cube.wcs.crval[1] * u.deg, frame='fk5')
+
+            # in case the image resolution of cube and image differ
+            # rescale the cube shape to that of the image
+            # crude way and not exact
+            if wcs.wcs.cdelt[0] != wcs_cube.wcs.cdelt[0] or wcs.wcs.cdelt[1] != wcs.wcs.cdelt[1]:
+                print("WARNING: Angular resolution of image and cube do not match. Trying a crude adjustment which does not create a perfect match.")
+                rescale_cube_shape = (
+                    np.ceil(img_ch1_shape[0] * np.abs(wcs_cube.wcs.cdelt[0]/wcs.wcs.cdelt[0])), np.ceil(img_ch1_shape[1] * np.abs(wcs_cube.wcs.cdelt[1]/wcs.wcs.cdelt[1])))
+                img_ch1_shape = rescale_cube_shape
 
             # create the cutout
             cutout = Cutout2D(img, position, img_ch1_shape, wcs=wcs)
