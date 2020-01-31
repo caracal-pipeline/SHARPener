@@ -398,7 +398,7 @@ def get_sdss_sources(cfg_par):
                     labelName = None
 
                 ax.plot(coord_sdss_src.ra.value, coord_sdss_src.dec.value, transform=ax.get_transform('fk5'), marker="x",
-                        markeredgecolor='orange', markerfacecolor='orange', markersize=10, zorder=2, label=labelName)
+                        markeredgecolor='orange', markerfacecolor='orange', markersize=8, zorder=2, label=labelName)
                 counter += 1
 
         legend = ax.legend(loc='best', handlelength=0.0, handletextpad=0.6,
@@ -454,7 +454,7 @@ def match_sdss_to_radio(cfg_par):
     n_radio_src = np.size(radio_src_cat['ra'])
 
     # add columns
-    radio_src_cat['sdss_id'] = Column(np.zeros(n_radio_src))
+    radio_src_cat['sdss_id'] = Column(np.zeros(n_radio_src), dtype=int)
     radio_src_cat['sdss_ra'] = Column(np.zeros(n_radio_src))
     radio_src_cat['sdss_dec'] = Column(np.zeros(n_radio_src))
     radio_src_cat['sdss_radio_sep'] = Column(np.zeros(n_radio_src))
@@ -477,7 +477,7 @@ def match_sdss_to_radio(cfg_par):
 
             if d2d < cfg_par[key]['max_sep'] * u.arcsec:
 
-                radio_src_cat[k]['sdss_id'] = sdss_src_cat[idx]['objid']
+                radio_src_cat[k]['sdss_id'] = int(sdss_src_cat[idx]['objid'])
                 radio_src_cat[k]['sdss_ra'] = coord_sdss_src[idx].ra.value
                 radio_src_cat[k]['sdss_dec'] = coord_sdss_src[idx].dec.value
                 radio_src_cat[k]['sdss_radio_sep'] = d2d[0].deg
