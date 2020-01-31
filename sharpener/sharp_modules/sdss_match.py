@@ -64,6 +64,7 @@ def get_sdss_sources(cfg_par):
     # Getting directories and convert files if necessary
     # ++++++++++++++++++++++++++++++++++++++++++++++++++
     workdir = cfg_par['general']['workdir']
+    absdir = cfg_par['general']['absdir']
     os.chdir(workdir)
     sharpDir = workdir+'/sharpOut/'
 
@@ -71,7 +72,7 @@ def get_sdss_sources(cfg_par):
     cube_im = cfg_par['general']['cubename']
 
     # cannot use cfg_par, probably because file name would be too long for miriad
-    output_file_name = os.path.join(self.absdir, "sdss_src.csv")
+    output_file_name = os.path.join(absdir, "sdss_src.csv")
 
     # Process cube
     # ++++++++++++
@@ -424,18 +425,18 @@ def match_sdss_to_radio(cfg_par):
     sharpDir = workdir+'sharpOut/'
 
     # sdss source file
-    sdss_src_cat_file = os.path.join(self.absdir, "sdss_src.csv")
+    sdss_src_cat_file = os.path.join(absdir, "sdss_src.csv")
 
     sdss_src_cat = Table.read(sdss_src_cat_file, format='csv')
 
     # radio source cat
-    radio_src_cat_file = os.path.join(self.absdir, "/mir_src_sharp.csv")
+    radio_src_cat_file = os.path.join(absdir, "/mir_src_sharp.csv")
 
     radio_src_cat = Table.read(radio_src_cat_file, format='csv')
 
     # output file
     radio_sdss_src_cat_file = os.path.join(
-        self.absdir, "radio_sdss_src_match.csv")
+        absdir, "radio_sdss_src_match.csv")
 
     # Match radio and SDSS by going through the radio sources
     # +++++++++++++++++++++++++++++++++++++++++++++++++++++++
