@@ -318,7 +318,8 @@ def get_sdss_sources(cfg_par):
         ax.set_title("{0:s}".format("SHARP continuum radio and sdss sources"))
 
         # read the radio sources
-        radio_src = Table.read("sharpOut/abs/mir_src_sharp.csv")
+        radio_src = Table.read(os.path.join(
+            cfg_par['General']['absdir'], "/mir_src_sharp.csv"))
 
         # number of radio sources
         n_radio_src = np.size(radio_src['ra'])
@@ -422,6 +423,7 @@ def match_sdss_to_radio(cfg_par):
     key = "sdss_match"
 
     workdir = cfg_par['general']['workdir']
+    absdir = cfg_par['general']['absdir']
     sharpDir = workdir+'sharpOut/'
 
     # sdss source file
