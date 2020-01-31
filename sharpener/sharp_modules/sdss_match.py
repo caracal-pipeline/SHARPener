@@ -71,8 +71,8 @@ def get_sdss_sources(cfg_par):
     cube_im = cfg_par['general']['cubename']
 
     # cannot use cfg_par, probably because file name would be too long for miriad
-    output_file_name = "{0:s}abs/{1:s}_sdss_src.csv".format(
-        sharpDir, workdir.split('/')[-2])
+    output_file_name = "{0:s}abs/sdss_src.csv".format(
+        sharpDir)
 
 
 
@@ -437,8 +437,8 @@ def match_sdss_to_radio(cfg_par):
     radio_src_cat = Table.read(radio_src_cat_file, format='csv')
 
     # output file
-    radio_sdss_src_cat_file = "{0:s}abs/{1:s}_radio_sdss_src.csv".format(
-        sharpDir, workdir.split('/')[-2])
+    radio_sdss_src_cat_file = "{0:s}abs/radio_sdss_src_match.csv".format(
+        sharpDir)
 
     # Match radio and SDSS by going through the radio sources
     # +++++++++++++++++++++++++++++++++++++++++++++++++++++++
