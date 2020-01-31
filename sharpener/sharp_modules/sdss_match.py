@@ -85,6 +85,8 @@ def get_sdss_sources(cfg_par):
 
     # get WCS header
     wcs = WCS(fits_hdulist[0].header)
+
+    # there are not more than 3 axis necessary
     if wcs.naxis == 4:
         wcs = wcs.dropaxis(3)
 
@@ -122,11 +124,18 @@ def get_sdss_sources(cfg_par):
 
 
     # get coordinates from image
-    image_coordinates_1 = wcs.wcs_pix2world([[0, 0, 0, 0]], 1)
+    # image_coordinates_1 = wcs.wcs_pix2world([[0, 0, 0, 0]], 1)
+    # image_coordinates_2 = wcs.wcs_pix2world(
+    #     [[int(image_shape[-1]/2), int(image_shape[-2]/2), 0, 0]], 1)
+    # image_coordinates_3 = wcs.wcs_pix2world(
+    #     [[image_shape[-1]-1, image_shape[-2]-1, 0, 0]], 1)
+    
+    # getting coordinates from cube with 3 axis only
+    image_coordinates_1 = wcs.wcs_pix2world([[0, 0, 0]], 1)
     image_coordinates_2 = wcs.wcs_pix2world(
-        [[int(image_shape[-1]/2), int(image_shape[-2]/2), 0, 0]], 1)
+        [[int(image_shape[-1]/2), int(image_shape[-2]/2), 0]], 1)
     image_coordinates_3 = wcs.wcs_pix2world(
-        [[image_shape[-1]-1, image_shape[-2]-1, 0, 0]], 1)
+        [[image_shape[-1]-1, image_shape[-2]-1, 0]], 1)
 
     # convert minimum and maximum RA and DEC values to SkyCoordinates
     image_coordinates_min = SkyCoord(
@@ -194,8 +203,10 @@ def get_sdss_sources(cfg_par):
     for k in range(n_sdss_src):
 
         # get pixel from coordinates
+        # image_pixel = wcs.wcs_world2pix(
+        #     [[sdss_cat['ra'][k], sdss_cat['dec'][k], 0, 0]], 1)
         image_pixel = wcs.wcs_world2pix(
-            [[sdss_cat['ra'][k], sdss_cat['dec'][k], 0, 0]], 1)
+            [[sdss_cat['ra'][k], sdss_cat['dec'][k], 0]], 1)
 
         if image_pixel[0][1] < image_shape[-2] and image_pixel[0][0] < image_shape[-1]:
 
