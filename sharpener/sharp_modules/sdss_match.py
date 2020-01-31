@@ -394,6 +394,7 @@ def get_sdss_sources(cfg_par):
                 ax.plot(coord_sdss_src.ra.value, coord_sdss_src.dec.value, transform=ax.get_transform('fk5'), marker="x",
                         markeredgecolor='orange', markerfacecolor='orange', markersize=10, zorder=2,label=labelName)
                 counter+=1
+        
         legend = ax.legend(loc='best', handlelength=0.0, handletextpad=0.6, frameon=False, edgecolor="grey", fontsize='small')
         legend.get_frame().set_facecolor('none')
         
@@ -431,8 +432,7 @@ def match_sdss_to_radio(cfg_par):
     sdss_src_cat = Table.read(sdss_src_cat_file, format='csv')
 
     # radio source cat
-    radio_src_cat_file = "{0:s}abs/mir_src_sharp.csv".format(
-        sharpDir, workdir.split('/')[-2])
+    radio_src_cat_file = "{0:s}abs/mir_src_sharp.csv".format(sharpDir)
 
     radio_src_cat = Table.read(radio_src_cat_file, format='csv')
 
