@@ -425,8 +425,8 @@ def match_sdss_to_radio(cfg_par):
     sharpDir =workdir+'sharpOut/'
 
     # sdss source file
-    sdss_src_cat_file = "{0:s}abs/{1:s}_sdss_src.csv".format(
-        sharpDir, workdir.split('/')[-2])
+    sdss_src_cat_file = "{0:s}abs/sdss_src.csv".format(
+        sharpDir)
 
     sdss_src_cat = Table.read(sdss_src_cat_file, format='csv')
 
