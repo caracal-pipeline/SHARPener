@@ -312,7 +312,7 @@ def abs_plot(spec_name, cfg_par):
     plt.rcParams.update(params)
 
     # get the parameters of the continuum sources
-    radio_src_cat_file = "{0:s}abs/mir_src_sharp.csv".format(sharpDir)
+    radio_src_cat_file = os.path.join(cfg_par['general']['absdir'],"mir_src_sharp.csv")
     radio_src_cat = Table.read(radio_src_cat_file, format='csv')
 
     # for i in xrange(0,len(np.atleast_1d(spec_src_name))):
