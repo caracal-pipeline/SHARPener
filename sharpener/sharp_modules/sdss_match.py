@@ -71,10 +71,7 @@ def get_sdss_sources(cfg_par):
     cube_im = cfg_par['general']['cubename']
 
     # cannot use cfg_par, probably because file name would be too long for miriad
-    output_file_name = "{0:s}abs/sdss_src.csv".format(
-        sharpDir)
-
-
+    output_file_name = os.path.join(self.absdir, "sdss_src.csv")
 
     # Process cube
     # ++++++++++++
@@ -92,13 +89,13 @@ def get_sdss_sources(cfg_par):
 
     if cfg_par['sdss_match']['zunitCube'] == 'Hz':
         freq_min = fits_hdulist[0].header['CRVAL3'] * u.Hertz
-        freq_max = (fits_hdulist[0].header['CRVAL3']+(fits_hdulist[0].header['NAXIS3']*fits_hdulist[0].header['CDELT3']) )* u.Hertz
+        freq_max = (fits_hdulist[0].header['CRVAL3']+(
+            fits_hdulist[0].header['NAXIS3']*fits_hdulist[0].header['CDELT3'])) * u.Hertz
     else:
         # Setting for redshift range from parameter file
         # ++++++++++++++++++++++++++++++++++++++++++++++
         freq_min = cfg_par[key]['freq_min'] * u.megaHertz
         freq_max = cfg_par[key]['freq_max'] * u.megaHertz
-
 
     # get corresponding redshift range
     z_max = freq_hi / freq_min - 1.
@@ -114,7 +111,8 @@ def get_sdss_sources(cfg_par):
     # if the number of axis are less than 4, the script will not work
     if wcs.naxis < 3:
         print("ERROR: The script requires a fits cube with 3 or 4 axis. Abort")
-        raise RuntimeError("ERROR: The script requires a fits cube with 3 or 4 axis. Abort")
+        raise RuntimeError(
+            "ERROR: The script requires a fits cube with 3 or 4 axis. Abort")
 
     # size of image
     image_shape = np.shape(fits_hdulist[0].data)
@@ -122,14 +120,13 @@ def get_sdss_sources(cfg_par):
     # get image
     image = fits_hdulist[0].data[0]
 
-
     # get coordinates from image
     # image_coordinates_1 = wcs.wcs_pix2world([[0, 0, 0, 0]], 1)
     # image_coordinates_2 = wcs.wcs_pix2world(
     #     [[int(image_shape[-1]/2), int(image_shape[-2]/2), 0, 0]], 1)
     # image_coordinates_3 = wcs.wcs_pix2world(
     #     [[image_shape[-1]-1, image_shape[-2]-1, 0, 0]], 1)
-    
+
     # getting coordinates from cube with 3 axis only
     image_coordinates_1 = wcs.wcs_pix2world([[0, 0, 0]], 1)
     image_coordinates_2 = wcs.wcs_pix2world(
@@ -347,7 +344,7 @@ def get_sdss_sources(cfg_par):
 
                 # add the source number
                 ax.annotate("{0:d}".format(k+1), xy=(coord_radio_src[k].ra.value, coord_radio_src[k].dec.value), xycoords=ax.get_transform('fk5'),
-                            xytext=(1, 1), textcoords='offset points', ha='left', color="white", fontsize = 'small')
+                            xytext=(1, 1), textcoords='offset points', ha='left', color="white", fontsize='small')
 
         print("Plotting sdss sources")
         # add the SDSS sources
@@ -358,18 +355,18 @@ def get_sdss_sources(cfg_par):
 
         # plot the sdss sources
         for k in range(n_sdss_src):
-            if k==0:
-                labelName_sdss ='SDSS sources'
+            if k == 0:
+                labelName_sdss = 'SDSS sources'
             else:
                 labelName_sdss = None
             ax.plot(coord_sdss_src[k].ra.value, coord_sdss_src[k].dec.value, transform=ax.get_transform('fk5'), marker="s",
-                    markeredgecolor='gray', markerfacecolor='none', markersize=5, zorder=1,label=labelName_sdss)
+                    markeredgecolor='gray', markerfacecolor='none', markersize=5, zorder=1, label=labelName_sdss)
 
         # check if there was a match performed with SDSS and radio
         if cfg_par[key]['match_cat']:
             # file name
             radio_sdss_src_cat_file = "{0:s}abs/{1:s}_radio_sdss_src.csv".format(
-                sharpDir, workdir.split('/')[-2])
+                sharpDir, cfg_par["General"]['label'])
 
             radio_sdss_src_cat = Table.read(
                 radio_sdss_src_cat_file, format="csv")
@@ -378,26 +375,27 @@ def get_sdss_sources(cfg_par):
             match_indices = np.where(radio_sdss_src_cat['sdss_ra'] != 0.)[0]
             if match_indices == 0:
                 print("# NO SDSS sources match with radio catalogue in frequency range")
-            counter=0 
+            counter = 0
             for index in match_indices:
                 # create a SkyCoord object to convert the coordinates from string to float
 
                 coord_sdss_src = SkyCoord(
                     radio_sdss_src_cat[index]['sdss_ra'], radio_sdss_src_cat[index]['sdss_dec'], unit=(u.deg, u.deg), frame='fk5')
-                
+
                 print("\t MATCH: Source #{0:d}".format(index+1))
-                if counter==0:
-                    labelName ='Matching sources'
+                if counter == 0:
+                    labelName = 'Matching sources'
                 else:
                     labelName = None
 
                 ax.plot(coord_sdss_src.ra.value, coord_sdss_src.dec.value, transform=ax.get_transform('fk5'), marker="x",
-                        markeredgecolor='orange', markerfacecolor='orange', markersize=10, zorder=2,label=labelName)
-                counter+=1
-        
-        legend = ax.legend(loc='best', handlelength=0.0, handletextpad=0.6, frameon=False, edgecolor="grey", fontsize='small')
+                        markeredgecolor='orange', markerfacecolor='orange', markersize=10, zorder=2, label=labelName)
+                counter += 1
+
+        legend = ax.legend(loc='best', handlelength=0.0, handletextpad=0.6,
+                           frameon=False, edgecolor="grey", fontsize='small')
         legend.get_frame().set_facecolor('none')
-        
+
         output = "{0:s}{1:s}_continuum_and_sdss.png".format(cfg_par['general'].get(
             'plotdir'), cfg_par['general']['label'])
 
@@ -423,22 +421,21 @@ def match_sdss_to_radio(cfg_par):
     key = "sdss_match"
 
     workdir = cfg_par['general']['workdir']
-    sharpDir =workdir+'sharpOut/'
+    sharpDir = workdir+'sharpOut/'
 
     # sdss source file
-    sdss_src_cat_file = "{0:s}abs/sdss_src.csv".format(
-        sharpDir)
+    sdss_src_cat_file = os.path.join(self.absdir, "sdss_src.csv")
 
     sdss_src_cat = Table.read(sdss_src_cat_file, format='csv')
 
     # radio source cat
-    radio_src_cat_file = "{0:s}abs/mir_src_sharp.csv".format(sharpDir)
+    radio_src_cat_file = os.path.join(self.absdir, "/mir_src_sharp.csv")
 
     radio_src_cat = Table.read(radio_src_cat_file, format='csv')
 
     # output file
-    radio_sdss_src_cat_file = "{0:s}abs/radio_sdss_src_match.csv".format(
-        sharpDir)
+    radio_sdss_src_cat_file = os.path.join(
+        self.absdir, "radio_sdss_src_match.csv")
 
     # Match radio and SDSS by going through the radio sources
     # +++++++++++++++++++++++++++++++++++++++++++++++++++++++
