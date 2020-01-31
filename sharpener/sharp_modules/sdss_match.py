@@ -333,13 +333,17 @@ def get_sdss_sources(cfg_par):
 
         # go through radio sources and plot them
         for k in range(n_radio_src):
+            if k == 0:
+                labelName_radio = 'Radio sources'
+            else:
+                labelName_radio = None
 
             # check that the radio sources are in the plot range
             if (coord_radio_src[k].ra.value >= image_coordinates_max.ra.value) and (coord_radio_src[k].ra.value <= image_coordinates_min.ra.value) and (coord_radio_src[k].dec.value >= image_coordinates_min.dec.value) and (coord_radio_src[k].dec.value <= image_coordinates_max.dec.value):
 
                 # plot the sources
                 ax.plot(coord_radio_src[k].ra.value, coord_radio_src[k].dec.value, transform=ax.get_transform('fk5'),
-                        marker='o', markeredgecolor='red', markerfacecolor='none', zorder=3, markersize=5)
+                        marker='o', markeredgecolor='red', markerfacecolor='none', zorder=3, markersize=5, label=labelName_radio)
 
                 # add the source number
                 ax.annotate("{0:d}".format(k+1), xy=(coord_radio_src[k].ra.value, coord_radio_src[k].dec.value), xycoords=ax.get_transform('fk5'),
@@ -355,11 +359,11 @@ def get_sdss_sources(cfg_par):
         # plot the sdss sources
         for k in range(n_sdss_src):
             if k==0:
-                labelName ='SDSS sources'
+                labelName_sdss ='SDSS sources'
             else:
-                labelName = None
+                labelName_sdss = None
             ax.plot(coord_sdss_src[k].ra.value, coord_sdss_src[k].dec.value, transform=ax.get_transform('fk5'), marker="s",
-                    markeredgecolor='gray', markerfacecolor='none', markersize=5, zorder=1,label=labelName)
+                    markeredgecolor='gray', markerfacecolor='none', markersize=5, zorder=1,label=labelName_sdss)
 
         # check if there was a match performed with SDSS and radio
         if cfg_par[key]['match_cat']:
@@ -390,7 +394,7 @@ def get_sdss_sources(cfg_par):
                 ax.plot(coord_sdss_src.ra.value, coord_sdss_src.dec.value, transform=ax.get_transform('fk5'), marker="x",
                         markeredgecolor='orange', markerfacecolor='orange', markersize=10, zorder=2,label=labelName)
                 counter+=1
-        legend = ax.legend(loc='best',handlelength=0.0, handletextpad=0.6,frameon=False, fontsize = 'small')
+        legend = ax.legend(loc='best', handlelength=0.0, handletextpad=0.6, frameon=False, edgecolor="grey", fontsize='small', font)
         legend.get_frame().set_facecolor('none')
         
         output = "{0:s}{1:s}_continuum_and_sdss.png".format(cfg_par['general'].get(
