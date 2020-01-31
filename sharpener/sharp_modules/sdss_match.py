@@ -368,7 +368,7 @@ def get_sdss_sources(cfg_par):
         if cfg_par[key]['match_cat']:
             # file name
             radio_sdss_src_cat_file = os.path.join(
-                absdir, "{0}_radio_sdss_src.csv".format(cfg_par['general']['label']))
+                absdir, "radio_sdss_src.csv")
 
             radio_sdss_src_cat = Table.read(
                 radio_sdss_src_cat_file, format="csv")
