@@ -230,6 +230,10 @@ def get_sdss_sources(cfg_par):
     # save file or just print it
     sdss_cat.write(output_file_name, format="csv", overwrite=True)
 
+    # check that the file is there
+    if not os.path.exists(output_file_name):
+        raise RuntimeError("Could not find {}".format(output_file_name))
+
     # close file
     fits_hdulist.close()
 
