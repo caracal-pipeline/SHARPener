@@ -478,7 +478,7 @@ def abs_plot(spec_name, cfg_par):
             #     0.05, 0.95), xycoords='axes fraction', ha='left')
 
             if cfg_par[key]['title'] == True:
-                ax[0][0].set_title(plot_title), fontsize=font_size+2)
+                ax[0][0].set_title(plot_title, fontsize=font_size+2)
 
             # go through the rest of the plots and create them
             for plot_count in range(n_rows):
