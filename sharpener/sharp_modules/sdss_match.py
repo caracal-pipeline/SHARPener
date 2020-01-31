@@ -382,7 +382,7 @@ def get_sdss_sources(cfg_par):
 
             # get indices for which there was a match
             match_indices = np.where(radio_sdss_src_cat['sdss_ra'] != 0.)[0]
-            if match_indices == 0:
+            if len(match_indices) == 0:
                 print("# NO SDSS sources match with radio catalogue in frequency range")
             counter = 0
             for index in match_indices:
