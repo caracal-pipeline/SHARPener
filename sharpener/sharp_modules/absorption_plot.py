@@ -325,6 +325,7 @@ def abs_plot(spec_name, cfg_par):
         print("# Plotting spectrum of {}".format(os.path.basename(spec_name)))
 
         spec_vec = ascii.read(spec_name)
+        key_name_noise = "Noise [Jy]"
         x_data = np.array(spec_vec[spec_vec.colnames[0]], dtype=float)
         n_channels = np.size(x_data)
 
@@ -367,8 +368,8 @@ def abs_plot(spec_name, cfg_par):
         ylabh.set_verticalalignment('center')
 
         # Plot spectra
-#                if self.abs_ex_plot_linestyle == 'step':
-        # ax1.plot(x_data, y_data, color='black', linestyle='-')
+        # if self.abs_ex_plot_linestyle == 'step':
+        #   ax1.plot(x_data, y_data, color='black', linestyle='-')
 
         if flag_chans != None:
             flag_chans = np.array(flag_chans)
@@ -423,8 +424,10 @@ def abs_plot(spec_name, cfg_par):
         # Add title
         src_id = int(os.path.basename(spec_name).split('_')[0]) + 1
         src_continuum_peak = radio_src_cat[np.where(radio_src_cat["ID"]==src_id)]['peak'][0]
-        plot_title = "{0:s} (\#{1}): {2:s} (peak {3:.1f}mJy/beam)".format(cfg_par['general']['label'], src_id, os.path.basename(spec_name).replace(
-            '.txt', '').split('_')[-1], src_continuum_peak*1.e3)
+        mean_noise = np.nanmean(spec_vec[key_name_noise])
+        median_noise = np.nanmedian(spec_vec[key_name_noise])
+        plot_title = "{0:s} (\#{1}): {2:s}\n (cont peak {3:.1f}mJy/beam)\n spec noise mean: {4:.2f}, median: {5:.2f}mJy/beam/ch)".format(cfg_par['general']['label'], src_id, os.path.basename(spec_name).replace(
+            '.txt', '').split('_')[-1], src_continuum_peak*1.e3, mean_noise*1.e3, median_noise*1.e3)
         if cfg_par[key]['title'] == True:
             ax1.set_title(plot_title, fontsize=font_size+2)
             # if self.abs_ex_plot_title == True:
