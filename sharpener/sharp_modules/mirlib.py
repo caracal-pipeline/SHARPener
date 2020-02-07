@@ -10,7 +10,7 @@ import numpy as np
 import imp
 deg2rad = np.pi/180.
 # Its rather messy to reload the logging library, but is necessary if the logger is going to work.
-imp.reload(logging)
+# imp.reload(logging)
 
 print 'Setup logger with lib.setup_logger()'
 
