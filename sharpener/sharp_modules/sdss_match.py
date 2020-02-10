@@ -221,24 +221,24 @@ def get_sdss_sources(cfg_par):
     n_sdss_src = np.size(sdss_cat['ra'])
 
     if n_sdss_src == 0:
-        print('No SDSS source found.')
-        raise RuntimeError("No SDSS sources found")
+        print('Warning: No SDSS source found.')
+        # raise RuntimeError("No SDSS sources found")
     else:
         print("There are {0:d} SDSS source in the given image field and redshift range".format(
             n_sdss_src))
 
-    # save file or just print it
-    sdss_cat.write(output_file_name, format="csv", overwrite=True)
+        # save file or just print it
+        sdss_cat.write(output_file_name, format="csv", overwrite=True)
 
-    # check that the file is there
-    if not os.path.exists(output_file_name):
-        raise RuntimeError("Could not find {}".format(output_file_name))
+        # check that the file is there
+        if not os.path.exists(output_file_name):
+            raise RuntimeError("Could not find {}".format(output_file_name))
 
     # close file
     fits_hdulist.close()
 
     # match sdss and radio
-    if cfg_par[key]['match_cat']:
+    if cfg_par[key]['match_cat'] and n_sdss_src != 0:
 
         print("Matching radio and SDSS catalogues")
         match_sdss_to_radio(cfg_par)
@@ -352,54 +352,57 @@ def get_sdss_sources(cfg_par):
                 ax.annotate("{0:d}".format(k+1), xy=(coord_radio_src[k].ra.value, coord_radio_src[k].dec.value), xycoords=ax.get_transform('fk5'),
                             xytext=(1, 1), textcoords='offset points', ha='left', color="white", fontsize='small')
 
-        print("Plotting sdss sources")
-        # add the SDSS sources
+        if n_sdss_src:
+            print("Plotting sdss sources")
+            # add the SDSS sources
 
-        # create a SkyCoord object to convert the coordinates from string to float
-        coord_sdss_src = SkyCoord(
-            sdss_cat['ra'], sdss_cat['dec'], unit=(u.deg, u.deg), frame='fk5')
+            # create a SkyCoord object to convert the coordinates from string to float
+            coord_sdss_src = SkyCoord(
+                sdss_cat['ra'], sdss_cat['dec'], unit=(u.deg, u.deg), frame='fk5')
 
-        # plot the sdss sources
-        for k in range(n_sdss_src):
-            if k == 0:
-                labelName_sdss = 'SDSS sources'
-            else:
-                labelName_sdss = None
-            ax.plot(coord_sdss_src[k].ra.value, coord_sdss_src[k].dec.value, transform=ax.get_transform('fk5'), marker="s",
-                    markeredgecolor='gray', markerfacecolor='none', markersize=5, zorder=1, label=labelName_sdss)
-
-        # check if there was a match performed with SDSS and radio
-        if cfg_par[key]['match_cat']:
-
-            print("Plotting matching sources")
-
-            # file name
-            radio_sdss_src_cat_file = os.path.join(
-                absdir, "radio_sdss_src_match.csv")
-
-            radio_sdss_src_cat = Table.read(
-                radio_sdss_src_cat_file, format="csv")
-
-            # get indices for which there was a match
-            match_indices = np.where(radio_sdss_src_cat['sdss_ra'] != 0.)[0]
-            if len(match_indices) == 0:
-                print("# NO SDSS sources match with radio catalogue in frequency range")
-            counter = 0
-            for index in match_indices:
-                # create a SkyCoord object to convert the coordinates from string to float
-
-                coord_sdss_src = SkyCoord(
-                    radio_sdss_src_cat['sdss_ra'][index], radio_sdss_src_cat['sdss_dec'][index], unit=(u.deg, u.deg), frame='fk5')
-
-                print("\t MATCH: Source #{0:d}".format(index+1))
-                if counter == 0:
-                    labelName = 'Matching sources'
+            # plot the sdss sources
+            for k in range(n_sdss_src):
+                if k == 0:
+                    labelName_sdss = 'SDSS sources'
                 else:
-                    labelName = None
+                    labelName_sdss = None
+                ax.plot(coord_sdss_src[k].ra.value, coord_sdss_src[k].dec.value, transform=ax.get_transform('fk5'), marker="s",
+                        markeredgecolor='gray', markerfacecolor='none', markersize=5, zorder=1, label=labelName_sdss)
 
-                ax.plot(coord_sdss_src.ra.value, coord_sdss_src.dec.value, transform=ax.get_transform('fk5'), marker="x",
-                        markeredgecolor='orange', markerfacecolor='orange', markersize=8, zorder=2, label=labelName)
-                counter += 1
+            # check if there was a match performed with SDSS and radio
+            if cfg_par[key]['match_cat']:
+
+                print("Plotting matching sources")
+
+                # file name
+                radio_sdss_src_cat_file = os.path.join(
+                    absdir, "radio_sdss_src_match.csv")
+
+                radio_sdss_src_cat = Table.read(
+                    radio_sdss_src_cat_file, format="csv")
+
+                # get indices for which there was a match
+                match_indices = np.where(
+                    radio_sdss_src_cat['sdss_ra'] != 0.)[0]
+                if len(match_indices) == 0:
+                    print(
+                        "# NO SDSS sources match with radio catalogue in frequency range")
+                counter = 0
+                for index in match_indices:
+                    # create a SkyCoord object to convert the coordinates from string to float
+
+                    coord_sdss_src = SkyCoord(
+                        radio_sdss_src_cat['sdss_ra'][index], radio_sdss_src_cat['sdss_dec'][index], unit=(u.deg, u.deg), frame='fk5')
+
+                    print("\t MATCH: Source #{0:d}".format(index+1))
+                    if counter == 0:
+                        labelName = 'Matching sources'
+                    else:
+                        labelName = None
+
+                    ax.plot(coord_sdss_src.ra.value, coord_sdss_src.dec.value, transform=ax.get_transform('fk5'), marker="x",
+                            markeredgecolor='orange', markerfacecolor='orange', markersize=8, zorder=2, label=labelName)
+                    counter += 1
 
         legend = ax.legend(loc='best', handlelength=0.0, handletextpad=0.6,
                            frameon=False, edgecolor="grey", fontsize='small')
