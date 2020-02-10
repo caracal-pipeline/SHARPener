@@ -172,67 +172,67 @@ def get_sdss_sources(cfg_par):
     n_sdss_src = np.size(sdss_cat['ra'])
 
     if n_sdss_src == 0:
-        print("# NO SDSS sources found. Abort")
-        return -1
-
-    # Process SDSS sources
-    # ++++++++++++++++++++++++++
-    print("## Process SDSS catalogue")
-
-    # Match the SDSS sources redshift to the redshift range
-    print("Matching SDSS sources to redshift range")
-    sdss_cat = sdss_cat[np.where(
-        (sdss_cat['z'] > z_min) & (sdss_cat['z'] < z_max))]
-
-    # check that all sources are within the coordinate range of the image
-    print("Matching SDSS sources to image size")
-    sdss_cat = sdss_cat[np.where((sdss_cat['ra'] > image_coordinates_max.ra.value) & (
-        sdss_cat['ra'] < image_coordinates_min.ra.value))]
-    sdss_cat = sdss_cat[np.where((sdss_cat['dec'] > image_coordinates_min.dec.value) & (
-        sdss_cat['dec'] < image_coordinates_max.dec.value))]
-
-    # get the number of sources
-    n_sdss_src = np.size(sdss_cat['ra'])
-
-    # Removing those sources where there are no image values
-    # Necessary, because of the shape of the mosaic
-    print("Removing SDSS sources from where images is empty")
-    src_list_keep = np.array([], dtype=int)
-    for k in range(n_sdss_src):
-
-        # get pixel from coordinates
-        # image_pixel = wcs.wcs_world2pix(
-        #     [[sdss_cat['ra'][k], sdss_cat['dec'][k], 0, 0]], 1)
-        image_pixel = wcs.wcs_world2pix(
-            [[sdss_cat['ra'][k], sdss_cat['dec'][k], 0]], 1)
-
-        if image_pixel[0][1] < image_shape[-2] and image_pixel[0][0] < image_shape[-1]:
-
-            # get the image value
-            image_value = image[int(
-                image_pixel[0][1])][int(image_pixel[0][0])]
-
-            if not np.isnan(image_value):
-                src_list_keep = np.append(src_list_keep, k)
-
-    sdss_cat = sdss_cat[src_list_keep]
-
-    # get the number of sources
-    n_sdss_src = np.size(sdss_cat['ra'])
-
-    if n_sdss_src == 0:
-        print('Warning: No SDSS source found.')
-        # raise RuntimeError("No SDSS sources found")
+        print("WARNING: No SDSS sources found")
     else:
-        print("There are {0:d} SDSS source in the given image field and redshift range".format(
-            n_sdss_src))
+        # Process SDSS sources
+        # ++++++++++++++++++++++++++
+        print("## Process SDSS catalogue")
 
-        # save file or just print it
-        sdss_cat.write(output_file_name, format="csv", overwrite=True)
+        # Match the SDSS sources redshift to the redshift range
+        print("Matching SDSS sources to redshift range")
+        sdss_cat = sdss_cat[np.where(
+            (sdss_cat['z'] > z_min) & (sdss_cat['z'] < z_max))]
 
-        # check that the file is there
-        if not os.path.exists(output_file_name):
-            raise RuntimeError("Could not find {}".format(output_file_name))
+        # check that all sources are within the coordinate range of the image
+        print("Matching SDSS sources to image size")
+        sdss_cat = sdss_cat[np.where((sdss_cat['ra'] > image_coordinates_max.ra.value) & (
+            sdss_cat['ra'] < image_coordinates_min.ra.value))]
+        sdss_cat = sdss_cat[np.where((sdss_cat['dec'] > image_coordinates_min.dec.value) & (
+            sdss_cat['dec'] < image_coordinates_max.dec.value))]
+
+        # get the number of sources
+        n_sdss_src = np.size(sdss_cat['ra'])
+
+        # Removing those sources where there are no image values
+        # Necessary, because of the shape of the mosaic
+        print("Removing SDSS sources from where images is empty")
+        src_list_keep = np.array([], dtype=int)
+        for k in range(n_sdss_src):
+
+            # get pixel from coordinates
+            # image_pixel = wcs.wcs_world2pix(
+            #     [[sdss_cat['ra'][k], sdss_cat['dec'][k], 0, 0]], 1)
+            image_pixel = wcs.wcs_world2pix(
+                [[sdss_cat['ra'][k], sdss_cat['dec'][k], 0]], 1)
+
+            if image_pixel[0][1] < image_shape[-2] and image_pixel[0][0] < image_shape[-1]:
+
+                # get the image value
+                image_value = image[int(
+                    image_pixel[0][1])][int(image_pixel[0][0])]
+
+                if not np.isnan(image_value):
+                    src_list_keep = np.append(src_list_keep, k)
+
+        sdss_cat = sdss_cat[src_list_keep]
+
+        # get the number of sources
+        n_sdss_src = np.size(sdss_cat['ra'])
+
+        if n_sdss_src == 0:
+            print('Warning: No SDSS source found.')
+            # raise RuntimeError("No SDSS sources found")
+        else:
+            print("There are {0:d} SDSS source in the given image field and redshift range".format(
+                n_sdss_src))
+
+            # save file or just print it
+            sdss_cat.write(output_file_name, format="csv", overwrite=True)
+
+            # check that the file is there
+            if not os.path.exists(output_file_name):
+                raise RuntimeError(
+                    "Could not find {}".format(output_file_name))
 
     # close file
     fits_hdulist.close()
