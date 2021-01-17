@@ -158,18 +158,23 @@ def get_sdss_sources(cfg_par):
     sdss_cat = SDSS.query_region(
         image_coordinates_center, radius=image_radius, spectro=True, timeout=int(cfg_par[key]['sdss_query_timeout']))
 
-    print("Query SDSS catalogue ... Done {0:.1f}s".format(
+    print("Query SDSS catalogue ... Done {0:.1f }s".format(
         time.time()-start_time_query))
 
-    # check that all sources are within the coordinate range of the image
-    print("Matching SDSS sources to image size")
-    sdss_cat = sdss_cat[np.where((sdss_cat['ra'] > image_coordinates_max.ra.value) & (
-        sdss_cat['ra'] < image_coordinates_min.ra.value))]
-    sdss_cat = sdss_cat[np.where((sdss_cat['dec'] > image_coordinates_min.dec.value) & (
-        sdss_cat['dec'] < image_coordinates_max.dec.value))]
+    # Check that SDSS sources were found
+    if sdss_cat is None:
+        n_sdss_src = 0
+        print("WARNING: SDSS query did not return any sources.")
+    else:
+        # check that all sources are within the coordinate range of the image
+        print("Matching SDSS sources to image size")
+        sdss_cat = sdss_cat[np.where((sdss_cat['ra'] > image_coordinates_max.ra.value) & (
+            sdss_cat['ra'] < image_coordinates_min.ra.value))]
+        sdss_cat = sdss_cat[np.where((sdss_cat['dec'] > image_coordinates_min.dec.value) & (
+            sdss_cat['dec'] < image_coordinates_max.dec.value))]
 
-    # get the number of sources
-    n_sdss_src = np.size(sdss_cat['ra'])
+        # get the number of sources
+        n_sdss_src = np.size(sdss_cat['ra'])
 
     if n_sdss_src == 0:
         print("WARNING: No SDSS sources found")
@@ -246,7 +251,7 @@ def get_sdss_sources(cfg_par):
     # plot sdss sources
     if cfg_par[key]['plot_image']:
 
-        print("Plotting SDSS and radio")
+        print("Plotting SDSS and radio sources")
 
         # open continuum image
         # ++++++++++++++++++++
