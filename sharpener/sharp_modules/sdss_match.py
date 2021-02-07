@@ -158,7 +158,7 @@ def get_sdss_sources(cfg_par):
     sdss_cat = SDSS.query_region(
         image_coordinates_center, radius=image_radius, spectro=True, timeout=int(cfg_par[key]['sdss_query_timeout']))
 
-    print("Query SDSS catalogue ... Done {0:.1f }s".format(
+    print("Query SDSS catalogue ... Done {0:.1f}s".format(
         time.time()-start_time_query))
 
     # Check that SDSS sources were found
