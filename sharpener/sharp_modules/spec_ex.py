@@ -277,7 +277,6 @@ def abs_ex(cfg_par):
 
                     else :
 
-                        print('correctasdfasdfasdfa')
                         for j in range(0, z):
                             chrom_aber = cfg_par[key].get('chrom_aberration', False)
                             #correct for chromatic aberration
