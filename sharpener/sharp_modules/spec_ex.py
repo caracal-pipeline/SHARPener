@@ -89,7 +89,7 @@ def abs_ex(cfg_par):
 
         if cfg_par['spec_ex']['noise'] !='madfm':
 
-            noisename = cfg_par['spec_ex'].get('noine',None)
+            noisename = cfg_par['spec_ex']['noise']
             noisefile = fits.open(noisename)  # read input
             sci_noise = noisefile[0].data 
             sci_noise = sci.squeeze()
