@@ -87,7 +87,7 @@ def abs_ex(cfg_par):
         sci = cubefile[0].data 
         sci = sci.squeeze()
 
-        if cfg_par['spec_ex']['noise']:
+        if cfg_par['spec_ex']['noise'] !='madfm':
 
             noisename = cfg_par['spec_ex'].get('noine',None)
             noisefile = fits.open(noisename)  # read input
@@ -275,7 +275,8 @@ def abs_ex(cfg_par):
                         else:
                             madfm[j] = 0.0
 
-                    else cfg_par['spec_ex']['noise']:
+                    else :
+
                         print('correctasdfasdfasdfa')
                         for j in range(0, z):
                             chrom_aber = cfg_par[key].get('chrom_aberration', False)
