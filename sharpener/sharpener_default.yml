@@ -1,0 +1,69 @@
+general:
+  __helpstr: General INPUT directories and filenames
+  workdir:  <path-to-working-directory> # outputs will be stored here
+  contname: <continuumImage>.fits # name of continuum image (assumed stored in workdir)
+  cubename: <cube>.fits # name of datacube (assumed stored in workdir)
+  verbose: false
+  label: SHARP        # This will appear in plot titles
+source_finder:
+  __helpstr: Find sources in continuum image using miriad imsad
+  clip: 5e-3
+  enable: true
+  options: null
+  region: null
+source_catalog:
+  __helpstr: Find sources in a f.o.v. from source_catalog NVSS or load PYBDSF output
+  catalog: NVSS #NVSS or PYBDSF
+  catalog_file: cat_src_sharpener.txt # catalog name for PYBDSF output
+  enable: false 
+  thresh: 30
+  width: 1.2d
+simulate_continuum:
+  __helpstr: Simulate continuum from source catalog output
+  enable: true
+  npix: 900
+  cell: 2
+spec_ex:
+  __helpstr: Extract spectra from datacube
+  chrom_aberration: true
+  enable: true
+  flag_chans: null
+  zunit: m/s
+  noise_delta_pix: 6
+  noise_delta_skip: 6
+  sigma_finder: 5
+  sharp_finder: True
+abs_plot:
+  __helpstr: plot spectra from folder plot in workdir/sharpOut/plot/
+  enable: true
+  redshift_sources:
+  - 800 
+  - 2200 
+  title: true
+  channels_per_plot: 50
+  fixed_scale: false
+  detailed_plot: true
+  plot_format: png 
+  plot_contImage: true #set to true to enable plot of continuum image (even if the continuum image is not provided)
+  zunit: m/s
+  merge_plots: true
+  sigma_detection_limit: 3
+  dv_det_limit: 5
+polynomial_subtraction:
+  __helpstr: Subtract polynomial from spectrum to improve continuum subtraction
+  degree_pol: 3
+  enable: false
+hanning:
+  __helpstr: Hanning smoothing spectrum
+  enable: false
+  window: 3
+sdss_match:
+  __helpstr: Gets the SDSS sources for a given cube
+  enable: false
+  freq_min: 1130.0
+  freq_max: 1430.0
+  plot_image: true
+  match_cat: true
+  max_sep: 30
+  min_radio_flux: 0
+  sdss_query_timeout: 300
