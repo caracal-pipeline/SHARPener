@@ -33,6 +33,7 @@ spec_ex:
   noise_delta_skip: 6
   sigma_finder: 5
   sharp_finder: True
+  noise: madfm
 abs_plot:
   __helpstr: plot spectra from folder plot in workdir/sharpOut/plot/
   enable: true
