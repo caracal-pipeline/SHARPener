@@ -305,7 +305,7 @@ def abs_ex(cfg_par):
                             
                             if  (0 < pix_x < x and
                                  0 < pix_y < y): 
-                                madfm[j] = sci_noisex[j, pix_y, pix_x]
+                                madfm[j] = sci_noise[j, pix_y, pix_x]
                             else:
                                 madfm[j] = 0.0
 
