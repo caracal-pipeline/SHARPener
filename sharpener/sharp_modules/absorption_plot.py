@@ -21,6 +21,10 @@ from matplotlib import pyplot as plt
 from matplotlib import rc
 import matplotlib.colors as mc
 
+
+from astropy import units as u
+from astropy.coordinates import Angle
+
 import pypdf 
 from sharpener.sharp_modules import convert_units as conv_units
 from sharpener.sharp_modules import hi 
@@ -120,10 +124,10 @@ def create_all_abs_plots(cfg_par):
         # print(src_list)
         # src_list = os.path.basename(src_list)
     
-    # for i in range (0, len(src_list)):
-    #     specName = cfg_par['general']['specdir']+os.path.basename(src_list[i])
-    #     if os.path.exists(specName):
-    #         abs_plot(specName, cfg_par)
+    for i in range (0, len(src_list)):
+        specName = cfg_par['general']['specdir']+os.path.basename(src_list[i])
+        if os.path.exists(specName):
+            abs_plot(specName, cfg_par)
 
     if cfg_par['abs_plot']['plot_contImage'] == True:
         plot_continuum(cfg_par)
@@ -768,3 +772,107 @@ def abs_plot(spec_name, cfg_par):
             print('# Plotted spectrum of source ' + os.path.basename(spec_name)+'. #')
     else:
         print('# Missing spectrum of source ' + os.path.basename(spec_name)+'. #')
+
+
+#######################################################################
+##### Functions to plot spectra                                   #####
+#######################################################################         
+
+def plot_stack(cfg_par,stack_name):
+    
+    spec_vec=ascii.read(stack_name)
+
+    x_data = np.array(spec_vec[spec_vec.colnames[0]], dtype=float)
+    y_data = np.array(spec_vec[spec_vec.colnames[1]], dtype=float)
+    y_sigma = np.array(spec_vec[spec_vec.colnames[2]], dtype=float)
+
+    params = {
+        'figure.autolayout' : True,
+        'figure.facecolor': 'white',
+        'pdf.fonttype'        : 3,
+        # 'font.serif'          :'times',
+        'font.style'          : 'normal',
+        'font.weight'         : 'book',
+        'font.size'           : 10,
+        'axes.linewidth'      : 1.5,
+        'lines.linewidth'     : 1.,
+        'xtick.labelsize'     : 10,
+        'ytick.labelsize'     : 10,
+        'legend.fontsize'     : 10, 
+        'xtick.direction'     :'in',
+        'ytick.direction'     :'in',
+        'xtick.major.size'    : 3,
+        'xtick.major.width'   : 1.5,
+        'xtick.minor.size'    : 2.5,
+        'xtick.minor.width'   : 1.,
+        'ytick.major.size'    : 3,
+        'ytick.major.width'   : 1.5,
+        'ytick.minor.size'    : 2.5,
+        'ytick.minor.width'   : 1., 
+        'text.usetex'         : True,
+        'text.latex.preamble' : r'\usepackage{amsmath}',
+        'text.latex.preamble' : r'\usepackage{lmodern}',    # latin modern, recommended to replace computer modern sans serif
+        'text.latex.preamble' : r'\usepackage{helvet}',    # set the normal font here
+         }
+    plt.rcParams.update(params)
+
+    
+    line_size = 2
+
+      # initialize figure
+    font_size = 16
+    plt.ioff()
+    plt.rc('xtick', labelsize=font_size-2)
+    plt.rc('ytick', labelsize=font_size-2)
+
+    
+    # Initialize subplots
+    fig, ax1 = plt.subplots(figsize=(12, 6))
+
+    ax1.set_xlabel(r'Velocity$\,[\mathrm{km}\,\mathrm{s}^{-1}]$', fontsize=params['font.size'])                
+    
+    # set y-label
+    ylabh = ax1.set_ylabel(r'$\tau$', fontsize=params['font.size']+2)          
+    ylabh.set_verticalalignment('center')
+
+    # Calculate axis limits and aspect ratio
+    x_min = np.min(x_data)
+    x_max = np.max(x_data)
+    y1_array = y_data[np.where((x_data>x_min) & (x_data<x_max))]
+    y1_min = np.min(y1_array)*1.1
+    y1_max = np.max(y1_array)*1.1
+
+    # Set axis limits
+    ax1.set_xlim(-cfg_par['stacking']['velrange']-20, cfg_par['stacking']['velrange']+20)
+    ax1.set_ylim(y1_min, y1_max)
+    ax1.xaxis.labelpad = 6
+    ax1.yaxis.labelpad = 10
+
+    # Plot spectra 
+    # if abstack_plot_linestyle == 'step':
+    ax1.step(x_data, y_data, where='mid', color='black', linestyle='-')
+    # else:
+    #     ax1.plot(x_data, y_data, color='black', linestyle='-')
+
+    # Plot noise
+    # ax1.fill_between(x_data, -y_sigma, y_sigma, facecolor='grey', alpha=0.5)
+
+    #add vertical line at redshift of source
+    ax1.axvline(color='k',linestyle=':', zorder = 0, lw=2)
+    ax1.axhline(color='k', linestyle=':', zorder=0, lw=2)
+
+    # Add title        
+    if cfg_par['stacking']['plot_title'] != 'None':
+        ax1.set_title(cfg_par['stacking']['plot_title'], fontsize=params['font.size']+2) 
+    ax1.axes.titlepad = 8
+
+    # Add minor tick marks
+    ax1.minorticks_on()
+
+    # Save figure to file
+    out_stack_spec_plot= cfg_par['general']['plotdir']+'stacked_spectrum.'+cfg_par['abs_plot']['plot_format']   
+    print(out_stack_spec_plot)
+    plt.show()
+    plt.savefig(out_stack_spec_plot,bbox_inches='tight', dpi=100)
+
+    return 0

@@ -120,6 +120,8 @@ class sharpener:
         self.cfg_par[key]['specdir'] = self.specdir
         self.plotdir = self.sharpdir+'plot/'
         self.cfg_par[key]['plotdir'] = self.plotdir
+        self.stackdir = self.sharpdir+'stacking/'
+        self.cfg_par[key]['stackdir'] = self.stackdir
 
         if os.path.exists(self.sharpdir) == False:
             os.makedirs(self.sharpdir)
@@ -129,6 +131,8 @@ class sharpener:
             os.makedirs(self.specdir)
         if os.path.exists(self.plotdir) == False:
             os.makedirs(self.plotdir)
+        if os.path.exists(self.stackdir) == False:
+            os.makedirs(self.stackdir)
 
     def go(self, cfg_par):
         '''
@@ -177,6 +181,12 @@ class sharpener:
             for i in xrange(0, len(spectra)):
                 spectra[i] = os.path.basename(spectra[i])
                 abs_plot.absorption_plot(spectra[i], self.cfg_par)
+
+        task = 'stacking' 
+        if self.enable_task(self.cfg_par, task) == True:
+            
+            stacked_spectrum = spec_ex.stacking(self.cfg_par)
+            abs_plot.plot_stack(self.cfg_par,stacked_spectrum)
 
         # Find continuum sources
         # ++++++++++++++++++++++

@@ -58,6 +58,13 @@ hanning:
   __helpstr: Hanning smoothing spectrum
   enable: false
   window: 3
+stacking:
+  __helpstr: Stack spectra from catalogue
+  enable: false
+  catalog_file: cat_src_sharpener.txt # catalog name for PYBDSF output
+  velrange: 500
+  stack_vel: 1637
+  plot_title: 'f35_los'
 sdss_match:
   __helpstr: Gets the SDSS sources for a given cube
   enable: false

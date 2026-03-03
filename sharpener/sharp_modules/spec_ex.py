@@ -28,6 +28,9 @@ from matplotlib import gridspec
 from matplotlib import pyplot as plt
 from matplotlib import rc
 
+from astropy import units as u
+from astropy.coordinates import Angle
+
 from scipy.signal import find_peaks
 import pandas as pd
 hi = hi.hi()
@@ -89,7 +92,7 @@ def abs_ex(cfg_par):
 
         if cfg_par['spec_ex']['noise'] !='madfm':
 
-            noisename = cfg_par['spec_ex']['noise']
+            noisename = cfg_par['general']['workdir']+cfg_par['spec_ex']['noise']
             noisefile = fits.open(noisename)  # read input
             sci_noise = noisefile[0].data 
             sci_noise = sci.squeeze()
@@ -564,56 +567,146 @@ def poly_sub(cfg_par,x, y,deg):
 
         return cont_sub
 
-# def blind_stack(cfg_par,spectra):
-#         '''
-#         Stack spectra of sources in a given catalogue
 
-#         INPUT:
-#             parameter file
+def res_spec(specNames):
+    resolution=[]
+    for i in range (0, len(specNames)):
+
+        if os.path.exists(specNames[i]) == True:
+            spec_vec = ascii.read(specNames[i])
+            freq_spec = np.array(spec_vec[spec_vec.colnames[0]], dtype=float)
+
+            resolution.append(np.abs(freq_spec[0] - freq_spec[-1])/len(freq_spec))
+
+        else: 
+            continue         
         
-#         OUTPUT:
-#             stacked spectrum 
-#         '''
+    mean_resolution = np.mean(resolution)
 
+    return mean_resolution/1e3
 
-#         freq_spec,flux_spec,noise_spec = self.load_spectrum(in_spec,'freq')
- 
-#         #set final shifted array to stack
-#         stack_vec=np.zeros([len(freq_spec),3])
-#         stack_vec[:,1]=flux_spec
-#         stack_vec[:,2]=noise_spec
+def stacking(cfg_par):
+    '''
+    Stack spectra of sources in a given catalogue. Works only if extracted spectra are in velocity,
+    missing conversion from frequency to velocity.
 
-#         #stack and weight spectrum for its noise
-#         for j in xrange (0,self.len_stack_spec):
-#             if (stack_vec[j,1] != 0.0 and stack_vec[j,2] != 0.0):  
-#                 SummaSpect[j,0] += (stack_vec[j,1])/(np.power(stack_vec[j,2],2))
-#                 SummaSpect[j,1] +=  1./(np.power(stack_vec[j,2],2))        
-#             else:
-#                 pass
-#         #determine mean noise spectra
-#         self.noise_mean[i] = np.nanmean(noise_spec)
-
-#     else: 
-#         in_spec_tmp=string.split(in_spec,'/')
-#         self.logger.info('### Spectrum of source '+in_spec_tmp[-1]+' not found. ###')
-#         count_missing+=1
-#         continue
-
-#     #Weight final stacked spectrum                             
-#     for i in xrange (0,self.len_stack_spec):              
-#         if (SummaSpect[i,1] != 0.): 
-#             self.stack_spec[i,1] = (SummaSpect[i,0])/SummaSpect[i,1]
-#             self.stack_spec[i,2] = (SummaSpect[i,1]/(SummaSpect[i,1])**2 )**0.5
-#         else:
-#             self.stack_spec[i,1] = 0.0
-#             self.stack_spec[i,2] = 0.0
-
-#     self.numstack = len(self.noise_mean)-count_missing
-#     self.pred_noise =  np.divide(np.nanmean(self.noise_mean),np.sqrt(self.numstack))
+    INPUT:
+        parameter file
     
-#     self.logger.info('--> Stacked spectra = '+str(self.numstack))
-#     self.logger.info('--> Mean noise single spectra= '+str(np.nanmean(self.noise_mean)))
-#     self.logger.info('--> Expected noise STACKED spectrum  = '+str(self.pred_noise))
+    OUTPUT:
+        stacked spectrum 
+    '''
 
-#     self.write_stack(self.stack_spec)
 
+    catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),
+                                              cfg_par['stacking'].get('catalog_file'))
+    vot = Table.read(catalog_table)
+    i=0
+    src_list=[]
+    src_list_tmp=[]
+    flux_cont=[]
+    specNames=[]
+    for row in vot:
+        ra_deg_angle  = Angle((np.round(row['ra_peak'],2)) * u.deg)
+        dec_deg_angle = Angle((np.round(row['dec_peak'],4)) * u.deg)
+        ra_hms = ra_deg_angle.to_string(unit=u.hourangle, sep=':').split('.')[0]
+        dec_dms = dec_deg_angle.to_string(unit=u.degree, sep=':').split('.')[0]
+
+        J2000_name ='J{:s}{:s}'.format(ra_hms.replace(':', ''),dec_dms.replace(':', ''))
+        src_list_tmp = '{:d}_{:s}.txt'.format(i,J2000_name)
+        specName = cfg_par['general']['specdir']+src_list_tmp
+        if os.path.exists(specName):
+            src_list.append(src_list_tmp)
+            flux_cont.append(row['f_max'])
+            specNames.append(specName)
+
+        i+=1
+
+    mean_resolution = res_spec(specNames)
+
+    stack_freqs=np.arange(-cfg_par['stacking']['velrange'],cfg_par['stacking']['velrange']+mean_resolution,mean_resolution)
+    len_stack_spec=len(stack_freqs)
+
+    stack_spec = np.zeros([len_stack_spec,3])
+    stack_spec[:,0] = stack_freqs
+
+    # Define temporary array of stacked spectrum and noise
+    cen_index= len_stack_spec/2
+    SummaSpect=np.zeros([len_stack_spec,2])
+    
+    noise_mean = []
+    count_missing=0
+    for i in range(0,len(src_list)):
+
+        if os.path.exists(specNames[i]):
+            spec_vec = ascii.read(specNames[i])
+
+            freq_spec = np.array(spec_vec[spec_vec.colnames[0]], dtype=float)/1e3
+            flux_spec = np.array(spec_vec[spec_vec.colnames[1]], dtype=float)
+            noise_spec = np.array(spec_vec[spec_vec.colnames[2]], dtype=float)
+ 
+            ctr=np.abs(freq_spec - cfg_par['stacking']['stack_vel']).argmin() 
+            ctr= int(np.array(ctr).item())
+            
+            left=int(ctr-cen_index)     
+            right=int(ctr+cen_index)
+            
+
+            #set final shifted array to stack
+            stack_vec=np.zeros([len_stack_spec,3])
+            stack_vec[:,1]=flux_spec[left:right]
+            stack_vec[:,2]=noise_spec[left:right]
+
+            #stack and weight spectrum for its noise
+            for j in range (0,len_stack_spec):
+                if (stack_vec[j,1] != 0.0 and stack_vec[j,2] != 0.0):  
+                    SummaSpect[j,0] += (stack_vec[j,1])/(np.power(stack_vec[j,2],2))
+                    SummaSpect[j,1] +=  1./(np.power(stack_vec[j,2],2))        
+                else:
+                    pass
+            #determine mean noise spectra
+            noise_mean.append(np.nanmean(noise_spec))
+
+        else: 
+            in_spec_tmp=string.split(specNames[i],'/')
+
+            print('### Spectrum of source '+in_spec_tmp[-1]+' not found. ###')
+            count_missing+=1
+            continue
+
+        #Weight final stacked spectrum                             
+        for i in range (0,len_stack_spec):              
+            if (SummaSpect[i,1] != 0.): 
+                stack_spec[i,1] = (SummaSpect[i,0])/SummaSpect[i,1]
+                stack_spec[i,2] = (SummaSpect[i,1]/(SummaSpect[i,1])**2 )**0.5
+            else:
+                stack_spec[i,1] = 0.0
+                stack_spec[i,2] = 0.0
+
+    numstack = len(noise_mean)-count_missing
+    pred_noise =  np.divide(np.nanmean(noise_mean),np.sqrt(numstack))
+    stack_noise_value = np.nanmean(stack_spec[:,2])
+
+
+    print('--> Stacked spectra = '+str(numstack))
+    print('--> Mean noise single spectra= '+str(np.nanmean(noise_mean)))
+    print('--> Expected noise STACKED spectrum  = '+str(pred_noise))
+    print('--> Noise STACKED spectrum  = '+str(stack_noise_value))
+
+    if cfg_par['spec_ex'].get('zunit','Hz') == 'm/s':
+        xcol = 'Velocity [m/s]'
+    elif cfg_par['spec_ex'].get('zunit','Hz') == 'km/s':
+        xcol = 'Velocity [km/s]'
+    elif cfg_par['spec_ex'].get('zunit','Hz') == 'MHz':
+        xcol = 'Frequency [MHz]'
+    else:
+        xcol = 'Frequency [Hz]'
+    out_spec = cfg_par['general']['stackdir']+'stacked_spectrum.txt'
+
+    t = Table([stack_spec[:,0], stack_spec[:,1], stack_spec[:,2]], 
+        names=(xcol,'Flux [Jy]','Noise [Jy]'),
+        meta={'name': 'Spectrum'})
+    ascii.write(t,out_spec,overwrite=True)
+    print('Stacked spectrum written')
+
+    return out_spec

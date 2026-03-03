@@ -23,14 +23,16 @@ from sharpener.sharp_modules import spec_ex as spec_ex
 from sharpener.sharp_modules import absorption_plot as abs_pl
 from sharpener.sharp_modules import sdss_match as sdss
 
+from PIL import Image
+
+
 import time
 import glob
-from pypdf import PdfWriter
+# from pypdf import PdfWriter
 import zipfile
 
 # starting time of script
 time_start = time.time()
-print('#####################AAAAAAAAAAAAA')
 # Create and parse argument list
 # ++++++++++++++++++++++++++++++
 
@@ -41,23 +43,20 @@ def is_valid_file(parser, arg):
     return arg
 
 def pngs_to_pdf(cfg_par):
-    
-    # Merge the detailed plots
-    # ++++++++++++++++++++++++
-    # Get all PNG files and sort them
-    files = glob.glob(
-        '{0:s}*_detailed.png'.format(cfg_par['general']['plotdir']))    
+
+   # Get all PNG files and sort them
+    files = [f for f in os.listdir(cfg_par['general']['plotdir']) if f.endswith('_detailed.png')]
     files.sort()
-    print(files)
-    print('###############;A;;;;;;;;;;;;;;;;;;;;;;;;;')
+
     if not files:
         print("No PNG files found.")
-        
+        return
 
     image_list = []
 
     for filename in files:
-        img = Image.open(filename)
+        path = os.path.join(cfg_par['general']['plotdir'], filename)
+        img = Image.open(path)
         
         # PNGs are often RGBA (with transparency). 
         # PDFs require RGB, so we convert them to avoid errors.
@@ -65,38 +64,31 @@ def pngs_to_pdf(cfg_par):
             img = img.convert("RGB")
         
         image_list.append(img)
-
-    plot_name = "{0:s}{1:s}_all_plots_detailed.pdf".format(
-            cfg_par['general']['plotdir'], cfg_par['general']['workdir'].split("/")[-2])
+    output_name = cfg_par['general']['plotdir']+'detailed_plots_merged.pdf'
 
     # Take the first image and append the rest as extra pages
     if image_list:
         first_img = image_list.pop(0)
         first_img.save(
-            plot_name, 
+            output_name, 
             save_all=True, 
             append_images=image_list
         )
-        print(f"Done! Created {plot_name} with {len(files)} pages.")
+        print(f"Done! Created {output_name} with {len(files)} pages.")
 
-    # Merge the compact plots
-    # ++++++++++++++++++++++++
-    # Get all PNG files and sort them
-    files = glob.glob(
-        '{0:s}*_compact.png'.format(cfg_par['general']['plotdir']))    
-    files.sort()
-    print(files)
-    print("#################################")
+   # Get all PNG files and sort them
+    files = [f for f in os.listdir(cfg_par['general']['plotdir']) if f.endswith('_compact.png')]
     files.sort()
 
     if not files:
         print("No PNG files found.")
-        
+        return
 
     image_list = []
 
     for filename in files:
-        img = Image.open(filename)
+        path = os.path.join(cfg_par['general']['plotdir'], filename)
+        img = Image.open(path)
         
         # PNGs are often RGBA (with transparency). 
         # PDFs require RGB, so we convert them to avoid errors.
@@ -104,19 +96,17 @@ def pngs_to_pdf(cfg_par):
             img = img.convert("RGB")
         
         image_list.append(img)
-
-    plot_name = "{0:s}{1:s}_all_plots_compact.pdf".format(
-            cfg_par['general']['plotdir'], cfg_par['general']['workdir'].split("/")[-2])
+    output_name = cfg_par['general']['plotdir']+'compact_plots_merged.pdf'
 
     # Take the first image and append the rest as extra pages
     if image_list:
         first_img = image_list.pop(0)
         first_img.save(
-            plot_name, 
+            output_name, 
             save_all=True, 
             append_images=image_list
         )
-        print(f"Done! Created {plot_name} with {len(files)} pages.")
+        print(f"Done! Created {output_name} with {len(files)} pages.")
 
 
     # Create a zip file with all the plots
@@ -247,6 +237,9 @@ parser.add_argument("--do_sdss", action="store_true", default=False,
 parser.add_argument("--do_merge_plots", action="store_true", default=False,
                     help='Enable merging plots in output folder')
 
+parser.add_argument("--do_stacking", action="store_true", default=False,
+                    help='Stack spectra from a list')
+
 args = parser.parse_args()
 
 
@@ -281,7 +274,7 @@ do_spectra_extraction = args.do_spectra
 do_plots = args.do_plots
 do_sdss = args.do_sdss
 merge_plots = args.do_merge_plots
-
+stack_spectra = args.do_stacking
 # Load parameter file
 # +++++++++++++++++++
 if args.config:
@@ -397,6 +390,22 @@ if do_plots  or spar.cfg_par['abs_plot'].get('enable',False) == True:
 
     print("## Plotting spectra ... Done ({0:.2f}s)".format(
         time.time() - time_start_plot))
+
+
+# Stack spectra
+# ++++++++++++
+if stack_spectra  or spar.cfg_par['stacking'].get('enable',False) == True:
+    time_start_plot = time.time()
+    spar.cfg_par['stacking']['enable'] = True
+
+    print("## Stacking spectra")
+
+    stacked_spectrum = spec_ex.stacking(spar.cfg_par)
+    abs_pl.plot_stack(spar.cfg_par,stacked_spectrum)
+
+    print("## Stacking spectra ... Done ({0:.2f}s)".format(
+        time.time() - time_start_plot))
+
 
 # Merge plots
 # ++++++++++++
