@@ -18,7 +18,7 @@ def requirements():
     with open(os.path.join(build_root, 'requirements.txt')) as f:
         return [pname.strip() for pname in f.readlines()]
 
-__version__ = "1.0.8"
+__version__ = "2.0.0"
 
 setup(name=pkg,
       version=__version__,
@@ -37,7 +37,7 @@ setup(name=pkg,
       url="https://github.com/Fil8/SHARPener",
       license="GNU GPL 3",
       classifiers=["Intended Audience :: Developers",
-                   "Programming Language :: Python :: 2",
+                   "Programming Language :: Python :: 3",
                    "Topic :: Scientific/Engineering :: Astronomy",
                    "Topic :: Software Development :: Libraries :: Python Modules"],
       platforms=["OS Independent"],

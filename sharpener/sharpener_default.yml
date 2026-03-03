@@ -28,22 +28,28 @@ spec_ex:
   chrom_aberration: true
   enable: true
   flag_chans: null
-  zunit: Hz
+  zunit: m/s
   noise_delta_pix: 6
   noise_delta_skip: 6
+  sigma_finder: 5
+  sharp_finder: True
+  noise: madfm
 abs_plot:
   __helpstr: plot spectra from folder plot in workdir/sharpOut/plot/
   enable: true
   redshift_sources:
-  - 800 2200 
+  - 800 
+  - 2200 
   title: true
   channels_per_plot: 50
   fixed_scale: false
   detailed_plot: true
-  plot_format: pdf 
+  plot_format: png 
   plot_contImage: true #set to true to enable plot of continuum image (even if the continuum image is not provided)
-  zunit: MHz
+  zunit: m/s
   merge_plots: true
+  sigma_detection_limit: 3
+  dv_det_limit: 5
 polynomial_subtraction:
   __helpstr: Subtract polynomial from spectrum to improve continuum subtraction
   degree_pol: 3
@@ -52,6 +58,13 @@ hanning:
   __helpstr: Hanning smoothing spectrum
   enable: false
   window: 3
+stacking:
+  __helpstr: Stack spectra from catalogue
+  enable: false
+  catalog_file: cat_src_sharpener.txt # catalog name for PYBDSF output
+  velrange: 500
+  stack_vel: 1637
+  plot_title: 'f35_los'
 sdss_match:
   __helpstr: Gets the SDSS sources for a given cube
   enable: false

@@ -1,6 +1,6 @@
 # Monday, 28 September 2015
 import logging
-from ConfigParser import SafeConfigParser
+from configparser import ConfigParser
 import subprocess
 import os
 import sys
@@ -12,17 +12,19 @@ deg2rad = np.pi/180.
 # Its rather messy to reload the logging library, but is necessary if the logger is going to work.
 imp.reload(logging)
 
-print 'Setup logger with lib.setup_logger()'
+print('Setup logger with lib.setup_logger()')
 
-
-def exceptioner(O, E):
-    '''
-    exceptioner(O, E) where O and E are the stdout outputs and errors.
-    A simple and stupid way to do exception handling.
-    '''
-    for e in E:
-        if "FATAL" in e.upper() > 0:
-            raise FatalMiriadError(E)
+#THIS EXCEPTIONER DOES NOT WORK
+def exceptioner(outputs,err):
+    search_term='Fatal'
+    for e in outputs:
+        print(e)
+        stdout_content = e.decode('utf-8').lower()
+        print(stdout_content)
+    print(search_term)
+    if search_term in stdout_content:
+            raise Exception(f"Found '{search_term}' - exiting process.")
+    
 
 
 def masher(task=None, **kwargs):
@@ -80,21 +82,19 @@ def basher(cmd, showasinfo=False):
     proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, shell=True)
     out, err = proc.communicate()
-
+    print(out,err)
     if len(out) > 0:
         if showasinfo:
-            logger.debug("Command = "+cmd)
-            logger.debug("\n"+out)
+            logger.debug("Command = {} \n {}".format(cmd,out))
         else:
-            logger.debug("Command = "+cmd)
-            logger.debug("\n"+out)
+            logger.debug("Command = {} \n {}".format(cmd,out))
     if len(err) > 0:
         logger.debug(err)
     # NOTE: Returns the STD output.
-    exceptioner(out, err)
+    #iexceptioner(out, err)
     logger.debug("Returning output.")
     # Standard output error are returned in a more convenient way
-    return out.split('\n')[0:-1]
+    return out.splitlines()[0:-1]
 
 
 class miriad:

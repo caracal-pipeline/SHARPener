@@ -5,7 +5,7 @@ __email__ = "filippo.maccagni@gmail.com"
 import sys, string, os
 import numpy as np
 import yaml, glob
-import convert_units as conv_units
+from sharpener.sharp_modules import convert_units as conv_units
 from astropy import wcs
 from astropy.io import fits as pyfits
 from astropy.io import ascii
@@ -20,9 +20,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.colors as mc
 
-import mirlib as lib
-import convert_units as conv_units
-import absorption_plot as abs_plot
+from sharpener.sharp_modules import mirlib as lib
+from sharpener.sharp_modules import convert_units as conv_units
+from sharpener.sharp_modules import absorption_plot as abs_plot
 
 ####################################################################################################
 
@@ -445,8 +445,8 @@ def find_src_imsad(cfg_par):
     # Getting directories and convert files if necessary
     # ++++++++++++++++++++++++++++++++++++++++++++++++++
     os.chdir(cfg_par['general']['workdir'])
-    sharpDir = 'sharpOut/'
-    cont_im_mir = sharpDir+os.path.basename(cfg_par['general']['mircontname'])
+    sharpDir=cfg_par['general']['workdir']
+    cont_im_mir = os.path.basename(cfg_par['general']['mircontname'])
     cont_im = cfg_par['general']['shortContname']
     # cannot use cfg_par, probably because file name would be too long for miriad
     src_imsad_out = cfg_par['general']['absdir']+'mir_src_sharp.txt'
@@ -470,6 +470,7 @@ def find_src_imsad(cfg_par):
         fits.in_ = cont_im_mir
         fits.out = cont_im
         fits.go(rmfiles=True)
+
 
     # Run IMSAD in Miriad to get the source
     # ++++++++++++++++++++++++++++++++++++++

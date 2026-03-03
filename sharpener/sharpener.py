@@ -2,7 +2,6 @@
 
 # Import modules
 import sys
-import string
 import os
 import numpy as np
 import yaml
@@ -16,13 +15,13 @@ from astropy.table import Table, Column, MaskedColumn
 import warnings
 
 import sys
-sys.path.append('sharp_models')
-from sharp_modules import cont_src as cont_src
-from sharp_modules import convert_units as conv_units
-from sharp_modules import spec_ex as spec_ex
-from sharp_modules import absorption_plot as absorption_plot
-from sharp_modules import hi
-from sharp_modules import sdss_match
+sys.path.append('sharp_modules')
+from sharpener.sharp_modules import cont_src as cont_src
+from sharpener.sharp_modules import convert_units as conv_units
+from sharpener.sharp_modules import spec_ex as spec_ex
+from sharpener.sharp_modules import absorption_plot as absorption_plot
+from sharpener.sharp_modules import hi
+from sharpener.sharp_modules import sdss_match
 
 
 __author__ = "Filippo Maccagni"
@@ -58,7 +57,7 @@ class sharpener:
 
         # get directories
         SHARPENER_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        SHARPENER_DIR = SHARPENER_PATH+'/sharpener/'
+        SHARPENER_DIR = SHARPENER_PATH+'/SHARPener/'
         sys.path.append(os.path.join(SHARPENER_PATH, 'sharpener'))
         file_default = SHARPENER_DIR + 'sharpener_default.yml'
 
@@ -68,9 +67,9 @@ class sharpener:
             cfg = open(file_default)
 
         
-        self.cfg_par = yaml.load(cfg)
+        self.cfg_par = yaml.load(cfg, yaml.SafeLoader)
         if self.cfg_par['general']['verbose'] == True:
-            print yaml.dump(self.cfg_par)
+            print(yaml.dump(self.cfg_par))
 
         self.set_dirs()
 
@@ -111,7 +110,7 @@ class sharpener:
         self.cfg_par[key]['contname'] = self.contname
 
         mircont = os.path.basename(self.contname)
-        mircont = string.split(mircont, '.')[0]
+        mircont =str.split(mircont, '.')[0]
         self.sharpdir = self.workdir+'sharpOut/'
         self.cfg_par[key]['sharpdir'] =self.sharpdir
         self.cfg_par[key]['mircontname'] = self.sharpdir+mircont+'.mir'
@@ -121,6 +120,8 @@ class sharpener:
         self.cfg_par[key]['specdir'] = self.specdir
         self.plotdir = self.sharpdir+'plot/'
         self.cfg_par[key]['plotdir'] = self.plotdir
+        self.stackdir = self.sharpdir+'stacking/'
+        self.cfg_par[key]['stackdir'] = self.stackdir
 
         if os.path.exists(self.sharpdir) == False:
             os.makedirs(self.sharpdir)
@@ -130,6 +131,8 @@ class sharpener:
             os.makedirs(self.specdir)
         if os.path.exists(self.plotdir) == False:
             os.makedirs(self.plotdir)
+        if os.path.exists(self.stackdir) == False:
+            os.makedirs(self.stackdir)
 
     def go(self, cfg_par):
         '''
@@ -178,6 +181,12 @@ class sharpener:
             for i in xrange(0, len(spectra)):
                 spectra[i] = os.path.basename(spectra[i])
                 abs_plot.absorption_plot(spectra[i], self.cfg_par)
+
+        task = 'stacking' 
+        if self.enable_task(self.cfg_par, task) == True:
+            
+            stacked_spectrum = spec_ex.stacking(self.cfg_par)
+            abs_plot.plot_stack(self.cfg_par,stacked_spectrum)
 
         # Find continuum sources
         # ++++++++++++++++++++++

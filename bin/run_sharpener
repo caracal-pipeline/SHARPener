@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3.10.19
 
 """Script to run SHARPener
 
@@ -23,14 +23,16 @@ from sharpener.sharp_modules import spec_ex as spec_ex
 from sharpener.sharp_modules import absorption_plot as abs_pl
 from sharpener.sharp_modules import sdss_match as sdss
 
+from PIL import Image
+
+
 import time
 import glob
-from PyPDF2 import PdfFileMerger
+# from pypdf import PdfWriter
 import zipfile
 
 # starting time of script
 time_start = time.time()
-
 # Create and parse argument list
 # ++++++++++++++++++++++++++++++
 
@@ -39,6 +41,169 @@ def is_valid_file(parser, arg):
     if not os.path.exists(arg):
         parser.error("The file '%s' does not exist!" % arg)
     return arg
+
+def pngs_to_pdf(cfg_par):
+
+   # Get all PNG files and sort them
+    files = [f for f in os.listdir(cfg_par['general']['plotdir']) if f.endswith('_detailed.png')]
+    files.sort()
+
+    if not files:
+        print("No PNG files found.")
+        return
+
+    image_list = []
+
+    for filename in files:
+        path = os.path.join(cfg_par['general']['plotdir'], filename)
+        img = Image.open(path)
+        
+        # PNGs are often RGBA (with transparency). 
+        # PDFs require RGB, so we convert them to avoid errors.
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+        
+        image_list.append(img)
+    output_name = cfg_par['general']['plotdir']+'detailed_plots_merged.pdf'
+
+    # Take the first image and append the rest as extra pages
+    if image_list:
+        first_img = image_list.pop(0)
+        first_img.save(
+            output_name, 
+            save_all=True, 
+            append_images=image_list
+        )
+        print(f"Done! Created {output_name} with {len(files)} pages.")
+
+   # Get all PNG files and sort them
+    files = [f for f in os.listdir(cfg_par['general']['plotdir']) if f.endswith('_compact.png')]
+    files.sort()
+
+    if not files:
+        print("No PNG files found.")
+        return
+
+    image_list = []
+
+    for filename in files:
+        path = os.path.join(cfg_par['general']['plotdir'], filename)
+        img = Image.open(path)
+        
+        # PNGs are often RGBA (with transparency). 
+        # PDFs require RGB, so we convert them to avoid errors.
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+        
+        image_list.append(img)
+    output_name = cfg_par['general']['plotdir']+'compact_plots_merged.pdf'
+
+    # Take the first image and append the rest as extra pages
+    if image_list:
+        first_img = image_list.pop(0)
+        first_img.save(
+            output_name, 
+            save_all=True, 
+            append_images=image_list
+        )
+        print(f"Done! Created {output_name} with {len(files)} pages.")
+
+
+    # Create a zip file with all the plots
+    # ++++++++++++++++++++++++++++++++++++
+    print("## Create zip files")
+
+    plot_list = glob.glob(
+        "{0:s}/*all_plots*.pdf".format(cfg_par['general']['plotdir']))
+
+    if len(plot_list) != 0:
+
+        with zipfile.ZipFile('all_plots.zip', 'w') as myzip:
+
+            for plot in plot_list:
+                myzip.write(plot, os.path.basename(plot))
+    else:
+        print("No files to zip.")
+
+    print("## Create zip files ... Done ")
+
+
+def merge_pdfs(cfg_par):
+
+
+    print("## Merging plots")
+
+    # Merge the detailed plots
+    # ++++++++++++++++++++++++
+    plot_list = glob.glob(
+        "{0:s}/*_detailed.pdf".format(cfg_par['general']['plotdir']))
+
+    if len(plot_list) != 0:
+
+        plot_list.sort()
+        if os.path.exists("{0:s}{1:s}_continuum.pdf".format(
+            cfg_par['general']['plotdir'], cfg_par['general']['workdir'].split("/")[-2])):
+            plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
+            cfg_par['general']['plotdir'], cfg_par['general']['workdir'].split("/")[-2]))
+
+        pdf_merger = PdfWriter()
+
+        for files in plot_list:
+            pdf_merger.append(files)
+
+        plot_name = "{0:s}{1:s}_all_plots_detailed.pdf".format(
+            cfg_par['general']['plotdir'], cfg_par['general']['workdir'].split("/")[-2])
+
+        pdf_merger.write(plot_name)
+    else:
+        print("No detailed plots found. Continue")
+
+    # Merge compact plots
+    # +++++++++++++++++++
+    plot_list = glob.glob(
+        "{0:s}/*_compact.pdf".format(cfg_par['general']['plotdir']))
+
+    if len(plot_list) != 0:
+
+        plot_list.sort()
+        if os.path.exists("{0:s}{1:s}_continuum.pdf".format(
+            cfg_par['general']['plotdir'], cfg_par['general']['workdir'].split("/")[-2])):
+            plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
+                cfg_par['general']['plotdir'], cfg_par['general']['workdir'].split("/")[-2]))
+
+        pdf_merger = PdfFileMerger()
+
+        for files in plot_list:
+            pdf_merger.append(files)
+
+        plot_name = "{0:s}{1:s}_all_plots_compact.pdf".format(
+            cfg_par['general']['plotdir'], cfg_par['general']['workdir'].split("/")[-2])
+
+        pdf_merger.write(plot_name)
+    else:
+        print("No plots found. Continue")
+
+
+    print("## Merging plots Done")
+
+    # Create a zip file with all the plots
+    # ++++++++++++++++++++++++++++++++++++
+    time_start_zip = time.time()
+    print("## Create zip files")
+
+    plot_list = glob.glob(
+        "{0:s}/*all_plots*.pdf".format(cfg_par['general']['plotdir']))
+
+    if len(plot_list) != 0:
+
+        with zipfile.ZipFile('all_plots.zip', 'w') as myzip:
+
+            for plot in plot_list:
+                myzip.write(plot, os.path.basename(plot))
+    else:
+        print("No files to zip.")
+
+    print("## Create zip files ... Done ")
 
 parser = argparse.ArgumentParser(
     description='Run sharpener script')
@@ -69,7 +234,15 @@ parser.add_argument("--do_sdss", action="store_true", default=False,
                     help='Enable sdss_match')
 
 
+parser.add_argument("--do_merge_plots", action="store_true", default=False,
+                    help='Enable merging plots in output folder')
+
+parser.add_argument("--do_stacking", action="store_true", default=False,
+                    help='Stack spectra from a list')
+
 args = parser.parse_args()
+
+
 
 # Exit if only 
 # +++++++++++++++++
@@ -100,13 +273,16 @@ do_continuum_extraction = args.do_cont
 do_spectra_extraction = args.do_spectra
 do_plots = args.do_plots
 do_sdss = args.do_sdss
-
+merge_plots = args.do_merge_plots
+stack_spectra = args.do_stacking
 # Load parameter file
 # +++++++++++++++++++
 if args.config:
     time_start_load = time.time()
     print("## Load parameter file")
     spar = sharpy.sharpener(args.config)
+    print(json.dumps(spar.cfg_par, indent=4, sort_keys=True))
+
     print("## Load parameter file ... Done ({0:.2f}s)".format(
           time.time() - time_start_load))
 
@@ -133,7 +309,7 @@ if do_continuum_extraction or spar.cfg_par['source_finder'].get('enable',False) 
 
 # Find continuum sources
 # ++++++++++++++++++++++
-if spar.cfg_par['source_catalog'].get('enable',False) == True and spar.cfg_par['source_catalog'].get('catalog')!='PYBDSF':
+if spar.cfg_par['source_catalog'].get('enable',False) == True and spar.cfg_par['source_catalog'].get('catalog') =='NVSS':
 
     time_start_find = time.time()
     spar.cfg_par['source_catalog']['enable'] = True
@@ -215,86 +391,45 @@ if do_plots  or spar.cfg_par['abs_plot'].get('enable',False) == True:
     print("## Plotting spectra ... Done ({0:.2f}s)".format(
         time.time() - time_start_plot))
 
-    # Merge plots:
-    # ++++++++++++
-    if spar.cfg_par['abs_plot']['merge_plots'] and spar.cfg_par['abs_plot']['plot_format'] == "pdf":
 
+# Stack spectra
+# ++++++++++++
+if stack_spectra  or spar.cfg_par['stacking'].get('enable',False) == True:
+    time_start_plot = time.time()
+    spar.cfg_par['stacking']['enable'] = True
+
+    print("## Stacking spectra")
+
+    stacked_spectrum = spec_ex.stacking(spar.cfg_par)
+    abs_pl.plot_stack(spar.cfg_par,stacked_spectrum)
+
+    print("## Stacking spectra ... Done ({0:.2f}s)".format(
+        time.time() - time_start_plot))
+
+
+# Merge plots
+# ++++++++++++
+if merge_plots or spar.cfg_par['abs_plot']['merge_plots'] == True:
+   
+    if spar.cfg_par['abs_plot']['plot_format'] == "pdf":
         time_start_merge = time.time()
 
-        print("## Merging plots")
+        print("## Merge")
 
-        # Merge the detailed plots
-        # ++++++++++++++++++++++++
-        plot_list = glob.glob(
-            "{0:s}/*J*_detailed.pdf".format(spar.cfg_par['general']['plotdir']))
+        merge_pdfs(spar.cfg_par)
 
-        if len(plot_list) != 0:
-
-            plot_list.sort()
-            if os.path.exists("{0:s}{1:s}_continuum.pdf".format(
-                spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])):
-                plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
-                spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2]))
-
-            pdf_merger = PdfFileMerger()
-
-            for files in plot_list:
-                pdf_merger.append(files)
-
-            plot_name = "{0:s}{1:s}_all_plots_detailed.pdf".format(
-                spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])
-
-            pdf_merger.write(plot_name)
-        else:
-            print("No detailed plots found. Continue")
-
-        # Merge compact plots
-        # +++++++++++++++++++
-        plot_list = glob.glob(
-            "{0:s}/*J*_compact.pdf".format(spar.cfg_par['general']['plotdir']))
-
-        if len(plot_list) != 0:
-
-            plot_list.sort()
-            if os.path.exists("{0:s}{1:s}_continuum.pdf".format(
-                spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])):
-                plot_list.insert(0, "{0:s}{1:s}_continuum.pdf".format(
-                    spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2]))
-
-            pdf_merger = PdfFileMerger()
-
-            for files in plot_list:
-                pdf_merger.append(files)
-
-            plot_name = "{0:s}{1:s}_all_plots_compact.pdf".format(
-                spar.cfg_par['general']['plotdir'], spar.cfg_par['general']['workdir'].split("/")[-2])
-
-            pdf_merger.write(plot_name)
-        else:
-            print("No plots found. Continue")
-
-        print("## Merging plots ... Done ({0:.2f}s)".format(
+        print("## Plotting spectra ... Done ({0:.2f}s)".format(
             time.time() - time_start_merge))
 
-        # Create a zip file with all the plots
-        # ++++++++++++++++++++++++++++++++++++
-        time_start_zip = time.time()
-        print("## Create zip files")
+    elif spar.cfg_par['abs_plot']['plot_format'] == 'png': 
+        time_start_merge = time.time()
 
-        plot_list = glob.glob(
-            "{0:s}/*all_plots*.pdf".format(spar.cfg_par['general']['plotdir']))
+        print("## Merge pngs")
 
-        if len(plot_list) != 0:
+        pngs_to_pdf(spar.cfg_par)
 
-            with zipfile.ZipFile('NGC315_plots.zip', 'w') as myzip:
-
-                for plot in plot_list:
-                    myzip.write(plot, os.path.basename(plot))
-        else:
-            print("No files to zip.")
-
-        print("## Create zip files ... Done ({0:.2f}s)".format(
-            time.time() - time_start_zip))
+        print("## Plotting spectra ... Done ({0:.2f}s)".format(
+            time.time() - time_start_merge))
 
 # Script finished
 print("Script finished ({0:.2f}s)".format(

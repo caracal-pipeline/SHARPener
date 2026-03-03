@@ -7,11 +7,11 @@ import numpy as np
 import yaml
 #from continuum import *
 import json
-import convert_units as conv_units
-import cont_src as cont_src
-import cubez as cubef
-from kk import *
-import hi 
+from sharpener.sharp_modules import convert_units as conv_units
+from sharpener.sharp_modules import cont_src as cont_src
+from sharpener.sharp_modules import cubez as cubef
+from sharpener.sharp_modules import kk 
+from sharpener.sharp_modules import hi 
 
 #import radiobs
 #from radiobs import conv_units, cubeful, hi
@@ -21,15 +21,20 @@ from astropy import units as u
 from astropy.table import Table, Column, MaskedColumn
 from astroquery.vizier import Vizier
 import astropy.coordinates as coord
-from mpdaf.obj import Spectrum, WaveCoord
+# from mpdaf.obj import Spectrum, WaveCoord
 import matplotlib
 matplotlib.use('Agg')
 from matplotlib import gridspec
 from matplotlib import pyplot as plt
 from matplotlib import rc
 
+from astropy import units as u
+from astropy.coordinates import Angle
 
+from scipy.signal import find_peaks
+import pandas as pd
 hi = hi.hi()
+kk=kk.kk()
 
 C=2.99792458e5 #km/s
 HI=1.420405751e9 #Hz
@@ -84,6 +89,16 @@ def abs_ex(cfg_par):
 
         sci = cubefile[0].data 
         sci = sci.squeeze()
+
+        if cfg_par['spec_ex']['noise'] !='madfm':
+
+            noisename = cfg_par['general']['workdir']+cfg_par['spec_ex']['noise']
+            print('####################################')
+            print(noisename)
+            noisefile = fits.open(noisename)  # read input
+            sci_noise = noisefile[0].data 
+            sci_noise = sci_noise.squeeze()
+
         x = hdr['NAXIS1']
         y = hdr['NAXIS2']
         z = hdr['NAXIS3']
@@ -92,9 +107,10 @@ def abs_ex(cfg_par):
         freq0 = hdr['CRVAL3']
         freq_del = hdr['CDELT3']
         key = 'source_catalog'
+        catalogName = cfg_par[key].get('catalog', 'NVSS')
+
         if cfg_par['source_catalog'].get('enable',False) == True:
-        
-            catalogName = cfg_par[key].get('catalog', 'NVSS')
+
             if catalogName == 'NVSS':
                 catalog_table = str(cfg_par['general'].get('absdir')) + str(cfg_par[key].get('catalog_file'))
                 tab = ascii.read(catalog_table)
@@ -128,6 +144,28 @@ def abs_ex(cfg_par):
                 
                 src_id = np.arange(0,len(ra)+1,1,dtype=int)
 
+
+            elif catalogName == 'sofia' or catalogName == 'SOFIA' :
+                J2000_name, ra, dec, flux_cont = [], [], [], []
+                from astropy import units as u
+                from astropy.coordinates import Angle
+                catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),
+                                                  cfg_par['source_catalog'].get('catalog_file'))
+                vot = Table.read(catalog_table)
+                for row in vot:
+                    ra_deg_angle  = Angle((np.round(row['ra_peak'],2)) * u.deg)
+                    dec_deg_angle = Angle((np.round(row['dec_peak'],4)) * u.deg)
+                    ra_hms = ra_deg_angle.to_string(unit=u.hourangle, sep=':').split('.')[0]
+                    dec_dms = dec_deg_angle.to_string(unit=u.degree, sep=':').split('.')[0]
+
+                    J2000_name.append('{:s}{:s}'.format(ra_hms.replace(':', ''),
+                                                            dec_dms.replace(':', '')))
+                    ra.append(ra_deg_angle)
+                    dec.append(dec_deg_angle)
+                    flux_cont.append(row['f_max'])
+                
+                src_id = np.arange(0,len(ra)+1,1,dtype=int)
+
         elif os.path.exists(src_list_csv):
             # open file
             src_list_vec = ascii.read(src_list_csv)
@@ -141,7 +179,7 @@ def abs_ex(cfg_par):
             print("\n\t!!!! catalog of sources does not exist. Enable source_catalog or source_finder first\n")
             sys.exit(0)
 
-        pixels = conv_units.coord_to_pix(cubename,ra,dec, verbose=False)
+        pixels = conv_units.coord_to_pix(cubename,ra,dec,catalogName, verbose=False)
 
         key = 'spec_ex'
         freq = cubef.zaxis(cubename)
@@ -153,7 +191,12 @@ def abs_ex(cfg_par):
         count_fov = 0
         count_blanks = 0
         average_noise = []
-        for i in xrange(0,pixels.shape[0]):
+
+        # 1. Initialize an empty list to hold all findings
+        all_positive_results = []
+
+
+        for i in range(0,pixels.shape[0]):
 
             # extract spectrum from each line of sight
             flux = np.zeros(freq.shape[0])
@@ -165,9 +208,10 @@ def abs_ex(cfg_par):
 
             elif (0 < int(pixels[i,0]) < x and
                     0 < int(pixels[i,1]) < y): 
-                pix_x_or = int(pixels[i,0])
-                pix_y_or = int(pixels[i,1])
-                for j in xrange(0, z):
+                pix_x_or = int(np.round(pixels[i,0],0))
+                pix_y_or = int(np.round(pixels[i,1],0))
+                
+                for j in range(0, z):
                     chrom_aber = cfg_par[key].get('chrom_aberration', False)
                     #correct for chromatic aberration
                     if chrom_aber == True:
@@ -186,8 +230,8 @@ def abs_ex(cfg_par):
                         pix_x = (pix_x_or - hdr['CRPIX1']) * scale + hdr['CRPIX1']
                         pix_y = (pix_y_or - hdr['CRPIX2']) * scale + hdr['CRPIX2']
                         #print('before rounding: x={0:.3f}, y={1:.3f}'.format(pix_x, pix_y))
-                        pix_x = int(round(pix_x,0))
-                        pix_y = int(round(pix_y,0))
+                        pix_x = int(np.round(pix_x,0))
+                        pix_y = int(np.round(pix_y,0))
                     else:
                         pix_x = pix_x_or
                         pix_y = pix_y_or
@@ -197,52 +241,64 @@ def abs_ex(cfg_par):
                         flux[j] = sci[j, pix_y, pix_x]
                     else:
                         flux[j] = 0.0
+
                     
                     #print('x={0:d}, y={1:d}, flux={2:.5f}'.format(pix_x, pix_y, flux[j]))
 
+                    if cfg_par['spec_ex']['noise']== 'madfm':
 
-                    # determine the noise of the spectrum [Whiting 2012 et al.] in each channel
-                    # MADMF: median absolute deviation from the median
-                    # extract a region were to determine the noise: rectangular ring around the l.o.s.
-                    rInt = cfg_par['spec_ex']['noise_delta_skip']
-                    rExt = cfg_par['spec_ex']['noise_delta_pix']
+                        print("SDFSFDSALKJFGAHSJGHFDJKHSAKJH")
+                        # determine the noise of the spectrum [Whiting 2012 et al.] in each channel
+                        # MADMF: median absolute deviation from the median
+                        # extract a region were to determine the noise: rectangular ring around the l.o.s.
+                        rInt = cfg_par['spec_ex']['noise_delta_skip']
+                        rExt = cfg_par['spec_ex']['noise_delta_pix']
 
-                    yExtDown = pix_y - rInt - rExt
-                    yIntDown = pix_y - rInt
-                    yIntUp   = pix_y + rInt
-                    yExtUp   = pix_y + rInt + rExt
+                        yExtDown = pix_y - rInt - rExt
+                        yIntDown = pix_y - rInt
+                        yIntUp   = pix_y + rInt
+                        yExtUp   = pix_y + rInt + rExt
 
-                    xExtLeft  = pix_x - rInt - rExt
-                    xIntLeft  = pix_x - rInt
-                    xIntRight = pix_x + rInt
-                    xExtRight = pix_x + rInt + rExt 
+                        xExtLeft  = pix_x - rInt - rExt
+                        xIntLeft  = pix_x - rInt
+                        xIntRight = pix_x + rInt
+                        xExtRight = pix_x + rInt + rExt 
 
-                    if (xExtRight < hdr['NAXIS1'] and  xExtLeft > 0 and
-                       yExtUp < hdr['NAXIS2'] and yExtDown > 0):
-                            valueTmp = sci[j,pix_y,pix_x]
+                        if (xExtRight < hdr['NAXIS1'] and  xExtLeft > 0 and
+                           yExtUp < hdr['NAXIS2'] and yExtDown > 0):
+                                valueTmp = sci[j,pix_y,pix_x]
 
-                            corona_1 = sci[j, yIntDown : yExtUp, xExtLeft : xIntLeft]
-                            corona_2 = sci[j, yIntUp : yExtUp, xIntLeft : xExtRight]
-                            corona_3 = sci[j, yIntDown : yIntUp, xIntRight : xExtRight]
-                            corona_4 =sci[j, yExtDown : yIntDown, xExtLeft : xExtRight]
-                            corona = np.concatenate((corona_1.flat,corona_2.flat,corona_3.flat,corona_4.flat))
+                                corona_1 = sci[j, yIntDown : yExtUp, xExtLeft : xIntLeft]
+                                corona_2 = sci[j, yIntUp : yExtUp, xIntLeft : xExtRight]
+                                corona_3 = sci[j, yIntDown : yIntUp, xIntRight : xExtRight]
+                                corona_4 =sci[j, yExtDown : yIntDown, xExtLeft : xExtRight]
+                                corona = np.concatenate((corona_1.flat,corona_2.flat,corona_3.flat,corona_4.flat))
 
-                            rms = np.nanmedian(corona)
-                            if rms != 0.0:
-                                med2 = np.abs(corona - rms)
-                                madfm[j] = np.nanmedian(med2) / 0.6744888
-                            else:
-                                madfm[j] = 0.0
-                    else:
-                        madfm[j] = 0.0
+                                rms = np.nanmedian(corona)
+                                if rms != 0.0:
+                                    med2 = np.abs(corona - rms)
+                                    madfm[j] = np.nanmedian(med2) / 0.6744888
+                                else:
+                                    madfm[j] = 0.0
+                        else:
+                            madfm[j] = 0.0
 
+                    else :
+                        
+                        if  (0 < pix_x < x and
+                             0 < pix_y < y): 
+                            madfm[j] = sci_noise[j, pix_y, pix_x]
+                        else:
+                            madfm[j] = 0.0
 
-                    abs_mean_rms[i] = np.nanmean(madfm) 
+                print(madfm)
+                abs_mean_rms[i] = np.nanmean(madfm) 
+                print(np.nanmean(madfm) )
 
                 if np.nansum(flux) == 0.:
                     count_blanks +=1
                     if verb == True:
-                        print('# Blank spectrum:\t'+str(src_id[i])+' '+J2000_name[i]+' #')
+                        print('# Blank spectrum:\t'+str(src_id[i])+' '+J2000_name[i]+' '+str(pix_x)+' '+str(pix_y)+' #')
                     continue
 
                 # measure noise in the spectrum outside of the line
@@ -254,6 +310,17 @@ def abs_ex(cfg_par):
                 mean_rms_arr = np.zeros(sci.shape[0])+mean_rms
                 
                 average_noise.append(mean_rms)
+
+                if cfg_par[key]['sharp_finder']==True:
+
+                    peaks_found = sharp_finder(src_id[i],freq, -flux, mean_rms, cfg_par[key]['sigma_sharp_finder'])
+                    # 2. Only store if the result is not None
+                    if peaks_found:
+                        # Add a 'source' ID so you know which spectrum the peak came from
+                        for peak in peaks_found:
+                            peak['spectrum_id'] = f"Spectrum_{i}"
+                        # .extend() adds the elements of the list individually
+                        all_positive_results.extend(peaks_found)
 
                 tau = hi.optical_depth(flux, flux_cont[i])
                 if np.nansum(madfm)!= 0.0:
@@ -289,7 +356,7 @@ def abs_ex(cfg_par):
                     meta={'name': 'Spectrum'})
                 ascii.write(t,out_spec,overwrite=True)
                 if verb==True:
-                    print('# Extracted spectrum: \t' +str(src_id[i])+' '+J2000_name[i]+' #')
+                    print('# Extracted spectrum: \t' +str(src_id[i])+' '+J2000_name[i]+' '+str(pix_x)+' '+str(pix_y)+' #')
 
                 polysub = cfg_par['polynomial_subtraction'].get('enable', False) 
                 if polysub == True:
@@ -346,6 +413,22 @@ def abs_ex(cfg_par):
         # close fits file
         cubefile.close()
         
+        # 3. Create the table once the loop is finished
+        if all_positive_results and cfg_par[key]['sharp_finder']==True:
+            df = pd.DataFrame(all_positive_results)
+            
+            # Reorder columns to put ID first for readability
+            cols = ['spectrum_id'] + [c for c in df.columns if c != 'spectrum_id']
+            df = df[cols]
+            
+            # Display the table
+            print(df.to_string(index=False))
+            
+            # Optional: Save to a CSV file
+            df.to_csv(cfg_par['general']['absdir']+"detected_peaks.csv", index=False)
+        else:
+            print("No peaks were found across any of the analyzed spectra or sharp_finder is off")
+
         print('# Sources flagged: \t\t'+str(count_thresh))
         print('# Blank spectra:\t\t'+str(count_blanks))
         print('# Total number of spectra: \t'+str(pixels.shape[0]-count_thresh-count_fov-count_blanks))
@@ -365,13 +448,73 @@ def hanning_spec(flux):
         
         new_flux = flux.copy()
         new_flux[0] = (flux[0]+flux[1])/2.
-        for i in xrange(1,len(flux)-1):
+        for i in range(1,len(flux)-1):
 
             new_flux[i] = (flux[i-1]+2.*flux[i]+flux[i+1])/4.
 
         new_flux[-1] = (flux[-2]+flux[-1])/2.
 
         return new_flux
+
+def sharp_finder(src_id,freq,flux,avg_noise,multiplier=5):
+    '''
+    Check if spectrum has a max/min XXsigma above/below the average noise of the spectrum and measure how many positive/negative consecutive
+    channels are present 
+    INPUT:
+        frequency (x-axis of spectrum)
+        flux (y-axis of spectrum)
+        mean_noise
+    OUTPUT:
+        catalogue of line-candidates stored in sharpOut/abs 
+    '''
+
+    threshold = multiplier * avg_noise
+    
+    # 1. Find indices of peaks that exceed the threshold
+    # For absorption lines, you would use -flux
+    peaks, properties = find_peaks(flux, height=threshold)
+    
+    if len(peaks) == 0:
+        return None
+
+    print('# Found outlier peaks in spectrum:\t'+str(src_id)+' #')
+        
+
+    results = []
+
+    for peak_idx in peaks:
+        # 2. Count consecutive positive values surrounding the peak
+        # We look left and right until the flux sign flips or the array ends
+        
+        # Count to the right
+        right_count = 0
+        for i in range(peak_idx + 1, len(flux)):
+            if flux[i] > 0:
+                right_count += 1
+            else:
+                break
+        
+        # Count to the left
+        left_count = 0
+        for i in range(peak_idx - 1, -1, -1):
+            if flux[i] > 0:
+                left_count += 1
+            else:
+                break
+        
+        results.append({
+            "peak_freq": freq[peak_idx],
+            "peak_flux": flux[peak_idx],
+            "index": peak_idx,
+            "consecutive_pos": left_count + right_count + 1, # +1 for the peak itself
+            "left_pos": left_count,
+            "right_pos": right_count
+        })
+
+    return results
+
+
+
 
 def poly_sub(cfg_par,x, y,deg):
         '''
@@ -404,4 +547,146 @@ def poly_sub(cfg_par,x, y,deg):
         return cont_sub
 
 
+def res_spec(specNames):
+    resolution=[]
+    for i in range (0, len(specNames)):
 
+        if os.path.exists(specNames[i]) == True:
+            spec_vec = ascii.read(specNames[i])
+            freq_spec = np.array(spec_vec[spec_vec.colnames[0]], dtype=float)
+
+            resolution.append(np.abs(freq_spec[0] - freq_spec[-1])/len(freq_spec))
+
+        else: 
+            continue         
+        
+    mean_resolution = np.mean(resolution)
+
+    return mean_resolution/1e3
+
+def stacking(cfg_par):
+    '''
+    Stack spectra of sources in a given catalogue. Works only if extracted spectra are in velocity,
+    missing conversion from frequency to velocity.
+
+    INPUT:
+        parameter file
+    
+    OUTPUT:
+        stacked spectrum 
+    '''
+
+
+    catalog_table = '{:s}{:s}'.format(cfg_par['general'].get('workdir'),
+                                              cfg_par['stacking'].get('catalog_file'))
+    vot = Table.read(catalog_table)
+    i=0
+    src_list=[]
+    src_list_tmp=[]
+    flux_cont=[]
+    specNames=[]
+    for row in vot:
+        ra_deg_angle  = Angle((np.round(row['ra_peak'],2)) * u.deg)
+        dec_deg_angle = Angle((np.round(row['dec_peak'],4)) * u.deg)
+        ra_hms = ra_deg_angle.to_string(unit=u.hourangle, sep=':').split('.')[0]
+        dec_dms = dec_deg_angle.to_string(unit=u.degree, sep=':').split('.')[0]
+
+        J2000_name ='J{:s}{:s}'.format(ra_hms.replace(':', ''),dec_dms.replace(':', ''))
+        src_list_tmp = '{:d}_{:s}.txt'.format(i,J2000_name)
+        specName = cfg_par['general']['specdir']+src_list_tmp
+        if os.path.exists(specName):
+            src_list.append(src_list_tmp)
+            flux_cont.append(row['f_max'])
+            specNames.append(specName)
+
+        i+=1
+
+    mean_resolution = res_spec(specNames)
+
+    stack_freqs=np.arange(-cfg_par['stacking']['velrange'],cfg_par['stacking']['velrange']+mean_resolution,mean_resolution)
+    len_stack_spec=len(stack_freqs)
+
+    stack_spec = np.zeros([len_stack_spec,3])
+    stack_spec[:,0] = stack_freqs
+
+    # Define temporary array of stacked spectrum and noise
+    cen_index= len_stack_spec/2
+    SummaSpect=np.zeros([len_stack_spec,2])
+    
+    noise_mean = []
+    count_missing=0
+    for i in range(0,len(src_list)):
+
+        if os.path.exists(specNames[i]):
+            spec_vec = ascii.read(specNames[i])
+
+            freq_spec = np.array(spec_vec[spec_vec.colnames[0]], dtype=float)/1e3
+            flux_spec = np.array(spec_vec[spec_vec.colnames[1]], dtype=float)
+            noise_spec = np.array(spec_vec[spec_vec.colnames[2]], dtype=float)
+ 
+            ctr=np.abs(freq_spec - cfg_par['stacking']['stack_vel']).argmin() 
+            ctr= int(np.array(ctr).item())
+            
+            left=int(ctr-cen_index)     
+            right=int(ctr+cen_index)
+            
+
+            #set final shifted array to stack
+            stack_vec=np.zeros([len_stack_spec,3])
+            stack_vec[:,1]=flux_spec[left:right]
+            stack_vec[:,2]=noise_spec[left:right]
+
+            #stack and weight spectrum for its noise
+            for j in range (0,len_stack_spec):
+                if (stack_vec[j,1] != 0.0 and stack_vec[j,2] != 0.0):  
+                    SummaSpect[j,0] += (stack_vec[j,1])/(np.power(stack_vec[j,2],2))
+                    SummaSpect[j,1] +=  1./(np.power(stack_vec[j,2],2))        
+                else:
+                    pass
+            #determine mean noise spectra
+            noise_mean.append(np.nanmean(stack_vec[:,2]))
+            print(np.nanmean(stack_vec[:,2]))
+
+        else: 
+            in_spec_tmp=string.split(specNames[i],'/')
+
+            print('### Spectrum of source '+in_spec_tmp[-1]+' not found. ###')
+            count_missing+=1
+            continue
+
+        #Weight final stacked spectrum                             
+        for i in range (0,len_stack_spec):              
+            if (SummaSpect[i,1] != 0.): 
+                stack_spec[i,1] = (SummaSpect[i,0])/SummaSpect[i,1]
+                stack_spec[i,2] = (SummaSpect[i,1]/(SummaSpect[i,1])**2 )**0.5
+            else:
+                stack_spec[i,1] = 0.0
+                stack_spec[i,2] = 0.0
+
+    numstack = len(noise_mean)-count_missing
+    pred_noise =  np.divide(np.nanmean(noise_mean),np.sqrt(numstack))
+    stack_noise_value = np.nanmean(stack_spec[:,2])
+
+
+    print('--> Stacked spectra = '+str(numstack))
+    print('--> Mean noise single spectra= '+str(np.nanmean(noise_mean)))
+    print('--> Expected noise STACKED spectrum  = '+str(pred_noise))
+    print('--> Noise STACKED spectrum  = '+str(stack_noise_value))
+
+    if cfg_par['spec_ex'].get('zunit','Hz') == 'm/s':
+        xcol = 'Velocity [m/s]'
+    elif cfg_par['spec_ex'].get('zunit','Hz') == 'km/s':
+        xcol = 'Velocity [km/s]'
+    elif cfg_par['spec_ex'].get('zunit','Hz') == 'MHz':
+        xcol = 'Frequency [MHz]'
+    else:
+        xcol = 'Frequency [Hz]'
+    out_spec = cfg_par['general']['stackdir']+'stacked_spectrum.txt'
+
+    t = Table([stack_spec[:,0], stack_spec[:,1], stack_spec[:,2]], 
+        names=(xcol,'Flux [Jy]','Noise [Jy]'),
+        meta={'name': 'Spectrum'})
+    ascii.write(t,out_spec,overwrite=True)
+    print('Stacked spectrum written')
+
+    return out_spec

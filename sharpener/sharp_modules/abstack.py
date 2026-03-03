@@ -1,4 +1,4 @@
-import ConfigParser
+import configparser
 import logging
 
 import astropy.io.fits as pyfits
@@ -44,7 +44,7 @@ class abstack:
         self.default = config # Save the loaded config file as defaults for later usage
 
         #outputs
-        self.abstack_srctab=self.basedir+self.abstack_srctab
+        self.abstack_srctab=self.workdir+self.abstack_srctab
 
         self.outstack_dir = self.basedir+'stacking/'
         if os.path.exists(self.outstack_dir) == False:

@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python
 
 from astropy.nddata.utils import Cutout2D
 import matplotlib.colors as mc

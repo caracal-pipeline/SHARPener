@@ -38,7 +38,7 @@ def ra2deg(ra_hms):
 	conv_units.rarad: ra in radians
 	'''
 
-	ra = string.split(ra_hms, ':')
+	ra = ra_hms.split(':')
 
 	hh = float(ra[0])*15
 	mm = (float(ra[1])/60)*15
@@ -73,7 +73,7 @@ def dec2deg(dec_dms):
 	conv_units.rarad: ra in radians
 	'''
 
-	dec = string.split(dec_dms, ':')
+	dec = dec_dms.split(':')
 
 	hh = abs(float(dec[0]))
 	mm = float(dec[1])/60
@@ -135,7 +135,7 @@ def fov_of_cube(cubename):
 
 	return foot
 
-def coord_to_pix(imagename,ra,dec,verbose=False):
+def coord_to_pix(imagename,ra,dec,catalogName,verbose=False):
 	'''
 	
 	Module called by abs_ex
@@ -187,21 +187,25 @@ def coord_to_pix(imagename,ra,dec,verbose=False):
 	pixels=np.zeros([len(ra),2])
 	count_out = 0
 	count_flag = 0 
-	for i in xrange(0,len(ra)):
-
-		ra_deg = ra2deg(ra[i])
-		dec_deg = dec2deg(dec[i])
+	for i in range(0,len(ra)):
+		if catalogName == 'sofia' or catalogName == 'SOFIA':
+			ra_deg = ra[i]
+			dec_deg = dec[i]
+		else:
+			ra_deg = ra2deg(ra[i])
+			dec_deg = dec2deg(dec[i])			
 		px,py=w.wcs_world2pix(ra_deg,dec_deg,0)
-		if (0 < round(px,0) < prihdr['NAXIS1'] and
-				0 < round(py,0) < prihdr['NAXIS2']): 
-			pixels[i, 0]= round(px,0)
-			pixels[i, 1]= round(py,0)
+		if (0 < np.round(px,0) < prihdr['NAXIS1'] and
+				0 < np.round(py,0) < prihdr['NAXIS2']): 
+			pixels[i, 0]= np.round(px,0)
+			pixels[i, 1]= np.round(py,0)
 		else :
+			print(px,py)
 			pixels[i, 0]= np.nan
 			pixels[i, 1]= np.nan
 			count_out +=1
 			if verbose == True:
-				print '# Source # '+str([i])+ ' lies outside the fov of the data cube #'
+				print('# Source # '+str([i])+ ' lies outside the fov of the data cube #')
 
 	print('# Total number of sources: \t'+str(len(ra)))
 	print('# Sources outside f.o.v.:\t'+str(count_out))

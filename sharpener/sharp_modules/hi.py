@@ -4,10 +4,12 @@ import os
 import math
 import numpy as np
 #import Cosmo as c
-from kk import *
+#from kk import *
+from sharpener.sharp_modules import kk
 from astropy import units
 from astropy.io import fits
 
+kk=kk.kk()
 
 class hi:
     '''Tools to analyze the HI spectral line
@@ -64,7 +66,7 @@ class hi:
 
         return freq, velocity
 
-    def optical_depth(self, scont, sabs):
+    def optical_depth(self, sabs, scont):
         '''
         Estimates the optical depth of an absorption line
 
@@ -77,13 +79,13 @@ class hi:
         '''
 
         tau = np.log(1.-(-sabs/scont))
-
+        # exp_tau=-sabs/scont
         if tau.size == 1:
             print('Optical depth = '+str(round(tau, 3)))
 
         return tau
 
-    def nhi_abs(tau, dv):
+    def nhi_abs(self,tau, dv):
         '''Estimates the column density of the absorption line
 
         Parameters:
@@ -94,7 +96,7 @@ class hi:
             hi.nhi_abs: column density of the absorption line in cm-2
         '''
 
-        nhiabs = kk.knhi*kk.T*tau*dv
+        nhiabs = self.knhi*self.T*tau*dv
 
         print('N(HI) = '+str(round(nhiabs, 3))+' cm-2')
 
