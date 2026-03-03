@@ -315,7 +315,7 @@ def abs_ex(cfg_par):
 
 
                     abs_mean_rms[i] = np.nanmean(madfm) 
-
+                    print(np.nanmean(madfm),pix_x,pix_y)
                 if np.nansum(flux) == 0.:
                     count_blanks +=1
                     if verb == True:
@@ -665,7 +665,8 @@ def stacking(cfg_par):
                 else:
                     pass
             #determine mean noise spectra
-            noise_mean.append(np.nanmean(noise_spec))
+            noise_mean.append(np.nanmean(stack_vec[:,2]))
+            print(np.nanmean(stack_vec[:,2]))
 
         else: 
             in_spec_tmp=string.split(specNames[i],'/')
