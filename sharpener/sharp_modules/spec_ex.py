@@ -313,7 +313,9 @@ def abs_ex(cfg_par):
 
 
 
-                    abs_mean_rms[i] = np.nanmean(madfm) 
+                abs_mean_rms[i] = np.nanmean(madfm) 
+                print(np.nanmean(madfm) )
+
                 if np.nansum(flux) == 0.:
                     count_blanks +=1
                     if verb == True:
