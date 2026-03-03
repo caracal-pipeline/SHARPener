@@ -291,7 +291,7 @@ def abs_ex(cfg_par):
                         else:
                             madfm[j] = 0.0
 
-
+                print(madfm)
                 abs_mean_rms[i] = np.nanmean(madfm) 
                 print(np.nanmean(madfm) )
 
