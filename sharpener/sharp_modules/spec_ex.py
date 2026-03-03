@@ -93,6 +93,8 @@ def abs_ex(cfg_par):
         if cfg_par['spec_ex']['noise'] !='madfm':
 
             noisename = cfg_par['general']['workdir']+cfg_par['spec_ex']['noise']
+            print('####################################')
+            print(noisename)
             noisefile = fits.open(noisename)  # read input
             sci_noise = noisefile[0].data 
             sci_noise = sci.squeeze()
@@ -208,6 +210,7 @@ def abs_ex(cfg_par):
                     0 < int(pixels[i,1]) < y): 
                 pix_x_or = int(np.round(pixels[i,0],0))
                 pix_y_or = int(np.round(pixels[i,1],0))
+                
                 for j in range(0, z):
                     chrom_aber = cfg_par[key].get('chrom_aberration', False)
                     #correct for chromatic aberration
@@ -243,6 +246,8 @@ def abs_ex(cfg_par):
                     #print('x={0:d}, y={1:d}, flux={2:.5f}'.format(pix_x, pix_y, flux[j]))
 
                     if cfg_par['spec_ex']['noise']== 'madfm':
+
+                        print("SDFSFDSALKJFGAHSJGHFDJKHSAKJH")
                         # determine the noise of the spectrum [Whiting 2012 et al.] in each channel
                         # MADMF: median absolute deviation from the median
                         # extract a region were to determine the noise: rectangular ring around the l.o.s.
@@ -285,8 +290,6 @@ def abs_ex(cfg_par):
                             madfm[j] = sci_noise[j, pix_y, pix_x]
                         else:
                             madfm[j] = 0.0
-
-
 
 
                 abs_mean_rms[i] = np.nanmean(madfm) 
