@@ -280,36 +280,35 @@ def abs_ex(cfg_par):
 
                     else :
 
-                        for j in range(0, z):
-                            chrom_aber = cfg_par[key].get('chrom_aberration', False)
-                            #correct for chromatic aberration
-                            if chrom_aber == True:
+                        chrom_aber = cfg_par[key].get('chrom_aberration', False)
+                        #correct for chromatic aberration
+                        if chrom_aber == True:
 
-                                if (cfg_par[key].get('zunit','Hz') == 'm/s'):
-                                    freq_real= freq* 1e2
-                                    freq_real = (kk.C*kk.HI) /  (freq_real + kk.C)
-                                    freq_real0 = (kk.C*kk.HI) /  (hdr['CRVAL3']*1e2 + kk.C)
-                                    freq_del = (freq_real0 - freq_real[-1] )/ len(freq_real)
-                                #depending if the cube is in velocity or frequency ?
-                                    scale = (freq_real0 - j*freq_del) / freq_real0
-                                elif (cfg_par[key].get('zunit','Hz') == 'Hz'):
-                                    freq_del = (hdr['CRVAL3'] - freq[-1] )/ len(freq)
-                                    scale = (hdr['CRVAL3'] - j*freq_del) / hdr['CRVAL3']
+                            if (cfg_par[key].get('zunit','Hz') == 'm/s'):
+                                freq_real= freq* 1e2
+                                freq_real = (kk.C*kk.HI) /  (freq_real + kk.C)
+                                freq_real0 = (kk.C*kk.HI) /  (hdr['CRVAL3']*1e2 + kk.C)
+                                freq_del = (freq_real0 - freq_real[-1] )/ len(freq_real)
+                            #depending if the cube is in velocity or frequency ?
+                                scale = (freq_real0 - j*freq_del) / freq_real0
+                            elif (cfg_par[key].get('zunit','Hz') == 'Hz'):
+                                freq_del = (hdr['CRVAL3'] - freq[-1] )/ len(freq)
+                                scale = (hdr['CRVAL3'] - j*freq_del) / hdr['CRVAL3']
 
-                                pix_x = (pix_x_or - hdr['CRPIX1']) * scale + hdr['CRPIX1']
-                                pix_y = (pix_y_or - hdr['CRPIX2']) * scale + hdr['CRPIX2']
-                                #print('before rounding: x={0:.3f}, y={1:.3f}'.format(pix_x, pix_y))
-                                pix_x = int(np.round(pix_x,0))
-                                pix_y = int(np.round(pix_y,0))
-                            else:
-                                pix_x = pix_x_or
-                                pix_y = pix_y_or
-                            
-                            if  (0 < pix_x < x and
-                                 0 < pix_y < y): 
-                                madfm[j] = sci_noise[j, pix_y, pix_x]
-                            else:
-                                madfm[j] = 0.0
+                            pix_x = (pix_x_or - hdr['CRPIX1']) * scale + hdr['CRPIX1']
+                            pix_y = (pix_y_or - hdr['CRPIX2']) * scale + hdr['CRPIX2']
+                            #print('before rounding: x={0:.3f}, y={1:.3f}'.format(pix_x, pix_y))
+                            pix_x = int(np.round(pix_x,0))
+                            pix_y = int(np.round(pix_y,0))
+                        else:
+                            pix_x = pix_x_or
+                            pix_y = pix_y_or
+                        
+                        if  (0 < pix_x < x and
+                             0 < pix_y < y): 
+                            madfm[j] = sci_noise[j, pix_y, pix_x]
+                        else:
+                            madfm[j] = 0.0
 
 
 
