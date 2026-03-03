@@ -97,7 +97,7 @@ def abs_ex(cfg_par):
             print(noisename)
             noisefile = fits.open(noisename)  # read input
             sci_noise = noisefile[0].data 
-            sci_noise = sci.squeeze()
+            sci_noise = sci_noise.squeeze()
 
         x = hdr['NAXIS1']
         y = hdr['NAXIS2']
